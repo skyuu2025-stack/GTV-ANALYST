@@ -2,11 +2,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
-// 增加安全检查防止在 process 未定义的浏览器环境下报错
-const safeApiKey = typeof process !== 'undefined' ? process.env.API_KEY || '' : '';
-const ai = new GoogleGenAI({ apiKey: safeApiKey });
-
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
+  // 严格按照文档要求在函数内获取并初始化，确保 key 始终最新
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   const prompt = `
     ROLE: Senior UK Immigration Counsel (Global Talent Specialist).
     TASK: Critical initial assessment of eligibility under the Global Talent Visa (GTV) route.
@@ -22,10 +21,13 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
     1. PROBABILITY SCORE (0-100).
     2. PROFESSIONAL VERDICT: Rigorous legal analysis of risks and gaps.
     3. CRITERIA MAPPING: Detailed breakdown of Mandatory and Optional criteria.
+    
+    IMPORTANT: Provide critical, realistic feedback. Do not be overly optimistic.
   `;
 
+  // 使用 gemini-3-flash-preview 提高响应速度，降低超时概率
   const response = await ai.models.generateContent({
-    model: "gemini-3-pro-preview",
+    model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
       systemInstruction: "You are a Senior Assessor for UK Home Office Endorsing Bodies. Output ONLY valid JSON matching the schema.",
@@ -66,5 +68,14 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
     }
   });
 
-  return JSON.parse(response.text || "{}") as AnalysisResult;
+  if (!response.text) {
+    throw new Error("No response received from AI engine.");
+  }
+
+  try {
+    return JSON.parse(response.text) as AnalysisResult;
+  } catch (e) {
+    console.error("JSON Parse Error:", response.text);
+    throw new Error("Failed to parse analysis report. Please try again.");
+  }
 };

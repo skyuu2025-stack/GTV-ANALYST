@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { AssessmentData } from '../types';
+import { AssessmentData } from '../types.ts';
 
 interface AssessmentFormProps {
   onSubmit: (data: AssessmentData, fileNames: string[]) => void;
@@ -9,6 +9,7 @@ interface AssessmentFormProps {
 
 const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<AssessmentData>({
     name: '',
     email: '',
@@ -33,7 +34,6 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
     const selectedFiles = e.target.files;
     if (selectedFiles && selectedFiles.length > 0) {
       setIsUploading(true);
-      
       const remainingSlots = 6 - fileList.length;
       const newFiles = Array.from(selectedFiles)
         .slice(0, remainingSlots)
@@ -57,17 +57,24 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.personalStatement) {
-      alert("Required: Name, Email and Personal Statement summary.");
+      alert("Please fill in all required fields (Name, Email, Impact Summary).");
       return;
     }
+    setIsSubmitting(true);
     onSubmit(formData, fileList);
   };
 
   return (
     <div className="max-w-[800px] mx-auto py-16 px-6 animate-scale-up">
       <div className="bg-white rounded-[32px] shadow-[0_4px_30px_rgba(0,0,0,0.04)] overflow-hidden border border-zinc-100 p-12">
+        {error && (
+          <div className="mb-10 p-6 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-4 text-red-600 animate-fade-in">
+            <i className="fas fa-exclamation-circle text-xl"></i>
+            <p className="text-sm font-bold tracking-tight">{error}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-12">
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
              <div className="space-y-3">
                 <label className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.15em]">Candidate Name</label>
@@ -77,7 +84,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                   placeholder="Full legal name"
                   value={formData.name} 
                   onChange={e => setFormData(p => ({...p, name: e.target.value}))} 
-                  className="w-full border-b border-zinc-100 py-3 outline-none focus:border-[#D4AF37] text-base font-medium placeholder:text-zinc-200 transition-colors"
+                  className="w-full border-b border-zinc-100 py-3 outline-none focus:border-[#D4AF37] text-base font-medium placeholder:text-zinc-200 transition-colors bg-transparent"
                 />
              </div>
              <div className="space-y-3">
@@ -88,7 +95,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                   placeholder="Results & Invoice email"
                   value={formData.email} 
                   onChange={e => setFormData(p => ({...p, email: e.target.value}))} 
-                  className="w-full border-b border-zinc-100 py-3 outline-none focus:border-[#D4AF37] text-base font-medium placeholder:text-zinc-200 transition-colors"
+                  className="w-full border-b border-zinc-100 py-3 outline-none focus:border-[#D4AF37] text-base font-medium placeholder:text-zinc-200 transition-colors bg-transparent"
                 />
              </div>
           </div>
@@ -124,7 +131,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 value={formData.jobTitle}
                 onChange={e => setFormData(prev => ({ ...prev, jobTitle: e.target.value }))}
                 placeholder="e.g. Creative Director"
-                className="w-full border-b border-zinc-100 py-4 text-lg font-medium text-zinc-900 placeholder:text-zinc-200 focus:border-[#D4AF37] outline-none transition-all"
+                className="w-full border-b border-zinc-100 py-4 text-lg font-medium text-zinc-900 placeholder:text-zinc-200 focus:border-[#D4AF37] outline-none transition-all bg-transparent"
               />
             </div>
             <div className="space-y-5">
@@ -133,7 +140,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 <select
                   value={formData.yearsOfExperience}
                   onChange={e => setFormData(prev => ({ ...prev, yearsOfExperience: e.target.value }))}
-                  className="w-full bg-white border-b border-zinc-100 py-4 text-lg font-medium text-zinc-800 outline-none appearance-none cursor-pointer"
+                  className="w-full bg-transparent border-b border-zinc-100 py-4 text-lg font-medium text-zinc-800 outline-none appearance-none cursor-pointer"
                 >
                   <option>0-3 years (Emerging)</option>
                   <option>3-10 years (Professional)</option>
@@ -174,8 +181,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
               </div>
               <div className="space-y-1">
                 <h4 className="text-[12px] font-black text-zinc-800 uppercase tracking-wider">Recommended Evidence:</h4>
-                <p className="text-[13px] text-zinc-500 font-medium">
-                  Lookbooks, Press clippings, Exhibition flyers, Awards. Max 6 files.
+                <p className="text-[13px] text-zinc-500 font-medium leading-relaxed">
+                  Upload PDF or Images of lookbooks, press, exhibition flyers, or international awards.
                 </p>
               </div>
             </div>
@@ -190,10 +197,9 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
             />
             
             <div className="flex flex-wrap gap-8 items-start">
-              {/* Main Upload Trigger */}
               <div 
                 onClick={handleUploadClick}
-                className={`w-64 h-80 rounded-[40px] flex flex-col items-center justify-center gap-4 cursor-pointer transition-all group relative bg-white ${fileList.length > 0 ? 'dashed-border-amber shadow-sm' : 'dashed-border hover:bg-zinc-50'}`}
+                className={`w-full md:w-64 h-80 rounded-[40px] flex flex-col items-center justify-center gap-4 cursor-pointer transition-all group relative bg-white ${fileList.length > 0 ? 'dashed-border-amber shadow-sm' : 'dashed-border hover:bg-zinc-50'}`}
               >
                 {!isUploading ? (
                   <>
@@ -215,7 +221,6 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 )}
               </div>
 
-              {/* Uploaded File List */}
               <div className="flex-1 min-w-[320px] space-y-4">
                 {fileList.map((name, i) => (
                   <div key={i} className="flex items-center justify-between p-5 bg-[#F9FAFB] border border-zinc-100 rounded-2xl group animate-fade-in hover:border-amber-200 transition-all">
@@ -239,8 +244,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 ))}
                 {fileList.length === 0 && (
                   <div className="h-full min-h-[200px] flex items-center justify-center border-2 border-dashed border-zinc-50 rounded-[32px] p-12 text-zinc-200">
-                    <div className="text-center">
-                      <i className="fas fa-cloud-upload-alt text-4xl mb-4 opacity-10"></i>
+                    <div className="text-center opacity-30">
+                      <i className="fas fa-cloud-upload-alt text-4xl mb-4"></i>
                       <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Evidence Items Found</p>
                     </div>
                   </div>
@@ -251,9 +256,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
 
           <button
             type="submit"
-            className="w-full py-7 bg-[#1A1A1A] text-white font-bold rounded-2xl hover:bg-black transition-all shadow-xl active:scale-[0.98] text-base uppercase tracking-widest mt-12"
+            disabled={isSubmitting}
+            className={`w-full py-7 font-bold rounded-2xl transition-all shadow-xl active:scale-[0.98] text-base uppercase tracking-widest mt-12 ${isSubmitting ? 'bg-zinc-400 cursor-not-allowed' : 'bg-[#1A1A1A] hover:bg-black text-white'}`}
           >
-            Run Expert AI Analysis
+            {isSubmitting ? 'Initializing AI Engine...' : 'Run Expert AI Analysis'}
           </button>
         </form>
       </div>

@@ -26,28 +26,37 @@ const App: React.FC = () => {
           setAssessmentData(JSON.parse(savedData));
           setAnalysisResult(JSON.parse(savedResult));
           setStep(AppStep.RESULTS_PREMIUM);
-          // 清理 URL 保持整洁
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       } catch (e) {
-        console.error("Failed to restore session after payment:", e);
+        console.error("Session restoration failed:", e);
       }
     }
   }, []);
 
   const handleFormSubmit = async (data: AssessmentData, fileNames: string[]) => {
+    setError(null);
     setAssessmentData(data);
+    
+    // 第一步：先切换到加载状态
     setStep(AppStep.ANALYZING);
+    
+    // 第二步：给 React 一个渲染 LoadingState 的机会
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
       setAnalysisResult(result);
+      
       // 存储结果以便支付后恢复
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
+      
       setStep(AppStep.RESULTS_FREE);
-    } catch (err) {
-      setError("Analysis engine busy. Please retry.");
-      setStep(AppStep.FORM);
+    } catch (err: any) {
+      console.error("AI Analysis Error:", err);
+      setError(err.message || "The AI engine is currently busy. Please try again in a moment.");
+      setStep(AppStep.FORM); // 失败后退回到表单，错误信息会显示在表单顶部
     }
   };
 
@@ -58,12 +67,29 @@ const App: React.FC = () => {
           <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black">G</div>
           <span className="text-xl font-light tracking-widest uppercase">GTV <span className="font-black">Analyst</span></span>
         </div>
-        <button onClick={() => setStep(AppStep.FORM)} className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-6 py-3 rounded-full hover:text-zinc-900">New Analysis</button>
+        <button 
+          onClick={() => {
+            setError(null);
+            setStep(AppStep.FORM);
+          }} 
+          className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-6 py-3 rounded-full hover:text-zinc-900 transition-colors"
+        >
+          New Analysis
+        </button>
       </header>
+
       <main className="flex-grow">
         {step === AppStep.LANDING && <Hero onStart={() => setStep(AppStep.FORM)} />}
-        {step === AppStep.FORM && <AssessmentForm onSubmit={handleFormSubmit} error={error} />}
+        
+        {step === AppStep.FORM && (
+          <AssessmentForm 
+            onSubmit={handleFormSubmit} 
+            error={error} 
+          />
+        )}
+        
         {step === AppStep.ANALYZING && <LoadingState />}
+        
         {(step === AppStep.RESULTS_FREE || step === AppStep.RESULTS_PREMIUM) && analysisResult && (
           <ResultsDashboard 
             result={analysisResult} 
@@ -72,6 +98,7 @@ const App: React.FC = () => {
             onUpgrade={() => setStep(AppStep.PAYMENT)}
           />
         )}
+        
         {step === AppStep.PAYMENT && (
           <div className="fixed inset-0 bg-white/95 backdrop-blur-xl flex items-center justify-center p-4 z-50 overflow-y-auto">
             <PaymentModal 
@@ -82,6 +109,7 @@ const App: React.FC = () => {
           </div>
         )}
       </main>
+
       <footer className="bg-white border-t border-zinc-100 py-12 text-center text-[10px] text-zinc-400 font-black tracking-widest uppercase">
         &copy; {new Date().getFullYear()} GTV AI ASSESSOR. SECURED BY ARTISTIC INTELLIGENCE.
       </footer>
