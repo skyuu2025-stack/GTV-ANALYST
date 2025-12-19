@@ -14,7 +14,7 @@ const App: React.FC = () => {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // 1. 处理支付回调后的数据恢复
+  // Recovery logic for after-payment redirect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
@@ -23,18 +23,15 @@ const App: React.FC = () => {
         const savedResult = localStorage.getItem('gtv_analysis_result');
         
         if (savedData && savedResult) {
-          const parsedData = JSON.parse(savedData);
-          const parsedResult = JSON.parse(savedResult);
-          
-          setAssessmentData(parsedData);
-          setAnalysisResult(parsedResult);
+          setAssessmentData(JSON.parse(savedData));
+          setAnalysisResult(JSON.parse(savedResult));
           setStep(AppStep.RESULTS_PREMIUM);
           
-          // 支付成功后清理 URL，防止重复触发
+          // Clear URL to prevent re-processing on refresh
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       } catch (e) {
-        console.error("Session recovery failed:", e);
+        console.warn("Failed to restore session data from local storage.");
       }
     }
   }, []);
@@ -44,52 +41,55 @@ const App: React.FC = () => {
     setAssessmentData(data);
     setStep(AppStep.ANALYZING);
     
-    // 给 UI 一个切换到 Loading 状态的微小间隙
-    await new Promise(r => setTimeout(r, 150));
-
     try {
+      // Small timeout to allow the loading spinner to render smoothly
+      await new Promise(r => setTimeout(r, 200));
+      
       const result = await analyzeVisaEligibility(data, fileNames);
       
-      // 必须先确保存储成功
+      // Save state to local storage for recovery after potential payment redirect
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
       
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
     } catch (err: any) {
-      console.error("Submission Error:", err);
-      setError(err.message || "Analysis interrupted. Please try again.");
+      console.error("Submission failed:", err);
+      setError(err.message || "An unexpected error occurred during analysis.");
       setStep(AppStep.FORM);
     }
   };
 
-  const handleGoBack = () => {
+  const resetToForm = () => {
     setError(null);
     setStep(AppStep.FORM);
   };
 
+  // Safe rendering logic to prevent white screen on empty states
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafafa]">
-      <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 h-20 flex items-center justify-between px-12">
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 h-20 flex items-center justify-between px-6 md:px-12">
         <div 
-          className="flex items-center space-x-4 cursor-pointer" 
+          className="flex items-center space-x-3 cursor-pointer" 
           onClick={() => setStep(AppStep.LANDING)}
         >
-          <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black shadow-sm">G</div>
-          <span className="text-xl font-light tracking-widest uppercase">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black text-sm md:text-base">G</div>
+          <span className="text-sm md:text-xl font-light tracking-widest uppercase">
             GTV <span className="font-black">Analyst</span>
           </span>
         </div>
         <button 
-          onClick={handleGoBack}
-          className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-6 py-3 rounded-full hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95"
+          onClick={resetToForm}
+          className="text-[9px] md:text-[10px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-4 md:px-6 py-2 md:py-3 rounded-full hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95"
         >
           New Analysis
         </button>
       </header>
 
-      <main className="flex-grow relative">
-        {step === AppStep.LANDING && <Hero onStart={() => setStep(AppStep.FORM)} />}
+      <main className="flex-grow">
+        {step === AppStep.LANDING && (
+          <Hero onStart={() => setStep(AppStep.FORM)} />
+        )}
         
         {step === AppStep.FORM && (
           <div className="animate-scale-up">
@@ -97,7 +97,9 @@ const App: React.FC = () => {
           </div>
         )}
         
-        {step === AppStep.ANALYZING && <LoadingState />}
+        {step === AppStep.ANALYZING && (
+          <LoadingState />
+        )}
         
         {(step === AppStep.RESULTS_FREE || step === AppStep.RESULTS_PREMIUM) && analysisResult && assessmentData && (
           <ResultsDashboard 
@@ -109,7 +111,7 @@ const App: React.FC = () => {
         )}
         
         {step === AppStep.PAYMENT && assessmentData && (
-          <div className="fixed inset-0 bg-white/95 backdrop-blur-2xl flex items-center justify-center p-4 z-50 overflow-y-auto overflow-x-hidden">
+          <div className="fixed inset-0 bg-white/95 backdrop-blur-xl flex items-center justify-center p-4 z-50">
             <PaymentModal 
               email={assessmentData.email} 
               onSuccess={() => setStep(AppStep.RESULTS_PREMIUM)}
@@ -121,9 +123,9 @@ const App: React.FC = () => {
 
       <footer className="bg-white border-t border-zinc-100 py-12 text-center">
         <p className="text-[10px] text-zinc-400 font-black tracking-widest uppercase mb-2">
-          &copy; {new Date().getFullYear()} GTV AI ASSESSOR. SECURED BY ARTISTIC INTELLIGENCE.
+          &copy; {new Date().getFullYear()} GTV AI ASSESSOR. ALL RIGHTS RESERVED.
         </p>
-        <p className="text-[9px] text-zinc-300 uppercase tracking-widest">Optimized for London, Paris, New York.</p>
+        <p className="text-[9px] text-zinc-300 uppercase tracking-widest">Optimized for UK Global Talent Criteria.</p>
       </footer>
     </div>
   );

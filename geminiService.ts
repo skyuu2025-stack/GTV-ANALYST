@@ -3,12 +3,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    throw new Error("API Key is missing. Please ensure the environment is configured correctly.");
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  // Use the system-provided API key directly. 
+  // If it's truly missing, the SDK will throw an informative error when the request is made.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
   
   const prompt = `
     ROLE: Senior UK Immigration Counsel (Global Talent Specialist).
@@ -27,7 +24,7 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
     2. PROFESSIONAL VERDICT: Rigorous legal analysis of risks, evidence strength, and potential gaps.
     3. CRITERIA MAPPING: Detailed breakdown of Mandatory and Optional criteria based on Home Office guidance.
 
-    IMPORTANT: Be realistic and critical. Do not be overly optimistic. Output only JSON.
+    IMPORTANT: Be realistic and critical. Do not be overly optimistic. Output only JSON matching the schema.
   `;
 
   try {
@@ -35,7 +32,7 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
       model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
-        systemInstruction: "You are an expert AI Immigration Consultant specialized in Global Talent Visas for Arts, Culture, and Tech. Your output must be strictly valid JSON.",
+        systemInstruction: "You are an expert AI Immigration Consultant specialized in Global Talent Visas for Arts, Culture, and Tech. Output ONLY strictly valid JSON.",
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -81,6 +78,6 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
     return JSON.parse(resultText) as AnalysisResult;
   } catch (err: any) {
     console.error("Gemini Analysis Error:", err);
-    throw new Error(err.message || "The AI Assessor encountered a processing error.");
+    throw new Error(err.message || "The AI Assessor encountered a processing error. Please check your connection and try again.");
   }
 };
