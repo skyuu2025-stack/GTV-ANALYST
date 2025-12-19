@@ -1,8 +1,10 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { AssessmentData, AnalysisResult } from "./types";
+import { AssessmentData, AnalysisResult } from "./types.ts";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 增加安全检查防止在 process 未定义的浏览器环境下报错
+const safeApiKey = typeof process !== 'undefined' ? process.env.API_KEY || '' : '';
+const ai = new GoogleGenAI({ apiKey: safeApiKey });
 
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
   const prompt = `

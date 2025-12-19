@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppStep, AssessmentData, AnalysisResult } from './types';
-import { analyzeVisaEligibility } from './geminiService';
-import Hero from './components/Hero';
-import AssessmentForm from './components/AssessmentForm';
-import LoadingState from './components/LoadingState';
-import PaymentModal from './components/PaymentModal';
-import ResultsDashboard from './components/ResultsDashboard';
+import { AppStep, AssessmentData, AnalysisResult } from './types.ts';
+import { analyzeVisaEligibility } from './geminiService.ts';
+import Hero from './components/Hero.tsx';
+import AssessmentForm from './components/AssessmentForm.tsx';
+import LoadingState from './components/LoadingState.tsx';
+import PaymentModal from './components/PaymentModal.tsx';
+import ResultsDashboard from './components/ResultsDashboard.tsx';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
@@ -18,15 +18,19 @@ const App: React.FC = () => {
     // 处理支付成功后的回跳
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
-      const savedData = localStorage.getItem('gtv_assessment_data');
-      const savedResult = localStorage.getItem('gtv_analysis_result');
-      
-      if (savedData && savedResult) {
-        setAssessmentData(JSON.parse(savedData));
-        setAnalysisResult(JSON.parse(savedResult));
-        setStep(AppStep.RESULTS_PREMIUM);
-        // 清理 URL 保持整洁
-        window.history.replaceState({}, document.title, window.location.pathname);
+      try {
+        const savedData = localStorage.getItem('gtv_assessment_data');
+        const savedResult = localStorage.getItem('gtv_analysis_result');
+        
+        if (savedData && savedResult) {
+          setAssessmentData(JSON.parse(savedData));
+          setAnalysisResult(JSON.parse(savedResult));
+          setStep(AppStep.RESULTS_PREMIUM);
+          // 清理 URL 保持整洁
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (e) {
+        console.error("Failed to restore session after payment:", e);
       }
     }
   }, []);
