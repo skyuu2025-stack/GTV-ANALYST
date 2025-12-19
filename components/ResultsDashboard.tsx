@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AnalysisResult, AssessmentData } from '../types';
+import { AnalysisResult, AssessmentData } from '../types.ts';
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts';
 
 interface ResultsDashboardProps {
@@ -11,7 +11,10 @@ interface ResultsDashboardProps {
 }
 
 const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPremium, onUpgrade }) => {
-  const chartData = [{ name: 'Prob', value: result.probabilityScore, fill: '#D97706' }];
+  // 确保数据存在
+  if (!result || !data) return null;
+
+  const chartData = [{ name: 'Prob', value: result.probabilityScore || 0, fill: '#D97706' }];
 
   return (
     <div className="max-w-5xl mx-auto py-20 px-6 animate-scale-up">
@@ -72,7 +75,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
                <section>
                 <h2 className="text-2xl font-black mb-10 text-zinc-900 uppercase tracking-tighter border-l-4 border-amber-500 pl-6">Criteria Breakdown</h2>
                 <div className="grid gap-6">
-                  {result.mandatoryCriteria.map((c, i) => (
+                  {result.mandatoryCriteria?.map((c, i) => (
                     <div key={i} className="p-10 bg-zinc-50 rounded-[32px] border border-zinc-100">
                       <div className="flex justify-between items-start mb-4">
                         <h4 className="font-black text-zinc-800 uppercase tracking-tight">{c.title}</h4>
@@ -86,7 +89,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
               <section className="bg-zinc-900 p-16 rounded-[48px] text-white">
                 <h2 className="text-2xl font-black mb-12 uppercase tracking-tighter italic text-amber-500">Modification Steps</h2>
                 <div className="space-y-8">
-                  {result.recommendations.map((rec, i) => (
+                  {result.recommendations?.map((rec, i) => (
                     <div key={i} className="flex gap-6 items-start pb-8 border-b border-zinc-800 last:border-0">
                       <span className="text-amber-500 font-serif italic text-4xl opacity-40">0{i+1}</span>
                       <p className="text-lg text-zinc-300 leading-relaxed italic">{rec}</p>

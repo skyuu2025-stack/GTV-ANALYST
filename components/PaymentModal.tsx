@@ -18,31 +18,27 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onCancel }) => {
   const handlePayment = () => {
     setIsProcessing(true);
     
-    // 尝试在新窗口打开以获得最佳兼容性
-    const newWindow = window.open(checkoutUrl, '_blank');
-    
-    // 如果弹窗被拦截，则在当前页面尝试重定向
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      try {
-        if (window.top) {
-          window.top.location.href = checkoutUrl;
-        } else {
-          window.location.replace(checkoutUrl);
-        }
-      } catch (e) {
+    // 尝试直接重定向
+    try {
+      if (window.top) {
+        window.top.location.href = checkoutUrl;
+      } else {
         window.location.href = checkoutUrl;
       }
+    } catch (e) {
+      // 如果跨域限制无法访问 window.top，则使用普通重定向
+      window.location.href = checkoutUrl;
     }
 
-    // 2.5秒后如果还没跳转，显示手动点击按钮
+    // 3秒后如果还没跳转完成（可能网络慢），显示手动辅助链接
     setTimeout(() => {
       setShowManualLink(true);
-    }, 2500);
+    }, 3000);
   };
 
   return (
     <div className="bg-white rounded-[2.5rem] shadow-[0_50px_150px_-30px_rgba(0,0,0,0.3)] max-w-lg w-full overflow-hidden animate-scale-up border border-zinc-100 mx-auto">
-      <div className={`bg-[#1a1a1a] text-white p-12 text-center transition-all ${isProcessing ? 'bg-zinc-800' : 'bg-[#1a1a1a]'}`}>
+      <div className="bg-[#1a1a1a] text-white p-12 text-center">
         <div className="w-14 h-14 bg-amber-600 rounded-full flex items-center justify-center text-xl mx-auto mb-6 shadow-xl">
           <i className="fas fa-shield-check"></i>
         </div>
@@ -58,12 +54,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onCancel }) => {
               <div className="absolute inset-0 border-[5px] border-amber-500 rounded-full border-t-transparent animate-spin"></div>
             </div>
             <div className="space-y-4">
-              <h3 className="text-2xl font-black text-zinc-900 uppercase tracking-tighter">Redirecting...</h3>
-              <p className="text-zinc-400 text-sm font-medium italic">Establishing secure connection to Stripe.</p>
+              <h3 className="text-2xl font-black text-zinc-900 uppercase tracking-tighter">Connecting to Stripe</h3>
+              <p className="text-zinc-400 text-sm font-medium italic">Please do not close this window.</p>
             </div>
             {showManualLink && (
               <div className="pt-8 border-t border-zinc-50 animate-fade-in">
-                <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-5 bg-amber-600 text-white font-bold rounded-2xl text-[11px] uppercase tracking-widest hover:bg-black transition-all">Click to Open Checkout</a>
+                <a href={checkoutUrl} className="inline-block w-full py-5 bg-amber-600 text-white font-bold rounded-2xl text-[11px] uppercase tracking-widest hover:bg-black transition-all">Manual Redirect</a>
               </div>
             )}
           </div>
@@ -89,11 +85,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onCancel }) => {
             </div>
             <button onClick={handlePayment} className="w-full py-6 bg-zinc-900 text-white font-black rounded-2xl shadow-xl hover:bg-black transition-all active:scale-[0.98] uppercase tracking-widest text-xs">Unlock Premium Analysis</button>
             <button onClick={onCancel} className="w-full mt-8 text-zinc-300 hover:text-zinc-900 text-[10px] font-black uppercase tracking-widest italic transition-all">Cancel & Return</button>
-            <div className="mt-12 flex items-center justify-center gap-6 opacity-20">
-              <i className="fab fa-cc-stripe text-2xl"></i>
-              <i className="fab fa-cc-visa text-2xl"></i>
-              <i className="fab fa-cc-mastercard text-2xl"></i>
-            </div>
           </>
         )}
       </div>
