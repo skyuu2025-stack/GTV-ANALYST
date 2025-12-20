@@ -15,37 +15,41 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
-  // 最高优先级：检测支付回调
+  // 1. 初始化检测：处理支付成功后的数据恢复
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === 'true') {
+    const isSuccess = params.get('success') === 'true';
+    
+    if (isSuccess) {
       setIsVerifyingPayment(true);
       
-      // 模拟 AI 深度处理，符合用户要求的 1-2 秒生成逻辑
+      // 给 2 秒的仪式感加载，同时确保 localStorage 已就绪
       const timer = setTimeout(() => {
-        const savedData = localStorage.getItem('gtv_assessment_data');
-        const savedResult = localStorage.getItem('gtv_analysis_result');
-        
-        if (savedData && savedResult) {
-          try {
-            setAssessmentData(JSON.parse(savedData));
-            setAnalysisResult(JSON.parse(savedResult));
+        try {
+          const rawData = localStorage.getItem('gtv_assessment_data');
+          const rawResult = localStorage.getItem('gtv_analysis_result');
+          
+          if (rawData && rawResult) {
+            setAssessmentData(JSON.parse(rawData));
+            setAnalysisResult(JSON.parse(rawResult));
             setStep(AppStep.RESULTS_PREMIUM);
             
-            // 清理 URL，防止重复刷新触发
-            const newUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
-          } catch (e) {
-            console.error("Session restoration failed:", e);
-            setError("Analysis data corrupted. Please start a new session.");
+            // 清理 URL 参数防止刷新重复加载
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+          } else {
+            console.warn("No saved data found for recovery.");
             setStep(AppStep.LANDING);
+            setError("Session data missing. Please try the analysis again.");
           }
-        } else {
-          setError("Session expired. Please re-run the assessment.");
+        } catch (err) {
+          console.error("Recovery error:", err);
+          setError("Failed to restore premium report.");
           setStep(AppStep.LANDING);
+        } finally {
+          setIsVerifyingPayment(false);
         }
-        setIsVerifyingPayment(false);
-      }, 2000);
+      }, 2200);
 
       return () => clearTimeout(timer);
     }
@@ -59,38 +63,43 @@ const App: React.FC = () => {
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
       
-      // 支付前必须持久化
+      // 【关键】重定向至 Stripe 前，必须完成持久化存储
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
       
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
     } catch (err: any) {
-      console.error("AI Analysis Failed:", err);
-      setError(err.message || "Expert AI is temporarily unavailable.");
+      console.error("Analysis failed:", err);
+      setError(err.message || "The AI system is busy. Please try again.");
       setStep(AppStep.FORM);
     }
   };
 
   const resetToForm = () => {
     setError(null);
-    localStorage.removeItem('gtv_assessment_data');
-    localStorage.removeItem('gtv_analysis_result');
+    localStorage.clear();
     setStep(AppStep.FORM);
   };
 
+  // 支付验证中（黑金风格全屏加载）
   if (isVerifyingPayment) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0A0A] text-white p-6 text-center animate-fade-in">
+      <div className="fixed inset-0 z-[100] bg-[#0A0A0A] flex flex-col items-center justify-center text-center p-6 animate-fade-in">
         <div className="relative w-32 h-32 mb-12">
           <div className="absolute inset-0 border-[3px] border-amber-500/10 rounded-full"></div>
-          <div className="absolute inset-0 border-[3px] border-amber-600 rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute inset-0 border-[3px] border-amber-500 rounded-full border-t-transparent animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <i className="fas fa-crown text-amber-500 text-3xl animate-pulse"></i>
           </div>
         </div>
-        <h2 className="text-4xl font-black uppercase tracking-tighter mb-4 italic text-amber-500">Unlocking Premium Roadmap</h2>
-        <p className="text-zinc-500 font-medium italic max-w-sm mx-auto leading-relaxed">Payment Verified. Finalizing your expert criteria mapping and evidence strategy...</p>
+        <div className="space-y-4">
+          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-amber-500 italic">Payment Verified</h2>
+          <div className="flex flex-col gap-2">
+             <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">Unlocking Expert Criteria Mapping</p>
+             <p className="text-zinc-400 text-sm italic font-medium max-w-xs mx-auto">Please wait while our AI finalizes your custom roadmap...</p>
+          </div>
+        </div>
       </div>
     );
   }
