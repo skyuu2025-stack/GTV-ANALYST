@@ -1,11 +1,9 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
-  // Use the system-provided API key directly. 
-  // If it's truly missing, the SDK will throw an informative error when the request is made.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+  // Fix: Use the process.env.API_KEY directly for initialization as per @google/genai guidelines.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
     ROLE: Senior UK Immigration Counsel (Global Talent Specialist).

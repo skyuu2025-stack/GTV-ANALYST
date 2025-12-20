@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { AssessmentData } from '../types.ts';
 
@@ -35,7 +34,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
     if (selectedFiles && selectedFiles.length > 0) {
       setIsUploading(true);
       const remainingSlots = 6 - fileList.length;
-      const newFiles = Array.from(selectedFiles)
+      // Fix: Cast Array.from(selectedFiles) to File[] to avoid 'unknown' type error when accessing 'name' property.
+      const newFiles = (Array.from(selectedFiles) as File[])
         .slice(0, remainingSlots)
         .map(f => f.name);
 
