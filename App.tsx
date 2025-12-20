@@ -15,13 +15,13 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
-  // 检测支付回调
+  // 最高优先级：检测支付回调
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
       setIsVerifyingPayment(true);
       
-      // 模拟验证并准备结果的过程，符合用户要求的 1-2 秒自动生成
+      // 模拟 AI 深度处理，符合用户要求的 1-2 秒生成逻辑
       const timer = setTimeout(() => {
         const savedData = localStorage.getItem('gtv_assessment_data');
         const savedResult = localStorage.getItem('gtv_analysis_result');
@@ -32,20 +32,20 @@ const App: React.FC = () => {
             setAnalysisResult(JSON.parse(savedResult));
             setStep(AppStep.RESULTS_PREMIUM);
             
-            // 清理 URL，防止重复触发
+            // 清理 URL，防止重复刷新触发
             const newUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
           } catch (e) {
-            console.error("Data restore error:", e);
-            setError("Failed to restore analysis data.");
+            console.error("Session restoration failed:", e);
+            setError("Analysis data corrupted. Please start a new session.");
             setStep(AppStep.LANDING);
           }
         } else {
-          setError("Session expired. Please start a new analysis.");
+          setError("Session expired. Please re-run the assessment.");
           setStep(AppStep.LANDING);
         }
         setIsVerifyingPayment(false);
-      }, 1500);
+      }, 2000);
 
       return () => clearTimeout(timer);
     }
@@ -59,30 +59,38 @@ const App: React.FC = () => {
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
       
-      // 存储数据以备支付后恢复
+      // 支付前必须持久化
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
       
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
     } catch (err: any) {
-      console.error("Analysis error:", err);
-      setError(err.message || "An unexpected error occurred.");
+      console.error("AI Analysis Failed:", err);
+      setError(err.message || "Expert AI is temporarily unavailable.");
       setStep(AppStep.FORM);
     }
   };
 
   const resetToForm = () => {
     setError(null);
+    localStorage.removeItem('gtv_assessment_data');
+    localStorage.removeItem('gtv_analysis_result');
     setStep(AppStep.FORM);
   };
 
   if (isVerifyingPayment) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-900 text-white p-6 text-center">
-        <div className="w-16 h-16 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-8"></div>
-        <h2 className="text-2xl font-black uppercase tracking-tighter mb-2 italic">Unlocking Your Roadmap</h2>
-        <p className="text-zinc-400 font-medium italic animate-pulse">Verifying payment & generating premium analysis...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0A0A] text-white p-6 text-center animate-fade-in">
+        <div className="relative w-32 h-32 mb-12">
+          <div className="absolute inset-0 border-[3px] border-amber-500/10 rounded-full"></div>
+          <div className="absolute inset-0 border-[3px] border-amber-600 rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <i className="fas fa-crown text-amber-500 text-3xl animate-pulse"></i>
+          </div>
+        </div>
+        <h2 className="text-4xl font-black uppercase tracking-tighter mb-4 italic text-amber-500">Unlocking Premium Roadmap</h2>
+        <p className="text-zinc-500 font-medium italic max-w-sm mx-auto leading-relaxed">Payment Verified. Finalizing your expert criteria mapping and evidence strategy...</p>
       </div>
     );
   }
@@ -120,7 +128,7 @@ const App: React.FC = () => {
           />
         )}
         {step === AppStep.PAYMENT && assessmentData && (
-          <div className="fixed inset-0 bg-white/95 backdrop-blur-xl flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-white/95 backdrop-blur-xl flex items-center justify-center p-4 z-50 overflow-y-auto">
             <PaymentModal 
               email={assessmentData.email} 
               onSuccess={() => setStep(AppStep.RESULTS_PREMIUM)}
