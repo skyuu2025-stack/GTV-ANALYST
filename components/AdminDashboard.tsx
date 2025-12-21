@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { fetchAllLeads, fetchAllAssessments, supabase } from '../supabaseService.ts';
+import { fetchAllLeads, fetchAllAssessments, supabase, getEnvStatus } from '../supabaseService.ts';
 
 interface Lead {
   id: number;
@@ -26,8 +26,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [assessments, setAssessments] = useState<AssessmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'leads' | 'assessments'>('leads');
+  
+  const envStatus = getEnvStatus();
+  const isConnected = !!supabase;
 
   useEffect(() => {
+    if (!isConnected) {
+      setLoading(false);
+      return;
+    }
+
     const loadData = async () => {
       try {
         const [lData, aData] = await Promise.all([
@@ -43,7 +51,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
     };
     loadData();
-  }, []);
+  }, [isConnected]);
 
   const copyEmails = () => {
     const list = activeTab === 'leads' ? leads : assessments;
@@ -51,8 +59,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     navigator.clipboard.writeText(text);
     alert("Email list copied to clipboard!");
   };
-
-  const isConnected = !!supabase;
 
   return (
     <div className="fixed inset-0 z-[100] bg-white overflow-y-auto safe-top safe-bottom p-6 animate-scale-up">
@@ -63,7 +69,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             <div className="flex items-center gap-2 mt-1">
                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                 {isConnected ? 'Supabase Database Connected' : 'Database Offline - Check Env Vars'}
+                 {isConnected ? 'Supabase Database Connected' : 'Database Offline'}
                </p>
             </div>
           </div>
@@ -75,11 +81,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         {!isConnected && (
           <div className="bg-amber-50 border border-amber-100 p-8 rounded-[2rem] space-y-4">
              <div className="flex items-center gap-3 text-amber-600">
-                <i className="fas fa-exclamation-triangle"></i>
-                <h4 className="font-black uppercase tracking-widest text-xs">Configuration Required</h4>
+                <i className="fas fa-microscope"></i>
+                <h4 className="font-black uppercase tracking-widest text-xs">Diagnostic Report</h4>
              </div>
-             <p className="text-amber-800/70 text-sm italic font-medium">
-               To enable cloud synchronization, please set <strong>SUPABASE_URL</strong> and <strong>SUPABASE_ANON_KEY</strong> in your hosting dashboard. Currently, data is only being saved to local session storage.
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-xl border border-amber-100">
+                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-1">URL Detected</p>
+                   <p className={`font-bold text-xs ${envStatus.hasUrl ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasUrl ? 'YES' : 'NO'}</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-amber-100">
+                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-1">Key Detected</p>
+                   <p className={`font-bold text-xs ${envStatus.hasKey ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasKey ? 'YES' : 'NO'}</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-amber-100">
+                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-1">Prefix</p>
+                   <p className="font-bold text-xs text-zinc-600">{envStatus.urlValue}</p>
+                </div>
+             </div>
+             <p className="text-amber-800/70 text-sm italic font-medium pt-2">
+               If variables show 'NO', please **re-deploy** your site on Netlify after saving the Environment Variables.
              </p>
           </div>
         )}
