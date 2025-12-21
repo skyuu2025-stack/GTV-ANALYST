@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppStep, AssessmentData, AnalysisResult } from './types.ts';
 import { analyzeVisaEligibility } from './geminiService.ts';
@@ -25,38 +24,45 @@ const App: React.FC = () => {
   const [logoClickCount, setLogoClickCount] = useState(0);
 
   useEffect(() => {
+    // 检查是否从支付页面返回
     const params = new URLSearchParams(window.location.search);
     const isSuccess = params.get('success') === 'true';
     const hasExistingPremium = sessionStorage.getItem('gtv_is_premium') === 'true';
 
     if (isSuccess || hasExistingPremium) {
       setIsVerifyingPayment(true);
+      
+      // 使用小延迟确保浏览器已经完成了 localStorage 的写入/同步
       const timer = setTimeout(() => {
         try {
           const rawData = localStorage.getItem('gtv_assessment_data');
           const rawResult = localStorage.getItem('gtv_analysis_result');
           
           if (rawData && rawResult) {
-            setAssessmentData(JSON.parse(rawData));
-            setAnalysisResult(JSON.parse(rawResult));
+            const parsedData = JSON.parse(rawData);
+            const parsedResult = JSON.parse(rawResult);
+            
+            setAssessmentData(parsedData);
+            setAnalysisResult(parsedResult);
             sessionStorage.setItem('gtv_is_premium', 'true');
             setStep(AppStep.RESULTS_PREMIUM);
             
+            // 清理 URL 保持整洁
             if (isSuccess) {
               const cleanUrl = window.location.origin + window.location.pathname;
               window.history.replaceState({}, document.title, cleanUrl);
             }
           } else {
-            setError("Session recovery failed.");
+            console.warn("Storage missing during recovery");
             setStep(AppStep.LANDING);
           }
         } catch (err) {
-          setError("Data processing error.");
+          console.error("Recovery crash:", err);
           setStep(AppStep.LANDING);
         } finally {
           setIsVerifyingPayment(false);
         }
-      }, 3000);
+      }, 800);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -78,14 +84,11 @@ const App: React.FC = () => {
     setStep(AppStep.ANALYZING);
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
-      
-      // 保存至本地存储
+      // 关键：在进入付费前先持久化数据到本地
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
       
-      // 🚀 核心更新：保存至 Supabase 数据库
       await saveAssessment(data, result);
-      
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
     } catch (err: any) {
@@ -112,7 +115,7 @@ const App: React.FC = () => {
           </div>
         </div>
         <div className="space-y-6">
-          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white italic">Payment Verified</h2>
+          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white italic">Session Recovery</h2>
           <p className="text-amber-500 font-bold uppercase tracking-[0.5em] text-[10px] animate-pulse">Unlocking High-Resolution Report</p>
         </div>
       </div>

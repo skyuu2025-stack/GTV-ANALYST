@@ -1,37 +1,33 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { AssessmentData, AnalysisResult } from './types.ts';
 
-/**
- * 注意：在前端环境中，process.env.XXX 通常在构建时被静态替换。
- * 请确保在 Netlify/Vercel 的 Environment Variables 中已添加：
- * SUPABASE_URL
- * SUPABASE_ANON_KEY
- */
+// 在 Vite 构建工具中，必须使用 import.meta.env 来访问 VITE_ 开头的环境变量
+// 确保你在 Netlify 设置的变量名是 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY
+// Fix: Access env via any cast to resolve "Property 'env' does not exist on type 'ImportMeta'" errors.
+const FINAL_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || "";
+const FINAL_KEY = ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) || "";
 
-// 直接尝试读取，以便构建工具进行静态分析替换
-const URL = process.env.SUPABASE_URL || "";
-const KEY = process.env.SUPABASE_ANON_KEY || "";
-
-// 只有当 URL 存在时才初始化，否则保持为 null
-export const supabase = (URL && URL !== "") 
-  ? createClient(URL, KEY) 
+// 初始化 Supabase 客户端
+export const supabase = (FINAL_URL && FINAL_URL.startsWith('http')) 
+  ? createClient(FINAL_URL, FINAL_KEY) 
   : null;
 
-// 用于管理面板调试
-export const getEnvStatus = () => ({
-  hasUrl: !!URL && URL.length > 10,
-  hasKey: !!KEY && KEY.length > 10,
-  urlValue: URL ? `${URL.substring(0, 12)}...` : "Empty"
-});
+/**
+ * 提供给管理面板的诊断信息
+ */
+export const getEnvStatus = () => {
+  return {
+    hasUrl: !!FINAL_URL && FINAL_URL.length > 10,
+    hasKey: !!FINAL_KEY && FINAL_KEY.length > 10,
+    urlValue: FINAL_URL ? `${FINAL_URL.substring(0, 15)}...` : "NONE",
+    debugInfo: "Vite Environment Engine: import.meta.env"
+  };
+};
 
 if (!supabase) {
-  console.warn("⚠️ Supabase Client 无法初始化。请检查环境变量配置。");
+  console.warn("⚠️ DATABASE OFFLINE: 请确保在 Netlify 后台设置了 VITE_ 开头的环境变量。");
 }
 
-/**
- * 保存潜在客户邮箱
- */
 export const saveLead = async (email: string) => {
   if (!supabase) return null;
   try {
@@ -46,9 +42,6 @@ export const saveLead = async (email: string) => {
   }
 };
 
-/**
- * 保存完整的评估报告
- */
 export const saveAssessment = async (data: AssessmentData, result: AnalysisResult) => {
   if (!supabase) return;
   try {
@@ -68,16 +61,10 @@ export const saveAssessment = async (data: AssessmentData, result: AnalysisResul
   }
 };
 
-/**
- * 获取所有潜在客户
- */
 export const fetchAllLeads = async () => {
   if (!supabase) return [];
   try {
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     return data || [];
   } catch (err) {
@@ -86,16 +73,10 @@ export const fetchAllLeads = async () => {
   }
 };
 
-/**
- * 获取所有评估记录
- */
 export const fetchAllAssessments = async () => {
   if (!supabase) return [];
   try {
-    const { data, error } = await supabase
-      .from('assessments')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('assessments').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     return data || [];
   } catch (err) {

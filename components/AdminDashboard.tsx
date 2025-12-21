@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { fetchAllLeads, fetchAllAssessments, supabase, getEnvStatus } from '../supabaseService.ts';
 
@@ -42,8 +41,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           fetchAllLeads(),
           fetchAllAssessments()
         ]);
-        setLeads(lData);
-        setAssessments(aData);
+        setLeads(lData || []);
+        setAssessments(aData || []);
       } catch (err) {
         console.error("Failed to load admin data:", err);
       } finally {
@@ -55,6 +54,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   const copyEmails = () => {
     const list = activeTab === 'leads' ? leads : assessments;
+    if (!list.length) return;
     const text = list.map(l => l.email).join('\n');
     navigator.clipboard.writeText(text);
     alert("Email list copied to clipboard!");
@@ -79,32 +79,39 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         </div>
 
         {!isConnected && (
-          <div className="bg-amber-50 border border-amber-100 p-8 rounded-[2rem] space-y-4">
+          <div className="bg-amber-50 border border-amber-100 p-8 rounded-[2rem] space-y-6">
              <div className="flex items-center gap-3 text-amber-600">
-                <i className="fas fa-microscope"></i>
-                <h4 className="font-black uppercase tracking-widest text-xs">Diagnostic Report</h4>
+                <i className="fas fa-triangle-exclamation text-xl"></i>
+                <h4 className="font-black uppercase tracking-widest text-xs">Environment Troubleshooting</h4>
              </div>
+             
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded-xl border border-amber-100">
-                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-1">URL Detected</p>
-                   <p className={`font-bold text-xs ${envStatus.hasUrl ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasUrl ? 'YES' : 'NO'}</p>
+                <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-2">VITE_SUPABASE_URL</p>
+                   <p className={`font-bold text-sm ${envStatus.hasUrl ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasUrl ? 'DETECTED' : 'MISSING'}</p>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-amber-100">
-                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-1">Key Detected</p>
-                   <p className={`font-bold text-xs ${envStatus.hasKey ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasKey ? 'YES' : 'NO'}</p>
+                <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-2">VITE_SUPABASE_ANON_KEY</p>
+                   <p className={`font-bold text-sm ${envStatus.hasKey ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasKey ? 'DETECTED' : 'MISSING'}</p>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-amber-100">
-                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-1">Prefix</p>
-                   <p className="font-bold text-xs text-zinc-600">{envStatus.urlValue}</p>
+                <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-2">Prefix Hint</p>
+                   <p className="font-bold text-xs text-zinc-600 truncate">{envStatus.urlValue}</p>
                 </div>
              </div>
-             <p className="text-amber-800/70 text-sm italic font-medium pt-2">
-               If variables show 'NO', please **re-deploy** your site on Netlify after saving the Environment Variables.
-             </p>
+
+             <div className="space-y-3 bg-white/50 p-6 rounded-2xl border border-amber-100/50">
+               <p className="text-zinc-800 text-xs font-bold uppercase tracking-tight">Resolution Checklist:</p>
+               <ol className="text-[11px] text-zinc-600 space-y-2 list-decimal ml-4 font-medium leading-relaxed">
+                 <li>Go to <b>Netlify Dashboard</b> &rarr; <b>Site Configuration</b> &rarr; <b>Environment Variables</b>.</li>
+                 <li>Add <b>VITE_SUPABASE_URL</b> (Value from Supabase Project Settings).</li>
+                 <li>Add <b>VITE_SUPABASE_ANON_KEY</b> (Value from Supabase API keys).</li>
+                 <li><b>IMPORTANT</b>: Go to <b>Deploys</b> tab &rarr; Click <b>Trigger deploy</b> &rarr; <b>Clear cache and deploy site</b>.</li>
+               </ol>
+             </div>
           </div>
         )}
 
-        {/* Tab Selector */}
         <div className="flex gap-4 p-2 bg-zinc-50 rounded-3xl w-fit">
           <button 
             onClick={() => setActiveTab('leads')}

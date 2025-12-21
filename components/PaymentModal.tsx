@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 interface PaymentModalProps {
@@ -10,21 +9,17 @@ interface PaymentModalProps {
 const PaymentModal: React.FC<PaymentModalProps> = ({ email, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Stripe 支付链接 - 确保该链接在 Stripe Dashboard 配置了 success_url 重定向至本站并带上 ?success=true
+  // Stripe 支付链接
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
-  const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
-
+  
   const handlePayment = () => {
     setIsProcessing(true);
     
-    // 重定向前最后的安全保障：确保数据在本地
-    // 如果之前 handleFormSubmit 已存，此处双重保险
-    console.log("Preparing for payment redirection...");
+    // 构建最终支付 URL，附带用户 Email 预填
+    const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
     
-    // 强制等待一小段时间确保存储完成
-    setTimeout(() => {
-      window.location.href = checkoutUrl;
-    }, 100);
+    // 使用最简单直接的 href 跳转，这在几乎所有移动端 App 内置浏览器（微信、FB等）中都最稳定
+    window.location.href = checkoutUrl;
   };
 
   return (
@@ -46,7 +41,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onCancel }) => {
             </div>
             <div className="space-y-4">
               <h3 className="text-xl md:text-2xl font-black text-zinc-900 uppercase tracking-tighter">Redirecting...</h3>
-              <p className="text-zinc-400 text-xs font-medium italic">Complete the payment on Stripe's secure page. You will return here automatically.</p>
+              <p className="text-zinc-400 text-xs font-medium italic">Connecting to Stripe Secure Checkout. Please do not close this window.</p>
             </div>
           </div>
         ) : (

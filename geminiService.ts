@@ -26,8 +26,9 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   `;
 
   try {
+    // Fix: Using 'gemini-3-pro-preview' for advanced reasoning required for visa eligibility assessment.
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         systemInstruction: "You are an expert AI Immigration Consultant specialized in Global Talent Visas for Arts, Culture, and Tech. Output ONLY strictly valid JSON.",
@@ -70,6 +71,7 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
       }
     });
 
+    // Fix: Access .text property directly from GenerateContentResponse.
     const resultText = response.text;
     if (!resultText) throw new Error("Empty response from AI engine.");
     
