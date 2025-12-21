@@ -9,6 +9,8 @@ import PaymentModal from './components/PaymentModal.tsx';
 import ResultsDashboard from './components/ResultsDashboard.tsx';
 import PrivacyPolicy from './components/PrivacyPolicy.tsx';
 import FAQ from './components/FAQ.tsx';
+import SocialProof from './components/SocialProof.tsx';
+import LeadCapture from './components/LeadCapture.tsx';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
@@ -120,7 +122,9 @@ const App: React.FC = () => {
         {step === AppStep.LANDING && (
           <>
             <Hero onStart={() => setStep(AppStep.FORM)} />
+            <SocialProof />
             <FAQ />
+            <LeadCapture />
           </>
         )}
         {step === AppStep.FORM && <AssessmentForm onSubmit={handleFormSubmit} error={error} />}

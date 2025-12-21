@@ -20,11 +20,9 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
       let currentProgress = 0;
       const interval = setInterval(() => {
         currentProgress += Math.random() * 15;
-        
         if (currentProgress < 33) setDeliveryStep(1); 
         else if (currentProgress < 66) setDeliveryStep(2); 
         else if (currentProgress < 95) setDeliveryStep(3); 
-        
         if (currentProgress >= 100) {
           currentProgress = 100;
           setIsDone(true);
@@ -33,22 +31,23 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
         }
         setProgress(currentProgress);
       }, 300);
-
       return () => clearInterval(interval);
     }
   }, [isPremium]);
 
+  const handleShare = () => {
+    const text = `I just got a ${result.probabilityScore}% success probability for my UK Global Talent Visa via GTV Assessor! Check yours: https://gtvassessor.com`;
+    if (navigator.share) {
+      navigator.share({ title: 'GTV Eligibility Score', text: text, url: 'https://gtvassessor.com' });
+    } else {
+      navigator.clipboard.writeText(text);
+      alert("Share text copied to clipboard!");
+    }
+  };
+
   if (!result || !data) return null;
-
   const chartData = [{ name: 'Prob', value: result.probabilityScore || 0, fill: '#D97706' }];
-
-  const steps = [
-    "Initializing Secure Protocol...",
-    "Confirming Payment Token...",
-    "Generating High-Fidelity Roadmap...",
-    `Emailing Official Report to ${data.email}...`,
-    "Report Delivered Successfully"
-  ];
+  const steps = ["Initializing...", "Confirming Payment...", "Generating Roadmap...", `Emailing to ${data.email}...`, "Delivered Successfully"];
 
   return (
     <div className="max-w-5xl mx-auto py-6 md:py-16 px-3 md:px-6 animate-scale-up">
@@ -56,12 +55,6 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
         @media print {
           .print\\:hidden { display: none !important; }
           body { background: white !important; color: #111 !important; margin: 0; padding: 0; }
-          .bg-white { background: white !important; }
-          .bg-zinc-900 { background: #000 !important; color: white !important; -webkit-print-color-adjust: exact; }
-          .bg-zinc-50 { background: #fdfdfd !important; }
-          .rounded-[2.5rem], .rounded-[4rem], .rounded-[3rem] { border-radius: 12px !important; }
-          .border { border: 1px solid #eee !important; }
-          .shadow-xl, .shadow-sm, .shadow-2xl, .shadow-inner { box-shadow: none !important; }
           @page { size: A4; margin: 2.5cm; }
           .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #D4AF37; margin-bottom: 40px; padding-bottom: 15px; }
           .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 9px; color: #777; border-top: 1px solid #eee; padding-top: 15px; background: white; }
@@ -70,7 +63,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
         .print-header, .print-footer { display: none; }
       `}</style>
 
-      {/* PDF 打印页眉 */}
+      {/* PDF Header */}
       <div className="print-header">
         <div>
           <h2 className="text-2xl font-black tracking-tighter uppercase text-zinc-900">GTV Eligibility Assessment Report</h2>
@@ -78,15 +71,21 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
         </div>
         <div className="text-right">
           <p className="text-[11px] font-bold uppercase text-zinc-600">ISSUE DATE: {new Date().toLocaleDateString()}</p>
-          <p className="text-[10px] text-zinc-400 italic font-medium">STRICTLY CONFIDENTIAL</p>
         </div>
       </div>
 
-      {/* 高级交付进度条 */}
+      <div className="flex flex-wrap gap-4 mb-8 print:hidden">
+        <button onClick={handleShare} className="px-6 py-3 bg-white border border-zinc-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-50 transition-all shadow-sm">
+          <i className="fas fa-share-nodes text-amber-500"></i> Share Score
+        </button>
+        <button className="px-6 py-3 bg-white border border-zinc-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-50 transition-all shadow-sm">
+          <i className="fab fa-whatsapp text-green-500"></i> Join GTV Community
+        </button>
+      </div>
+
       {isPremium && (
         <div className={`mb-12 bg-white border border-zinc-100 p-6 md:p-10 rounded-[3rem] shadow-xl animate-fade-in print:hidden relative overflow-hidden transition-all duration-500 ${isDone ? 'ring-2 ring-green-500/20' : ''}`}>
           <div className="absolute top-0 left-0 h-1 bg-green-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
-          
           <div className="flex flex-col md:flex-row items-center justify-between gap-10">
             <div className="flex items-center gap-6 flex-1 w-full">
               <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-xl shadow-inner transition-all duration-700 ${isDone ? 'bg-green-600 text-white shadow-green-200' : 'bg-zinc-50 text-amber-500 animate-pulse'}`}>
@@ -99,12 +98,6 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
                 </div>
                 <div className="h-1 w-full bg-zinc-50 rounded-full overflow-hidden">
                   <div className="h-full bg-zinc-900 transition-all duration-300" style={{ width: `${progress}%` }}></div>
-                </div>
-                <div className="flex items-center gap-3">
-                   <span className="px-2 py-0.5 bg-green-50 text-green-700 text-[8px] font-black uppercase rounded border border-green-100">Encrypted</span>
-                   <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">Mailserver: Online</span>
-                   <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">•</span>
-                   <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest italic">{isDone ? 'Verified' : 'Active'}</span>
                 </div>
               </div>
             </div>
@@ -159,7 +152,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
               <div className="w-24 h-24 bg-amber-600/10 border border-amber-600/20 rounded-full flex items-center justify-center text-amber-600 text-4xl mx-auto shadow-inner animate-pulse"><i className="fas fa-lock"></i></div>
               <div className="space-y-6">
                 <h3 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter">Premium Audit Locked</h3>
-                <p className="text-zinc-400 text-base md:text-xl max-w-2xl mx-auto font-light italic leading-relaxed">We have identified specific evidence gaps. Unlock your full criteria mapping and 5-step tactical roadmap to maximize your chances.</p>
+                <p className="text-zinc-400 text-base md:text-xl max-w-2xl mx-auto font-light italic leading-relaxed">Specific evidence gaps identified. Unlock full mapping and tactical roadmap.</p>
               </div>
               <button onClick={onUpgrade} className="px-14 py-7 bg-amber-600 text-white font-black rounded-3xl uppercase tracking-widest text-base hover:bg-amber-500 transition-all shadow-[0_25px_60px_rgba(217,119,6,0.35)] active:scale-95">Upgrade Report for $19</button>
             </div>
@@ -205,14 +198,9 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
                 </div>
               </section>
 
-              {/* PDF 打印页脚 */}
               <div className="print-footer">
-                <div className="flex justify-between items-center mb-4 opacity-50">
-                   <p>Verification Code: {Date.now().toString(36).toUpperCase()}</p>
-                   <p>Authorized Professional Copy</p>
-                </div>
                 <p className="font-bold">GTV Analyst AI Engine Assessment Report • UK Home Office Framework V2.5</p>
-                <p className="mt-2 text-[8px]">Disclaimer: This report is for professional assessment purposes only. Final endorsement decisions rest with the designated body. © {new Date().getFullYear()} GTV Assessor.</p>
+                <p className="mt-2 text-[8px]">© {new Date().getFullYear()} GTV Assessor.</p>
               </div>
             </div>
           )}
