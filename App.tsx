@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { AppStep, AssessmentData, AnalysisResult } from './types.ts';
 import { analyzeVisaEligibility } from './geminiService.ts';
+import { saveAssessment } from './supabaseService.ts';
 import Hero from './components/Hero.tsx';
 import AssessmentForm from './components/AssessmentForm.tsx';
 import LoadingState from './components/LoadingState.tsx';
@@ -11,6 +12,7 @@ import PrivacyPolicy from './components/PrivacyPolicy.tsx';
 import FAQ from './components/FAQ.tsx';
 import SocialProof from './components/SocialProof.tsx';
 import LeadCapture from './components/LeadCapture.tsx';
+import AdminDashboard from './components/AdminDashboard.tsx';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
@@ -19,6 +21,8 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [logoClickCount, setLogoClickCount] = useState(0);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -57,14 +61,31 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const handleLogoClick = () => {
+    const newCount = logoClickCount + 1;
+    if (newCount >= 5) {
+      setShowAdmin(true);
+      setLogoClickCount(0);
+    } else {
+      setLogoClickCount(newCount);
+      setTimeout(() => setLogoClickCount(0), 3000);
+    }
+  };
+
   const handleFormSubmit = async (data: AssessmentData, fileNames: string[]) => {
     setError(null);
     setAssessmentData(data);
     setStep(AppStep.ANALYZING);
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
+      
+      // 保存至本地存储
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
+      
+      // 🚀 核心更新：保存至 Supabase 数据库
+      await saveAssessment(data, result);
+      
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
     } catch (err: any) {
@@ -102,11 +123,11 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-[#FDFDFD]">
       <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 pt-[var(--sat)] h-[calc(80px+var(--sat))] flex items-center justify-between px-6 md:px-12 print:hidden">
         <div 
-          className="flex items-center space-x-3 cursor-pointer" 
-          onClick={() => setStep(AppStep.LANDING)}
+          className="flex items-center space-x-3 cursor-pointer group" 
+          onClick={handleLogoClick}
         >
-          <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black text-base shadow-xl">G</div>
-          <span className="text-sm md:text-xl font-light tracking-widest uppercase">
+          <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black text-base shadow-xl group-active:scale-95 transition-transform">G</div>
+          <span className="text-sm md:text-xl font-light tracking-widest uppercase text-zinc-900">
             GTV <span className="font-black">Analyst</span>
           </span>
         </div>
@@ -168,6 +189,7 @@ const App: React.FC = () => {
       </footer>
 
       {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
+      {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} />}
     </div>
   );
 };
