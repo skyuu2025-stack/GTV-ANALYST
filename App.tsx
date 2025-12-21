@@ -8,6 +8,7 @@ import LoadingState from './components/LoadingState.tsx';
 import PaymentModal from './components/PaymentModal.tsx';
 import ResultsDashboard from './components/ResultsDashboard.tsx';
 import PrivacyPolicy from './components/PrivacyPolicy.tsx';
+import FAQ from './components/FAQ.tsx';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
@@ -116,7 +117,12 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow pb-[var(--sab)]">
-        {step === AppStep.LANDING && <Hero onStart={() => setStep(AppStep.FORM)} />}
+        {step === AppStep.LANDING && (
+          <>
+            <Hero onStart={() => setStep(AppStep.FORM)} />
+            <FAQ />
+          </>
+        )}
         {step === AppStep.FORM && <AssessmentForm onSubmit={handleFormSubmit} error={error} />}
         {step === AppStep.ANALYZING && <LoadingState />}
         {(step === AppStep.RESULTS_FREE || step === AppStep.RESULTS_PREMIUM) && analysisResult && assessmentData && (
@@ -146,12 +152,14 @@ const App: React.FC = () => {
           <p className="text-[9px] text-zinc-400 font-black tracking-widest uppercase">
             &copy; {new Date().getFullYear()} GTV AI ASSESSOR. ENCRYPTED & SECURE.
           </p>
-          <button 
-            onClick={() => setShowPrivacy(true)}
-            className="text-[10px] text-zinc-300 font-bold uppercase tracking-widest hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-100"
-          >
-            Privacy Policy & Terms
-          </button>
+          <div className="flex justify-center gap-6">
+            <button 
+              onClick={() => setShowPrivacy(true)}
+              className="text-[10px] text-zinc-300 font-bold uppercase tracking-widest hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-100"
+            >
+              Privacy Policy & Terms
+            </button>
+          </div>
         </div>
       </footer>
 
