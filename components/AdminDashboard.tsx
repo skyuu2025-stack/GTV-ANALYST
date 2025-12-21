@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { fetchAllLeads, fetchAllAssessments } from '../supabaseService.ts';
+import { fetchAllLeads, fetchAllAssessments, supabase } from '../supabaseService.ts';
 
 interface Lead {
   id: number;
@@ -52,6 +52,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     alert("Email list copied to clipboard!");
   };
 
+  const isConnected = !!supabase;
+
   return (
     <div className="fixed inset-0 z-[100] bg-white overflow-y-auto safe-top safe-bottom p-6 animate-scale-up">
       <div className="max-w-5xl mx-auto space-y-8 pb-20">
@@ -59,14 +61,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <div>
             <h2 className="text-3xl font-black uppercase tracking-tighter italic">Cloud Command</h2>
             <div className="flex items-center gap-2 mt-1">
-               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-               <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Supabase Database Connected</p>
+               <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+               <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                 {isConnected ? 'Supabase Database Connected' : 'Database Offline - Check Env Vars'}
+               </p>
             </div>
           </div>
           <button onClick={onClose} className="w-14 h-14 bg-zinc-50 rounded-full flex items-center justify-center hover:bg-zinc-100 transition-colors">
             <i className="fas fa-times"></i>
           </button>
         </div>
+
+        {!isConnected && (
+          <div className="bg-amber-50 border border-amber-100 p-8 rounded-[2rem] space-y-4">
+             <div className="flex items-center gap-3 text-amber-600">
+                <i className="fas fa-exclamation-triangle"></i>
+                <h4 className="font-black uppercase tracking-widest text-xs">Configuration Required</h4>
+             </div>
+             <p className="text-amber-800/70 text-sm italic font-medium">
+               To enable cloud synchronization, please set <strong>SUPABASE_URL</strong> and <strong>SUPABASE_ANON_KEY</strong> in your hosting dashboard. Currently, data is only being saved to local session storage.
+             </p>
+          </div>
+        )}
 
         {/* Tab Selector */}
         <div className="flex gap-4 p-2 bg-zinc-50 rounded-3xl w-fit">
@@ -94,7 +110,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               <h3 className="font-black text-xl uppercase tracking-tighter italic">
                 {activeTab === 'leads' ? 'Subscriber Base' : 'Evaluation History'}
               </h3>
-              <button onClick={copyEmails} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+              <button 
+                onClick={copyEmails} 
+                disabled={leads.length === 0 && assessments.length === 0}
+                className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-20"
+              >
                 Export Emails
               </button>
             </div>
