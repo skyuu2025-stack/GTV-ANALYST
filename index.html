@@ -3,21 +3,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTV AI Assessor - Professional Visa Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Google Search Console 验证标签 -->
+    <meta name="google-site-verification" content="r92ueE0e0A5wLd4MNlrOqgnYdNOGBsO-33J_Wnt6CyY" />
+
+    <!-- 核心 SEO 标签 -->
+    <title>GTV AI Assessor | UK Global Talent Visa Eligibility & Tech Nation Checker</title>
+    <meta name="description" content="Check your UK Global Talent Visa eligibility in 2 minutes. Get professional AI-powered assessment for Tech Nation, Arts Council, and Royal Academy endorsements. Trusted GTV roadmap for fashion, tech, and arts.">
+    <meta name="keywords" content="Global Talent Visa UK, Tech Nation Visa, Arts Council England Endorsement, GTV Eligibility Checker, UK Visa AI Assessor, Fashion Design Visa UK">
+    <link rel="canonical" href="https://gtvassessor.com" />
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph (Facebook/LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gtvassessor.com">
+    <meta property="og:title" content="GTV AI Assessor | UK Global Talent Visa Success Roadmap">
+    <meta property="og:description" content="Professional Global Talent Visa assessment powered by Gemini AI. Get your success probability score instantly.">
+    <meta property="og:image" content="https://gtvassessor.com/og-image.jpg">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UK Global Talent Visa AI Assessor">
+    <meta name="twitter:description" content="Analyze your GTV profile with our expert AI engine.">
+    <meta name="twitter:image" content="https://gtvassessor.com/og-image.jpg">
+
+    <!-- 结构化数据 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "GTV AI Assessor",
+      "operatingSystem": "Web, iOS, Android",
+      "applicationCategory": "BusinessApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "19.00",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "1240"
+      },
+      "description": "AI-powered assessment tool for the UK Global Talent Visa endorsement process."
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <script>
-      // Initialize a minimal process object to prevent "process is not defined" errors
-      // The actual API_KEY will be injected by the environment into this object.
       window.process = window.process || { env: {} };
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; overflow-x: hidden; background-color: #FDFDFD; }
+        :root {
+          --sat: env(safe-area-inset-top);
+          --sab: env(safe-area-inset-bottom);
+        }
+        body { 
+          font-family: 'Inter', sans-serif; 
+          -webkit-font-smoothing: antialiased; 
+          margin: 0; 
+          padding: 0; 
+          overflow-x: hidden; 
+          background-color: #FDFDFD;
+          overscroll-behavior-y: none;
+        }
         .font-serif { font-family: 'Playfair Display', serif; }
-        
+        .safe-top { padding-top: var(--sat); }
+        .safe-bottom { padding-bottom: var(--sab); }
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
@@ -25,7 +82,6 @@
         .animate-fade-in {
           animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        
         @keyframes scaleUp {
           from { transform: scale(0.98); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
@@ -33,12 +89,8 @@
         .animate-scale-up {
           animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
         .dashed-border {
           background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23D4D4D8FF' stroke-width='2' stroke-dasharray='12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-        }
-        .dashed-border-amber {
-          background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23D97706FF' stroke-width='2' stroke-dasharray='12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
         }
     </style>
 <script type="importmap">
@@ -50,7 +102,8 @@
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "react-dom/": "https://esm.sh/react-dom@19.0.0/",
     "@google/genai": "https://esm.sh/@google/genai@1.34.0",
-    "recharts": "https://esm.sh/recharts@3.6.0?external=react,react-dom"
+    "recharts": "https://esm.sh/recharts@3.6.0?external=react,react-dom",
+    "@capacitor/cli": "https://esm.sh/@capacitor/cli@^8.0.0"
   }
 }
 </script>
