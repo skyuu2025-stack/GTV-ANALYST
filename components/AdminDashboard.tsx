@@ -31,7 +31,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showGuides, setShowGuides] = useState<'none' | '16pm' | '14p'>('none');
   
-  const envStatus = getEnvStatus();
+  const BUNDLE_ID = "com.gtvassessor.ai";
   const isConnected = !!supabase;
 
   const loadData = async () => {
@@ -43,11 +43,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
         fetchAllLeads(),
         fetchAllAssessments()
       ]);
-      
-      if (lRes.error || aRes.error) {
-        setErrorMsg(lRes.error || aRes.error);
-      }
-      
       setLeads(lRes.data);
       setAssessments(aRes.data);
     } catch (err: any) {
@@ -61,12 +56,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
     loadData();
   }, [isConnected]);
 
-  const copyEmails = () => {
-    const list = activeTab === 'leads' ? leads : assessments;
-    if (!list.length) return;
-    const text = list.map(l => l.email).join('\n');
+  const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    alert("Email list copied!");
+    alert(`${label} copied!`);
   };
 
   const toggleGuide = (type: '16pm' | '14p') => {
@@ -91,20 +83,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
     localStorage.setItem('gtv_autofill', JSON.stringify(demoData));
     onToggleDemoMode(true);
     onClose();
-    window.location.reload(); // Refresh to trigger autofill logic
+    window.location.reload();
   };
 
   return (
     <>
       {showGuides !== 'none' && (
-        <div 
-          className="fixed inset-0 z-[9999] pointer-events-none border-[20px] border-[#D4AF37]/30 flex items-center justify-center animate-fade-in"
-          onClick={() => setShowGuides('none')}
-        >
+        <div className="fixed inset-0 z-[9999] pointer-events-none border-[20px] border-[#D4AF37]/30 flex items-center justify-center animate-fade-in" onClick={() => setShowGuides('none')}>
           <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-white px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-2xl pointer-events-auto cursor-pointer">
-            Guide: {showGuides === '16pm' ? 'iPhone 16 Pro Max' : 'iPhone 14 Plus'} | Click to Exit
+            Guide Active | Click to Exit
           </div>
-          <div className="w-full h-full border-x-[50px] border-black/5 opacity-50"></div>
         </div>
       )}
 
@@ -120,74 +108,52 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
                  </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-               <button onClick={onClose} className="w-12 h-12 bg-zinc-900 text-white rounded-full flex items-center justify-center hover:bg-black transition-colors shadow-lg">
-                  <i className="fas fa-times"></i>
-               </button>
-            </div>
+            <button onClick={onClose} className="w-12 h-12 bg-zinc-900 text-white rounded-full flex items-center justify-center hover:bg-black transition-colors shadow-lg">
+               <i className="fas fa-times"></i>
+            </button>
           </div>
 
           <div className="flex flex-wrap gap-4 p-2 bg-zinc-50 rounded-3xl w-fit">
-            <button 
-              onClick={() => setActiveTab('leads')}
-              className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'leads' ? 'bg-zinc-900 text-white shadow-xl' : 'text-zinc-400'}`}
-            >
-              Leads
-            </button>
-            <button 
-              onClick={() => setActiveTab('assessments')}
-              className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'assessments' ? 'bg-zinc-900 text-white shadow-xl' : 'text-zinc-400'}`}
-            >
-              Assessments
-            </button>
-            <button 
-              onClick={() => setActiveTab('assets')}
-              className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'assets' ? 'bg-[#D4AF37] text-white shadow-xl' : 'text-zinc-400'}`}
-            >
-              <i className="fas fa-rocket mr-2"></i> Assets
-            </button>
+            <button onClick={() => setActiveTab('leads')} className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'leads' ? 'bg-zinc-900 text-white shadow-xl' : 'text-zinc-400'}`}>Leads</button>
+            <button onClick={() => setActiveTab('assessments')} className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'assessments' ? 'bg-zinc-900 text-white shadow-xl' : 'text-zinc-400'}`}>Assessments</button>
+            <button onClick={() => setActiveTab('assets')} className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'assets' ? 'bg-[#D4AF37] text-white shadow-xl' : 'text-zinc-400'}`}><i className="fas fa-rocket mr-2"></i> Assets</button>
           </div>
 
           {activeTab === 'assets' ? (
             <div className="space-y-8 animate-fade-in">
                <div className="bg-zinc-900 text-white p-10 rounded-[3rem] border border-zinc-800">
-                  <div className="flex justify-between items-start mb-10">
-                     <div className="space-y-2">
-                        <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#D4AF37]">Launch Command</h3>
-                        <p className="text-zinc-500 text-xs font-medium max-w-md">Prepare perfect assets for your App Store submission.</p>
+                  <div className="flex flex-col md:flex-row justify-between items-start mb-10 gap-6">
+                     <div className="space-y-4">
+                        <div className="space-y-1">
+                          <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#D4AF37]">App Store Setup</h3>
+                          <p className="text-zinc-500 text-xs font-medium max-w-md">Use these details in iTunes Connect.</p>
+                        </div>
+                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10 w-fit">
+                           <div className="space-y-0.5">
+                             <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Bundle ID</p>
+                             <p className="text-xs font-bold font-mono">{BUNDLE_ID}</p>
+                           </div>
+                           <button onClick={() => copyToClipboard(BUNDLE_ID, "Bundle ID")} className="w-8 h-8 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"><i className="fas fa-copy text-[10px]"></i></button>
+                        </div>
                      </div>
                      <div className="flex gap-4">
-                        <button 
-                          onClick={autofillDemoData}
-                          className="px-6 py-3 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-zinc-100 transition-all shadow-xl"
-                        >
-                          Fill Demo Profile
-                        </button>
-                        <button 
-                          onClick={() => onToggleDemoMode(!isDemoMode)}
-                          className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${isDemoMode ? 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]' : 'bg-zinc-800 text-zinc-400'}`}
-                        >
+                        <button onClick={autofillDemoData} className="px-6 py-3 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-zinc-100 transition-all shadow-xl">Fill Demo Profile</button>
+                        <button onClick={() => onToggleDemoMode(!isDemoMode)} className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${isDemoMode ? 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]' : 'bg-zinc-800 text-zinc-400'}`}>
                           {isDemoMode ? 'Demo ON' : 'Demo OFF'}
                         </button>
                      </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <button 
-                       onClick={() => toggleGuide('16pm')}
-                       className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group"
-                     >
+                     <button onClick={() => toggleGuide('16pm')} className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group">
                         <i className="fas fa-mobile-screen-button text-[#D4AF37] mb-4 block text-xl"></i>
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.9" iPhone Guide</h4>
-                        <p className="text-zinc-500 text-[9px] font-bold mt-1">1290 x 2796 PX</p>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.9" iPhone Guide (Screenshots)</h4>
+                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">Recommended for App Store</p>
                      </button>
-                     <button 
-                       onClick={() => toggleGuide('14p')}
-                       className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group"
-                     >
+                     <button onClick={() => toggleGuide('14p')} className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group">
                         <i className="fas fa-mobile-screen-button text-[#D4AF37] mb-4 block text-xl"></i>
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.7" iPhone Guide</h4>
-                        <p className="text-zinc-500 text-[9px] font-bold mt-1">1284 x 2778 PX</p>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.7" iPhone Guide (Legacy)</h4>
+                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">iPhone 14 Plus / Pro Max</p>
                      </button>
                   </div>
                </div>
@@ -196,29 +162,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
             </div>
           ) : (
              <div className="bg-white rounded-[3rem] p-10 border border-zinc-100 shadow-sm space-y-8">
-               {/* Previous implementation of leads/assessments tables */}
                <div className="flex justify-between items-center">
-                <h3 className="font-black text-xl uppercase tracking-tighter italic text-zinc-900">
-                  {activeTab === 'leads' ? 'Subscribers' : 'Evaluations'}
-                </h3>
-                <button onClick={copyEmails} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Export</button>
+                <h3 className="font-black text-xl uppercase tracking-tighter italic text-zinc-900">{activeTab === 'leads' ? 'Subscribers' : 'Evaluations'}</h3>
+                <button onClick={() => copyToClipboard((activeTab === 'leads' ? leads : assessments).map(l => l.email).join('\n'), "Email list")} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Export Emails</button>
                </div>
-               {activeTab === 'leads' ? (
-                 <div className="grid gap-4">
-                   {leads.map(l => <div key={l.id} className="p-4 bg-zinc-50 rounded-2xl text-sm font-bold">{l.email}</div>)}
-                 </div>
-               ) : (
-                 <div className="grid gap-4">
-                   {assessments.map(a => <div key={a.id} className="p-4 bg-zinc-50 rounded-2xl flex justify-between">
-                     <span className="font-bold">{a.name}</span>
-                     <span className="text-amber-600 font-black">{a.score}%</span>
-                   </div>)}
-                 </div>
-               )}
+               <div className="grid gap-4">
+                 {(activeTab === 'leads' ? leads : assessments).slice(0, 10).map((item: any) => (
+                   <div key={item.id} className="p-4 bg-zinc-50 rounded-2xl flex justify-between items-center">
+                     <span className="font-bold text-sm">{item.email}</span>
+                     {'score' in item && <span className="text-amber-600 font-black text-xs">{item.score}%</span>}
+                   </div>
+                 ))}
+                 {(activeTab === 'leads' ? leads : assessments).length === 0 && <p className="text-center py-10 text-zinc-300 font-black uppercase text-[10px] tracking-widest">No data collected yet</p>}
+               </div>
              </div>
           )}
 
-          <button onClick={onClose} className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-xs">Close</button>
+          <button onClick={onClose} className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-xs">Close Terminal</button>
         </div>
       </div>
     </>

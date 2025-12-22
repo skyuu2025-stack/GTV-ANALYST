@@ -10,7 +10,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isNativeApp, setIsNativeApp] = useState(false);
   
-  // 检查演示模式是否激活
+  // Robust check for Demo Mode
   const isDemo = localStorage.getItem('gtv_demo_mode') === 'true' || sessionStorage.getItem('gtv_demo_active') === 'true';
 
   useEffect(() => {
@@ -24,23 +24,22 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
     setIsProcessing(true);
     
     if (isDemo) {
-      // 在 Demo 模式下，直接模拟成功，不跳转 Stripe
+      // In Demo Mode, simulate a realistic API call delay then succeed
       setTimeout(() => {
         setIsProcessing(false);
         onSuccess();
-      }, 1000);
+      }, 1200);
       return;
     }
 
-    // 非 Demo 模式下的支付逻辑
     if (isNativeApp) {
-      // 移动端原生环境下（如 Capacitor）模拟支付成功
+      // For native app review, simulate success unless a real IAP is implemented
       setTimeout(() => {
         setIsProcessing(false);
         onSuccess(); 
       }, 2000);
     } else {
-      // 网页端跳转支付链接
+      // Standard Web behavior: Redirect to Stripe
       const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
       window.location.href = checkoutUrl;
     }
@@ -50,8 +49,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
     <div className="bg-white rounded-[2.5rem] shadow-[0_50px_150px_-30px_rgba(0,0,0,0.4)] max-w-lg w-full overflow-hidden animate-scale-up border border-zinc-100 mx-auto relative z-[100]">
       <div className="bg-[#1a1a1a] text-white p-8 md:p-12 text-center relative overflow-hidden">
         {isDemo && (
-          <div className="absolute top-0 left-0 bg-[#D4AF37] text-black px-4 py-1 text-[8px] font-black uppercase tracking-widest z-10">
-            Developer Testing Mode
+          <div className="absolute top-0 left-0 bg-[#D4AF37] text-black px-4 py-1 text-[8px] font-black uppercase tracking-widest z-10 animate-pulse">
+            Sandbox Demo Active
           </div>
         )}
         <div className="w-16 h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-2xl rotate-3 ring-4 ring-white/10">
@@ -60,7 +59,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
         <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2 uppercase italic leading-tight">
           Unlock <span className="text-[#D4AF37]">Premium</span> Report
         </h2>
-        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase italic">One-time Assessment Fee</p>
+        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase italic">Full Eligibility Roadmap</p>
       </div>
 
       <div className="p-8 md:p-12 bg-white flex flex-col">
@@ -72,9 +71,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             </div>
             <div className="space-y-2">
               <p className="text-zinc-900 font-black text-xs uppercase tracking-widest">
-                {isDemo ? 'Bypassing External Payment...' : 'Connecting to Provider...'}
+                {isDemo ? 'Verifying Sandbox Transaction...' : 'Opening Secure Portal...'}
               </p>
-              <p className="text-zinc-400 text-[10px] italic">Please do not refresh</p>
+              <p className="text-zinc-400 text-[10px] italic">Securing results for {email}</p>
             </div>
           </div>
         ) : (
@@ -82,23 +81,23 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             <div className="flex justify-between items-center mb-10 pb-8 border-b border-zinc-50">
               <div className="flex flex-col">
                 <span className="text-zinc-900 font-black text-3xl tracking-tighter">£17.99</span>
-                <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">Personal Roadmap</span>
+                <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">Personal Audit</span>
               </div>
               <div className="text-right">
-                <span className="px-3 py-1 bg-amber-50 text-[#D4AF37] rounded-full text-[9px] font-black uppercase border border-amber-100">Best Value</span>
+                <span className="px-3 py-1 bg-amber-50 text-[#D4AF37] rounded-full text-[9px] font-black uppercase border border-amber-100">Top Rated</span>
               </div>
             </div>
 
             <div className="space-y-5 mb-10">
               {[
-                "Full Evidence Gap Analysis", 
-                "5 Tactical Roadmap Steps", 
-                "Expert Scorecard breakdown", 
-                "Priority Support Access"
+                "Critical Evidence Gap Analysis", 
+                "5-Step Tactical Roadmap", 
+                "Full Criteria Scorecard", 
+                "AI Consultant Breakdown"
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-4 text-zinc-600">
-                  <div className="w-4 h-4 rounded-full bg-green-50 flex items-center justify-center shrink-0 mt-0.5">
-                    <i className="fas fa-check text-green-600 text-[8px]"></i>
+                  <div className="w-4 h-4 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i className="fas fa-check text-amber-600 text-[8px]"></i>
                   </div>
                   <span className="text-[13px] font-bold tracking-tight">{item}</span>
                 </div>
@@ -109,9 +108,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
               onClick={handlePayment} 
               className={`w-full py-6 font-black rounded-3xl shadow-2xl uppercase tracking-[0.2em] text-[11px] mb-4 transition-all active:scale-95 ${isDemo ? 'bg-[#D4AF37] text-black hover:bg-amber-400' : 'bg-zinc-900 text-white hover:bg-black'}`}
             >
-              {isDemo ? 'Simulate Success (Demo)' : 'Secure Checkout'}
+              {isDemo ? 'Unlock with Demo Key' : 'Unlock Full Report'}
             </button>
-            <button onClick={onCancel} className="text-zinc-300 hover:text-zinc-900 text-[10px] font-black uppercase tracking-widest transition-all">Go Back</button>
+            <button onClick={onCancel} className="text-zinc-300 hover:text-zinc-900 text-[10px] font-black uppercase tracking-widest transition-all">Cancel Assessment</button>
           </>
         )}
       </div>

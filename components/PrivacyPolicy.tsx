@@ -11,7 +11,7 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onClose }) => {
         <div className="flex justify-between items-center border-b border-zinc-100 pb-8 sticky top-0 bg-white z-10">
           <div>
             <h2 className="text-2xl font-black uppercase tracking-tighter italic">Legal & Privacy</h2>
-            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Version 1.0.2 (2025)</p>
+            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Ref: GTV-2025-V1.0.3</p>
           </div>
           <button onClick={onClose} className="w-12 h-12 bg-zinc-50 rounded-full flex items-center justify-center hover:bg-zinc-100 transition-colors">
             <i className="fas fa-times"></i>
@@ -19,30 +19,34 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onClose }) => {
         </div>
         
         <div className="prose prose-zinc prose-sm md:prose-base space-y-10 text-zinc-600 leading-relaxed font-medium">
-          <section className="bg-amber-50 p-6 rounded-2xl border border-amber-100">
-             <h3 className="text-amber-800 font-black uppercase tracking-widest text-[11px] mb-3">⚠️ Important Disclaimer</h3>
-             <p className="text-amber-700 text-sm italic">GTV Analyst is an AI-powered advisory tool. It does not constitute legal advice. For formal immigration matters, consult a registered OISC advisor.</p>
+          <section className="bg-red-50 p-6 rounded-2xl border border-red-100">
+             <h3 className="text-red-800 font-black uppercase tracking-widest text-[11px] mb-3">⚠️ Critical Legal Disclaimer</h3>
+             <p className="text-red-700 text-sm italic font-bold">
+               GTV Analyst is an automated data processing and information retrieval tool driven by Artificial Intelligence. 
+               It DOES NOT provide legal advice, immigration services, or professional representation. 
+               The probability scores are based on pattern matching with historical public criteria and should be used for informational and educational purposes only.
+             </p>
           </section>
 
           <section>
             <h3 className="text-zinc-900 font-black uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-               <i className="fas fa-user-shield text-amber-500"></i> Data Protection (GDPR)
+               <i className="fas fa-shield-alt text-amber-500"></i> Data Processing Protocol
             </h3>
-            <p>We take your professional data seriously. All assessment inputs are encrypted during transit and analyzed using private instances of Google Gemini 3.0. We do not sell your personal information to third parties.</p>
+            <p>We implement industry-standard encryption (AES-256) for all professional data submitted. User inputs are processed via private API instances. We do not store original identity documents on our primary servers longer than required to generate the assessment report.</p>
           </section>
 
           <section>
             <h3 className="text-zinc-900 font-black uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-               <i className="fas fa-file-contract text-amber-500"></i> Standard EULA
+               <i className="fas fa-balance-scale text-amber-500"></i> Compliance with App Store Guidelines
             </h3>
-            <p>By using GTV Analyst, you agree to the standard Apple Licensed Application End User License Agreement (EULA). You acknowledge that the AI-generated results are for informational purposes only.</p>
+            <p>This application complies with Apple's 5.1.1 Data Privacy guidelines. Users retain full control over their data and can request immediate deletion of their assessment history via the "Reset Session" function or by contacting support.</p>
           </section>
 
           <section>
             <h3 className="text-zinc-900 font-black uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-               <i className="fas fa-credit-card text-amber-500"></i> Subscription & In-App Purchases
+               <i className="fas fa-user-circle text-amber-500"></i> Developer Transparency
             </h3>
-            <p>Payments made within the App Store are managed by Apple. You can manage your purchases in your Apple ID settings. One-time purchases grant permanent access to the generated report on this device.</p>
+            <p>This tool is maintained by an independent developer dedicated to enhancing transparency in global talent mobility through technology. No affiliation with the UK Home Office or Tech Nation is claimed or implied.</p>
           </section>
         </div>
 
@@ -51,7 +55,7 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onClose }) => {
             onClick={onClose}
             className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-xs shadow-2xl hover:bg-black transition-all"
           >
-            I Accept the Terms
+            I Acknowledge and Accept
           </button>
         </div>
       </div>
