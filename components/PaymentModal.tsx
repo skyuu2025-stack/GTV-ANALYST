@@ -73,7 +73,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
           <>
             <div className="flex justify-between items-center mb-10 pb-8 border-b border-zinc-50">
               <div className="flex flex-col">
-                <span className="text-zinc-900 font-black text-3xl tracking-tighter">£17.99</span>
+                <span className="text-zinc-900 font-black text-3xl tracking-tighter">$19</span>
                 <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">Full Criteria Map</span>
               </div>
               <div className="text-right">
