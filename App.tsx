@@ -80,13 +80,16 @@ const App: React.FC = () => {
       setLogoClickCount(0);
     } else {
       setLogoClickCount(newCount);
-      setTimeout(() => setLogoClickCount(0), 3000);
+      // 3秒内不点满5次会自动重置
+      const timer = setTimeout(() => setLogoClickCount(0), 3000);
+      return () => clearTimeout(timer);
     }
   };
 
   const handleToggleDemo = (enabled: boolean) => {
     setIsDemoMode(enabled);
     localStorage.setItem('gtv_demo_mode', enabled.toString());
+    sessionStorage.setItem('gtv_demo_active', enabled.toString());
   };
 
   const handleFormSubmit = async (data: AssessmentData, fileNames: string[]) => {
@@ -97,8 +100,7 @@ const App: React.FC = () => {
     if (isDemoMode) {
       setTimeout(() => {
         setAnalysisResult(MOCK_PREMIUM_RESULT);
-        setStep(AppStep.RESULTS_PREMIUM);
-        sessionStorage.setItem('gtv_is_premium', 'true');
+        setStep(AppStep.RESULTS_FREE); // 先展示免费版，引导进入支付弹窗
       }, 2000);
       return;
     }
@@ -119,12 +121,23 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFDFD]">
       <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 safe-top flex items-center justify-between px-6 md:px-12 h-[calc(80px+var(--sat))]">
-        <div className="flex items-center space-x-3 cursor-pointer group" onClick={handleLogoClick}>
-          <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black">G</div>
-          <span className="text-sm md:text-xl font-light tracking-widest uppercase">GTV <span className="font-black">Analyst</span></span>
-          {isDemoMode && <span className="px-2 py-0.5 bg-green-500 text-white text-[8px] rounded-full font-black animate-pulse uppercase">DEMO</span>}
+        <div 
+          className="flex items-center space-x-3 cursor-pointer group py-2 pr-10" 
+          onClick={handleLogoClick}
+          title="Developer Terminal (Click 5x)"
+        >
+          <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black shadow-lg group-hover:scale-105 transition-transform">G</div>
+          <div className="flex flex-col">
+            <span className="text-sm md:text-xl font-light tracking-widest uppercase">GTV <span className="font-black">Analyst</span></span>
+            {isDemoMode && <span className="text-[8px] font-black text-green-500 uppercase tracking-widest mt-0.5 animate-pulse">DEMO Active</span>}
+          </div>
         </div>
-        <button onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.reload(); }} className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-4 py-2 rounded-full">Reset</button>
+        <button 
+          onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.href = window.location.pathname; }} 
+          className="text-[9px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-4 py-2 rounded-full hover:bg-zinc-50 transition-colors"
+        >
+          Reset Session
+        </button>
       </header>
 
       <main className="flex-grow">
@@ -135,15 +148,26 @@ const App: React.FC = () => {
           <ResultsDashboard result={analysisResult} data={assessmentData} isPremium={step === AppStep.RESULTS_PREMIUM} onUpgrade={() => setStep(AppStep.PAYMENT)} />
         )}
         {step === AppStep.PAYMENT && assessmentData && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-50 overflow-y-auto">
-            <PaymentModal email={assessmentData.email} onSuccess={() => setStep(AppStep.RESULTS_PREMIUM)} onCancel={() => setStep(AppStep.RESULTS_FREE)} />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50 overflow-y-auto animate-fade-in">
+            <PaymentModal 
+              email={assessmentData.email} 
+              onSuccess={() => {
+                sessionStorage.setItem('gtv_is_premium', 'true');
+                setStep(AppStep.RESULTS_PREMIUM);
+              }} 
+              onCancel={() => setStep(AppStep.RESULTS_FREE)} 
+            />
           </div>
         )}
       </main>
 
       <footer className="bg-white border-t border-zinc-100 py-12 text-center pb-[calc(48px+var(--sab))]">
-        <p className="text-[9px] text-zinc-400 font-black tracking-widest">&copy; {new Date().getFullYear()} GTV AI. SECURE.</p>
-        <button onClick={() => setShowPrivacy(true)} className="text-[10px] text-zinc-300 font-bold uppercase mt-4">Privacy & Terms</button>
+        <p className="text-[9px] text-zinc-400 font-black tracking-widest uppercase">&copy; {new Date().getFullYear()} GTV AI. PROUDLY BUILT FOR TALENTS.</p>
+        <div className="flex justify-center gap-6 mt-6">
+          <button onClick={() => setShowPrivacy(true)} className="text-[9px] text-zinc-300 font-bold uppercase tracking-widest hover:text-zinc-600">Privacy Policy</button>
+          <span className="text-zinc-100">|</span>
+          <button onClick={() => setShowPrivacy(true)} className="text-[9px] text-zinc-300 font-bold uppercase tracking-widest hover:text-zinc-600">Terms of Service</button>
+        </div>
       </footer>
 
       {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
