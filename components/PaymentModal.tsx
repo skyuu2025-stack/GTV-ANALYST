@@ -33,9 +33,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
       return;
     }
 
-    // WEB VERSION: Redirect to Stripe
+    // WEB VERSION: Redirect to Stripe with a slight delay to allow UI to update
+    // This prevents the browser from cancelling navigation if DOM changes are too fast
     const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
-    window.location.href = checkoutUrl;
+    
+    setTimeout(() => {
+      console.log("Redirecting to Stripe:", checkoutUrl);
+      window.location.assign(checkoutUrl);
+    }, 150);
   };
 
   return (
@@ -46,7 +51,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             App Store Reviewer Account
           </div>
         )}
-        {/* Removed rotate-3 to straighten the icon container */}
         <div className="w-16 h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-2xl ring-4 ring-white/10 relative">
           <i className="fas fa-crown text-white"></i>
         </div>
@@ -68,6 +72,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                 {isDemo ? 'Verifying Sandbox...' : 'Redirecting to Secure Gateway...'}
               </p>
               <p className="text-zinc-400 text-[10px] italic">Finalizing roadmap for {email}</p>
+              <p className="text-zinc-300 text-[9px] mt-4">Please do not close the window.</p>
             </div>
           </div>
         ) : (
