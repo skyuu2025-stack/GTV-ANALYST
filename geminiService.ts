@@ -2,7 +2,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
-  // Fix: Use the process.env.API_KEY directly for initialization as per @google/genai guidelines.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
@@ -26,7 +25,6 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   `;
 
   try {
-    // Fix: Using 'gemini-3-pro-preview' for advanced reasoning required for visa eligibility assessment.
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
       contents: prompt,
@@ -71,13 +69,18 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
       }
     });
 
-    // Fix: Access .text property directly from GenerateContentResponse.
     const resultText = response.text;
     if (!resultText) throw new Error("Empty response from AI engine.");
     
     return JSON.parse(resultText) as AnalysisResult;
   } catch (err: any) {
     console.error("Gemini Analysis Error:", err);
-    throw new Error(err.message || "The AI Assessor encountered a processing error. Please check your connection and try again.");
+    
+    // Handle 429 Quota errors specifically
+    if (err.message?.includes('429') || err.message?.includes('quota')) {
+      throw new Error("AI 引擎目前繁忙（配额已达上限）。请 1 分钟后重试，或联系客服获取优先评估通道。");
+    }
+    
+    throw new Error("AI 评估遇到异常，请检查网络后重试。如问题持续，请联系技术支持。");
   }
 };

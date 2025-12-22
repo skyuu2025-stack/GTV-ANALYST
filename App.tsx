@@ -13,6 +13,25 @@ import SocialProof from './components/SocialProof.tsx';
 import LeadCapture from './components/LeadCapture.tsx';
 import AdminDashboard from './components/AdminDashboard.tsx';
 
+const MOCK_PREMIUM_RESULT: AnalysisResult = {
+  probabilityScore: 92,
+  summary: "Exceptional candidate profile demonstrating significant international impact in Artificial Intelligence. The evidence strategy aligns perfectly with Tech Nation Exceptional Talent criteria for innovation and leadership.",
+  mandatoryCriteria: [
+    { title: "Recognition as a Leader", met: true, reasoning: "Documented history of speaking at top-tier global AI summits and authorship in high-impact journals." }
+  ],
+  optionalCriteria: [
+    { title: "Innovation in Industry", met: true, reasoning: "Led multiple patent-pending AI projects with verified commercial deployment in 12 countries." },
+    { title: "Exceptional Contributions", met: true, reasoning: "Strong evidence of peer recognition and mentorship within the global developer community." }
+  ],
+  evidenceGap: ["None identified. Profile is ready for submission."],
+  recommendations: [
+    "Secure the final letter of recommendation from your current CEO.",
+    "Compile press mentions into a unified PDF portfolio.",
+    "Highlight the $50M+ revenue impact of your primary project."
+  ],
+  fieldAnalysis: "Technology / AI & Machine Learning"
+};
+
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
   const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(null);
@@ -22,42 +41,32 @@ const App: React.FC = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
-    // 检查是否从支付页面返回
     const params = new URLSearchParams(window.location.search);
     const isSuccess = params.get('success') === 'true';
     const hasExistingPremium = sessionStorage.getItem('gtv_is_premium') === 'true';
 
     if (isSuccess || hasExistingPremium) {
       setIsVerifyingPayment(true);
-      
-      // 使用小延迟确保浏览器已经完成了 localStorage 的写入/同步
       const timer = setTimeout(() => {
         try {
           const rawData = localStorage.getItem('gtv_assessment_data');
           const rawResult = localStorage.getItem('gtv_analysis_result');
           
           if (rawData && rawResult) {
-            const parsedData = JSON.parse(rawData);
-            const parsedResult = JSON.parse(rawResult);
-            
-            setAssessmentData(parsedData);
-            setAnalysisResult(parsedResult);
+            setAssessmentData(JSON.parse(rawData));
+            setAnalysisResult(JSON.parse(rawResult));
             sessionStorage.setItem('gtv_is_premium', 'true');
             setStep(AppStep.RESULTS_PREMIUM);
-            
-            // 清理 URL 保持整洁
             if (isSuccess) {
-              const cleanUrl = window.location.origin + window.location.pathname;
-              window.history.replaceState({}, document.title, cleanUrl);
+              window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
             }
           } else {
-            console.warn("Storage missing during recovery");
             setStep(AppStep.LANDING);
           }
         } catch (err) {
-          console.error("Recovery crash:", err);
           setStep(AppStep.LANDING);
         } finally {
           setIsVerifyingPayment(false);
@@ -82,12 +91,20 @@ const App: React.FC = () => {
     setError(null);
     setAssessmentData(data);
     setStep(AppStep.ANALYZING);
+
+    if (isDemoMode) {
+      setTimeout(() => {
+        setAnalysisResult(MOCK_PREMIUM_RESULT);
+        setStep(AppStep.RESULTS_PREMIUM);
+        sessionStorage.setItem('gtv_is_premium', 'true');
+      }, 2000);
+      return;
+    }
+
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
-      // 关键：在进入付费前先持久化数据到本地
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
-      
       await saveAssessment(data, result);
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
@@ -123,7 +140,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFDFD]">
+    <div className={`min-h-screen flex flex-col bg-[#FDFDFD] ${isDemoMode ? 'screenshot-frame' : ''}`}>
       <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 pt-[var(--sat)] h-[calc(80px+var(--sat))] flex items-center justify-between px-6 md:px-12 print:hidden">
         <div 
           className="flex items-center space-x-3 cursor-pointer group" 
@@ -133,6 +150,7 @@ const App: React.FC = () => {
           <span className="text-sm md:text-xl font-light tracking-widest uppercase text-zinc-900">
             GTV <span className="font-black">Analyst</span>
           </span>
+          {isDemoMode && <span className="px-2 py-0.5 bg-green-500 text-white text-[8px] rounded-full font-black animate-pulse uppercase">DEMO</span>}
         </div>
         <button 
           onClick={resetToForm}
@@ -192,7 +210,13 @@ const App: React.FC = () => {
       </footer>
 
       {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
-      {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} />}
+      {showAdmin && (
+        <AdminDashboard 
+          onClose={() => setShowAdmin(false)} 
+          isDemoMode={isDemoMode}
+          onToggleDemoMode={setIsDemoMode}
+        />
+      )}
     </div>
   );
 };
