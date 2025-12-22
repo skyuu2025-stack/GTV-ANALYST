@@ -71,17 +71,39 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
     setTimeout(() => setIsSubmitting(false), 3000);
   };
 
+  const enterSandboxMode = () => {
+    localStorage.setItem('gtv_demo_mode', 'true');
+    window.location.reload();
+  };
+
+  const isQuotaError = error === "QUOTA_EXCEEDED";
+
   return (
     <div className="max-w-[800px] mx-auto py-10 md:py-16 px-4 md:px-6 animate-scale-up">
       <div className="bg-white rounded-[2rem] md:rounded-[32px] shadow-[0_4px_30px_rgba(0,0,0,0.04)] overflow-hidden border border-zinc-100 p-8 md:p-12">
         {error && (
-          <div className="mb-10 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4 text-amber-800 animate-fade-in">
+          <div className="mb-10 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col md:flex-row items-start gap-4 text-amber-800 animate-fade-in">
             <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center shrink-0">
               <i className="fas fa-robot text-sm"></i>
             </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">AI Engine Notice</p>
-              <p className="text-sm font-bold tracking-tight leading-relaxed">{error}</p>
+            <div className="space-y-3 flex-grow">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">AI Engine Notice</p>
+                <p className="text-sm font-bold tracking-tight leading-relaxed">
+                  {isQuotaError 
+                    ? "AI 引擎目前繁忙（配额已达上限）。请 1 分钟后重试，或使用应急演示模式完成体验。" 
+                    : error}
+                </p>
+              </div>
+              {isQuotaError && (
+                <button 
+                  type="button"
+                  onClick={enterSandboxMode}
+                  className="bg-zinc-900 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black transition-all"
+                >
+                  Enter Sandbox Mode (Bypass)
+                </button>
+              )}
             </div>
           </div>
         )}

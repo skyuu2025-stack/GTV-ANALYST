@@ -61,6 +61,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
     alert(`${label} copied!`);
   };
 
+  const setupReviewerMode = () => {
+    const demoData = {
+      name: "App Store Reviewer",
+      email: "tester@apple.com",
+      endorsementRoute: "Digital Technology (Technical)",
+      jobTitle: "Senior Solutions Architect",
+      yearsOfExperience: "10+ years (Leader)",
+      personalStatement: "Led international teams in developing distributed database systems. Published 3 patents in cloud computing. Speaking at AWS re:Invent and Google Cloud Next.",
+      hasEvidence: true
+    };
+    localStorage.setItem('gtv_autofill', JSON.stringify(demoData));
+    onToggleDemoMode(true);
+    onClose();
+    window.location.reload();
+  };
+
   const toggleGuide = (type: '16pm' | '14p') => {
     const target = showGuides === type ? 'none' : type;
     setShowGuides(target);
@@ -68,22 +84,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
         onClose(); 
         alert(`Screenshot Guide Active. Use browser F12 (Mobile View) and set resolution to ${type === '16pm' ? '1290x2796' : '1284x2778'}`);
     }
-  };
-
-  const autofillDemoData = () => {
-    const demoData = {
-      name: "Alex Rivera",
-      email: "alex.rivera@tech-pioneer.io",
-      endorsementRoute: "Digital Technology (Technical)",
-      jobTitle: "Principal AI Architect",
-      yearsOfExperience: "10+ years (Leader)",
-      personalStatement: "Led development of open-source neural frameworks used by 2M+ developers. Recipient of the IEEE Innovation Award 2024. Featured in Wired and TechCrunch for contributions to safe AGI. Previously CTO of a $500M unicorn.",
-      hasEvidence: true
-    };
-    localStorage.setItem('gtv_autofill', JSON.stringify(demoData));
-    onToggleDemoMode(true);
-    onClose();
-    window.location.reload();
   };
 
   return (
@@ -125,8 +125,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
                   <div className="flex flex-col md:flex-row justify-between items-start mb-10 gap-6">
                      <div className="space-y-4">
                         <div className="space-y-1">
-                          <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#D4AF37]">App Store Setup</h3>
-                          <p className="text-zinc-500 text-xs font-medium max-w-md">Use these details in iTunes Connect.</p>
+                          <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#D4AF37]">Reviewer Deployment</h3>
+                          <p className="text-zinc-500 text-xs font-medium max-w-md">Prepare for App Store submission.</p>
                         </div>
                         <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10 w-fit">
                            <div className="space-y-0.5">
@@ -137,8 +137,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
                         </div>
                      </div>
                      <div className="flex gap-4">
-                        <button onClick={autofillDemoData} className="px-6 py-3 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-zinc-100 transition-all shadow-xl">Fill Demo Profile</button>
-                        <button onClick={() => onToggleDemoMode(!isDemoMode)} className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${isDemoMode ? 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]' : 'bg-zinc-800 text-zinc-400'}`}>
+                        <button onClick={setupReviewerMode} className="px-6 py-3 bg-green-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-xl">
+                          Set App Store Mode
+                        </button>
+                        <button onClick={() => onToggleDemoMode(!isDemoMode)} className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${isDemoMode ? 'bg-[#D4AF37] text-white' : 'bg-zinc-800 text-zinc-400'}`}>
                           {isDemoMode ? 'Demo ON' : 'Demo OFF'}
                         </button>
                      </div>
@@ -146,14 +148,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <button onClick={() => toggleGuide('16pm')} className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group">
-                        <i className="fas fa-mobile-screen-button text-[#D4AF37] mb-4 block text-xl"></i>
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.9" iPhone Guide (Screenshots)</h4>
-                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">Recommended for App Store</p>
+                        <i className="fas fa-camera-retro text-[#D4AF37] mb-4 block text-xl"></i>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.9" iPhone Snapshot Guide</h4>
+                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">For iPhone 16 Pro Max</p>
                      </button>
                      <button onClick={() => toggleGuide('14p')} className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group">
-                        <i className="fas fa-mobile-screen-button text-[#D4AF37] mb-4 block text-xl"></i>
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.7" iPhone Guide (Legacy)</h4>
-                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">iPhone 14 Plus / Pro Max</p>
+                        <i className="fas fa-camera-retro text-[#D4AF37] mb-4 block text-xl"></i>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.7" iPhone Snapshot Guide</h4>
+                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">For iPhone 14 Plus/15 PM</p>
                      </button>
                   </div>
                </div>
@@ -163,8 +165,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
           ) : (
              <div className="bg-white rounded-[3rem] p-10 border border-zinc-100 shadow-sm space-y-8">
                <div className="flex justify-between items-center">
-                <h3 className="font-black text-xl uppercase tracking-tighter italic text-zinc-900">{activeTab === 'leads' ? 'Subscribers' : 'Evaluations'}</h3>
-                <button onClick={() => copyToClipboard((activeTab === 'leads' ? leads : assessments).map(l => l.email).join('\n'), "Email list")} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Export Emails</button>
+                <h3 className="font-black text-xl uppercase tracking-tighter italic text-zinc-900">{activeTab === 'leads' ? 'Database' : 'Evaluations'}</h3>
+                <button onClick={() => copyToClipboard((activeTab === 'leads' ? leads : assessments).map(l => l.email).join('\n'), "Email list")} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Export All</button>
                </div>
                <div className="grid gap-4">
                  {(activeTab === 'leads' ? leads : assessments).slice(0, 10).map((item: any) => (
@@ -173,12 +175,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
                      {'score' in item && <span className="text-amber-600 font-black text-xs">{item.score}%</span>}
                    </div>
                  ))}
-                 {(activeTab === 'leads' ? leads : assessments).length === 0 && <p className="text-center py-10 text-zinc-300 font-black uppercase text-[10px] tracking-widest">No data collected yet</p>}
                </div>
              </div>
           )}
 
-          <button onClick={onClose} className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-xs">Close Terminal</button>
+          <button onClick={onClose} className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-xs">Exit Admin Panel</button>
         </div>
       </div>
     </>

@@ -5,31 +5,26 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
-    ROLE: Senior UK Immigration Counsel (Global Talent Specialist).
-    TASK: Critical initial assessment of eligibility under the Global Talent Visa (GTV) route.
+    ROLE: Senior UK Immigration Analyst.
+    TASK: Critical assessment of Global Talent Visa (GTV) eligibility.
     
-    CANDIDATE DATA:
-    - Candidate: ${data.name}
+    DATA:
+    - Name: ${data.name}
     - Route: ${data.endorsementRoute}
-    - Status: ${data.yearsOfExperience}
+    - Level: ${data.yearsOfExperience}
     - Role: ${data.jobTitle}
     - Summary: ${data.personalStatement}
-    - Evidence Files: ${fileNames.length > 0 ? fileNames.join(', ') : "None Provided"}
+    - Files: ${fileNames.length}
 
-    ANALYSIS PARAMETERS:
-    1. PROBABILITY SCORE (0-100 integer).
-    2. PROFESSIONAL VERDICT: Rigorous legal analysis of risks, evidence strength, and potential gaps.
-    3. CRITERIA MAPPING: Detailed breakdown of Mandatory and Optional criteria based on Home Office guidance.
-
-    IMPORTANT: Be realistic and critical. Do not be overly optimistic. Output only JSON matching the schema.
+    OUTPUT: Strictly valid JSON mapping probability and criteria.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
-        systemInstruction: "You are an expert AI Immigration Consultant specialized in Global Talent Visas for Arts, Culture, and Tech. Output ONLY strictly valid JSON.",
+        systemInstruction: "You are an expert AI Immigration Consultant. Output ONLY strictly valid JSON matching the provided schema.",
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -76,11 +71,10 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   } catch (err: any) {
     console.error("Gemini Analysis Error:", err);
     
-    // Handle 429 Quota errors specifically
     if (err.message?.includes('429') || err.message?.includes('quota')) {
-      throw new Error("AI 引擎目前繁忙（配额已达上限）。请 1 分钟后重试，或联系客服获取优先评估通道。");
+      throw new Error("QUOTA_EXCEEDED");
     }
     
-    throw new Error("AI 评估遇到异常，请检查网络后重试。如问题持续，请联系技术支持。");
+    throw new Error("AI 评估遇到异常，请检查网络后重试。");
   }
 };
