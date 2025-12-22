@@ -34,12 +34,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
   const BUNDLE_ID = "com.gtvassessor.ai";
   const isConnected = !!supabase;
 
-  const RLS_SQL = `-- Run this in your Supabase SQL Editor to fix Insert error:
+  const RLS_SQL = `-- STEP 1: Enable RLS on tables
 ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+
+-- STEP 2: Remove old policies if any
+DROP POLICY IF EXISTS "Allow Public Insert" ON assessments;
+DROP POLICY IF EXISTS "Allow Public Select" ON assessments;
+DROP POLICY IF EXISTS "Allow Public Leads Insert" ON leads;
+DROP POLICY IF EXISTS "Allow Public Leads Select" ON leads;
+
+-- STEP 3: Create public access policies
 CREATE POLICY "Allow Public Insert" ON assessments FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow Public Select" ON assessments FOR SELECT USING (true);
--- Also for leads table:
-ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow Public Leads Insert" ON leads FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow Public Leads Select" ON leads FOR SELECT USING (true);`;
 
@@ -67,7 +74,7 @@ CREATE POLICY "Allow Public Leads Select" ON leads FOR SELECT USING (true);`;
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    alert(`${label} copied!`);
+    alert(`${label} copied! Please paste it correctly.`);
   };
 
   const setupReviewerMode = () => {
@@ -134,23 +141,23 @@ CREATE POLICY "Allow Public Leads Select" ON leads FOR SELECT USING (true);`;
                   <div className="flex flex-col md:flex-row justify-between items-start mb-10 gap-6">
                      <div className="space-y-4">
                         <div className="space-y-1">
-                          <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#D4AF37]">Reviewer Deployment</h3>
-                          <p className="text-zinc-500 text-xs font-medium max-w-md">Prepare for App Store submission.</p>
+                          <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#D4AF37]">Apple Store Config</h3>
+                          <p className="text-zinc-500 text-xs font-medium max-w-md italic">Use this for your App Store Connect submission.</p>
                         </div>
                         <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10 w-fit">
                            <div className="space-y-0.5">
-                             <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Bundle ID</p>
-                             <p className="text-xs font-bold font-mono">{BUNDLE_ID}</p>
+                             <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Bundle Identifier</p>
+                             <p className="text-xs font-bold font-mono text-zinc-200">{BUNDLE_ID}</p>
                            </div>
-                           <button onClick={() => copyToClipboard(BUNDLE_ID, "Bundle ID")} className="w-8 h-8 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"><i className="fas fa-copy text-[10px]"></i></button>
+                           <button onClick={() => copyToClipboard(BUNDLE_ID, "Bundle ID")} className="w-10 h-10 bg-white/10 rounded-xl hover:bg-white/20 transition-colors flex items-center justify-center border border-white/10" title="Copy for Apple Console"><i className="fas fa-copy text-xs"></i></button>
                         </div>
                      </div>
                      <div className="flex gap-4">
                         <button onClick={setupReviewerMode} className="px-6 py-3 bg-green-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-xl">
-                          Set App Store Mode
+                          Auto-Fill Reviewer Data
                         </button>
                         <button onClick={() => onToggleDemoMode(!isDemoMode)} className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${isDemoMode ? 'bg-[#D4AF37] text-white' : 'bg-zinc-800 text-zinc-400'}`}>
-                          {isDemoMode ? 'Demo ON' : 'Demo OFF'}
+                          {isDemoMode ? 'Sandbox Active' : 'Sandbox Ready'}
                         </button>
                      </div>
                   </div>
@@ -158,13 +165,13 @@ CREATE POLICY "Allow Public Leads Select" ON leads FOR SELECT USING (true);`;
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <button onClick={() => toggleGuide('16pm')} className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group">
                         <i className="fas fa-camera-retro text-[#D4AF37] mb-4 block text-xl"></i>
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.9" iPhone Snapshot Guide</h4>
-                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">For iPhone 16 Pro Max</p>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.9" Snapshot Mode</h4>
+                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">For App Store Connect</p>
                      </button>
                      <button onClick={() => toggleGuide('14p')} className="p-6 bg-zinc-800 rounded-2xl text-left hover:bg-zinc-700 transition-colors border border-zinc-700 group">
                         <i className="fas fa-camera-retro text-[#D4AF37] mb-4 block text-xl"></i>
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.7" iPhone Snapshot Guide</h4>
-                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">For iPhone 14 Plus/15 PM</p>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">6.7" Snapshot Mode</h4>
+                        <p className="text-zinc-500 text-[9px] font-bold mt-1 uppercase">For App Store Connect</p>
                      </button>
                   </div>
                </div>
@@ -172,16 +179,16 @@ CREATE POLICY "Allow Public Leads Select" ON leads FOR SELECT USING (true);`;
                <div className="bg-amber-50 p-8 rounded-[3rem] border border-amber-200 space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs">
-                      <i className="fas fa-shield-alt"></i>
+                      <i className="fas fa-terminal"></i>
                     </div>
-                    <h4 className="font-black uppercase tracking-tighter italic text-amber-800">Database RLS Fixer</h4>
+                    <h4 className="font-black uppercase tracking-tighter italic text-amber-800">Supabase RLS Fixer (Run in SQL Editor)</h4>
                   </div>
-                  <p className="text-amber-700/70 text-[11px] font-medium leading-relaxed">If you see "Row-Level Security policy" errors, your Supabase tables are locked. Click the button below to copy the SQL fix, then paste it into your Supabase SQL Editor and run it.</p>
+                  <p className="text-amber-700/70 text-[11px] font-medium leading-relaxed">If your app says "row violates security policy", it means your database is locked. DO NOT run the bundle ID in SQL editor. Copy the script below instead.</p>
                   <button 
-                    onClick={() => copyToClipboard(RLS_SQL, "SQL Fix Script")}
-                    className="w-full py-4 bg-amber-600 text-white font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-lg hover:bg-amber-700 transition-all"
+                    onClick={() => copyToClipboard(RLS_SQL, "Correct SQL Script")}
+                    className="w-full py-5 bg-zinc-900 text-white font-black rounded-2xl uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-black transition-all flex items-center justify-center gap-3"
                   >
-                    Copy SQL Fix Script
+                    <i className="fas fa-copy"></i> Copy Database Fix Script
                   </button>
                </div>
                
@@ -190,31 +197,31 @@ CREATE POLICY "Allow Public Leads Select" ON leads FOR SELECT USING (true);`;
           ) : (
              <div className="bg-white rounded-[3rem] p-10 border border-zinc-100 shadow-sm space-y-8">
                <div className="flex justify-between items-center">
-                <h3 className="font-black text-xl uppercase tracking-tighter italic text-zinc-900">{activeTab === 'leads' ? 'Database' : 'Evaluations'}</h3>
-                <button onClick={() => copyToClipboard((activeTab === 'leads' ? leads : assessments).map(l => l.email).join('\n'), "Email list")} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Export All</button>
+                <h3 className="font-black text-xl uppercase tracking-tighter italic text-zinc-900">{activeTab === 'leads' ? 'User Database' : 'Assessment History'}</h3>
+                <button onClick={() => copyToClipboard((activeTab === 'leads' ? leads : assessments).map(l => l.email).join('\n'), "Export Data")} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Export to CSV</button>
                </div>
                
                {errorMsg && (
                  <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-[10px] font-bold uppercase border border-red-100">
-                    <i className="fas fa-exclamation-triangle mr-2"></i> {errorMsg}
+                    <i className="fas fa-exclamation-triangle mr-2"></i> Error: {errorMsg}
                  </div>
                )}
 
                <div className="grid gap-4">
                  {(activeTab === 'leads' ? leads : assessments).slice(0, 10).map((item: any) => (
-                   <div key={item.id} className="p-4 bg-zinc-50 rounded-2xl flex justify-between items-center">
+                   <div key={item.id} className="p-4 bg-zinc-50 rounded-2xl flex justify-between items-center group hover:bg-zinc-100 transition-colors">
                      <span className="font-bold text-sm text-zinc-700">{item.email}</span>
-                     {'score' in item && <span className="text-amber-600 font-black text-xs">{item.score}%</span>}
+                     {'score' in item && <span className="px-3 py-1 bg-white rounded-lg text-amber-600 font-black text-xs border border-zinc-100">{item.score}%</span>}
                    </div>
                  ))}
                  {(activeTab === 'leads' ? leads : assessments).length === 0 && !loading && (
-                    <div className="text-center py-20 opacity-20 italic text-sm">No records found. Check RLS policies.</div>
+                    <div className="text-center py-20 opacity-20 italic text-sm">No synchronized data found. Run SQL fix script.</div>
                  )}
                </div>
              </div>
           )}
 
-          <button onClick={onClose} className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-xs">Exit Admin Panel</button>
+          <button onClick={onClose} className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-xs shadow-2xl">Return to Terminal</button>
         </div>
       </div>
     </>
