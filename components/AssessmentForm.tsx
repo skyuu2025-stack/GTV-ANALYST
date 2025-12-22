@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AssessmentData } from '../types.ts';
 
 interface AssessmentFormProps {
@@ -21,11 +21,18 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileList, setFileList] = useState<string[]>([]);
 
-  const handleUploadClick = () => {
-    if (fileList.length >= 6) {
-      alert("Maximum of 6 evidence items reached.");
-      return;
+  useEffect(() => {
+    const autofillData = localStorage.getItem('gtv_autofill');
+    if (autofillData) {
+      const parsed = JSON.parse(autofillData);
+      setFormData(parsed);
+      setFileList(["evidence_01.pdf", "press_clipping.jpg", "award_letter.pdf"]);
+      localStorage.removeItem('gtv_autofill');
     }
+  }, []);
+
+  const handleUploadClick = () => {
+    if (fileList.length >= 6) return;
     fileInputRef.current?.click();
   };
 
@@ -56,12 +63,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.personalStatement) {
-      alert("Please fill in all required fields.");
+      alert("Fields required.");
       return;
     }
     setIsSubmitting(true);
     onSubmit(formData, fileList);
-    // Reset submission state if error occurs (handled by parent but this allows retry)
     setTimeout(() => setIsSubmitting(false), 3000);
   };
 
@@ -98,7 +104,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 <input 
                   required 
                   type="email" 
-                  placeholder="Results & Invoice email"
+                  placeholder="Results email"
                   value={formData.email} 
                   onChange={e => setFormData(p => ({...p, email: e.target.value}))} 
                   className="w-full border-b border-zinc-100 py-3 outline-none focus:border-[#D4AF37] text-base font-medium placeholder:text-zinc-200 transition-colors bg-transparent"
@@ -131,17 +137,17 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
             <div className="space-y-4">
-              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Current Job Title</label>
+              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Job Title</label>
               <input
                 type="text"
                 value={formData.jobTitle}
                 onChange={e => setFormData(prev => ({ ...prev, jobTitle: e.target.value }))}
-                placeholder="e.g. Creative Director"
-                className="w-full border-b border-zinc-100 py-3 text-base font-medium text-zinc-900 placeholder:text-zinc-200 focus:border-[#D4AF37] outline-none transition-all bg-transparent"
+                placeholder="e.g. Principal Architect"
+                className="w-full border-b border-zinc-100 py-3 text-base font-medium text-zinc-900 placeholder:text-zinc-200 focus:border-[#D4AF37] outline-none bg-transparent"
               />
             </div>
             <div className="space-y-4">
-              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Years of Experience</label>
+              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Experience</label>
               <div className="relative">
                 <select
                   value={formData.yearsOfExperience}
@@ -160,78 +166,43 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
           <div className="space-y-4">
             <label className="flex items-center gap-3 text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">
               <i className="far fa-user text-zinc-300"></i>
-              Personal Statement / Impact Summary
+              Impact Summary
             </label>
             <textarea
               required
               rows={4}
               value={formData.personalStatement}
               onChange={e => setFormData(prev => ({ ...prev, personalStatement: e.target.value }))}
-              placeholder="Briefly describe your significant achievements, international recognition, and why you are a leader in your field..."
-              className="w-full bg-zinc-50/50 border border-zinc-100 rounded-2xl p-6 text-zinc-600 text-sm md:text-base font-medium focus:ring-1 focus:ring-[#D4AF37] outline-none resize-none placeholder:text-zinc-200 leading-relaxed transition-all"
+              placeholder="Describe your achievements..."
+              className="w-full bg-zinc-50/50 border border-zinc-100 rounded-2xl p-6 text-zinc-600 text-sm font-medium focus:ring-1 focus:ring-[#D4AF37] outline-none resize-none placeholder:text-zinc-200 transition-all"
             />
           </div>
 
           <div className="space-y-8 pt-4">
             <div className="flex justify-between items-end">
-              <label className="flex items-center gap-3 text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">
-                <i className="far fa-file-alt text-zinc-300"></i>
-                Evidence Documents
-              </label>
+              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Evidence Documents</label>
               <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest">{6 - fileList.length} Slots Left</span>
             </div>
 
-            <div className="bg-amber-50/50 border border-amber-100/50 rounded-2xl p-5 flex gap-4">
-              <div className="text-amber-500 mt-0.5">
-                <i className="fas fa-info-circle text-sm"></i>
-              </div>
-              <p className="text-[11px] text-amber-700 font-bold leading-relaxed uppercase tracking-tight">
-                Upload lookbooks, press links, or award letters. Max 6 items.
-              </p>
-            </div>
-
-            <input 
-              type="file" 
-              multiple 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              className="hidden" 
-              accept=".pdf,.png,.jpg,.jpeg"
-            />
+            <input type="file" multiple ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".pdf,.png,.jpg,.jpeg" />
             
             <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div 
-                onClick={handleUploadClick}
-                className={`w-full md:w-48 h-48 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all group relative bg-white border-2 border-dashed ${fileList.length > 0 ? 'border-amber-200 shadow-sm' : 'border-zinc-100 hover:border-amber-200 hover:bg-zinc-50'}`}
-              >
+              <div onClick={handleUploadClick} className="w-full md:w-48 h-48 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all bg-white border-2 border-dashed border-zinc-100 hover:border-amber-200">
                 {!isUploading ? (
                   <>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${fileList.length > 0 ? 'bg-green-500 text-white' : 'bg-zinc-50 text-zinc-300 group-hover:text-amber-500'}`}>
-                      <i className={`fas ${fileList.length > 0 ? 'fa-check' : 'fa-plus'} text-lg`}></i>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${fileList.length > 0 ? 'bg-green-500 text-white' : 'bg-zinc-50 text-zinc-300'}`}>
+                      <i className={`fas ${fileList.length > 0 ? 'fa-check' : 'fa-plus'}`}></i>
                     </div>
-                    <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest group-hover:text-amber-500 transition-colors">Add Evidence</span>
+                    <span className="text-[9px] font-black text-zinc-300 uppercase">Add Evidence</span>
                   </>
-                ) : (
-                  <div className="w-8 h-8 border-2 border-zinc-100 border-t-amber-500 rounded-full animate-spin"></div>
-                )}
+                ) : <div className="w-8 h-8 border-2 border-t-amber-500 rounded-full animate-spin"></div>}
               </div>
 
               <div className="flex-1 w-full space-y-3">
                 {fileList.map((name, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 border border-zinc-100 rounded-xl group animate-fade-in">
-                    <div className="flex items-center gap-3">
-                      <div className="text-amber-500 text-xs">
-                        <i className="fas fa-file-pdf"></i>
-                      </div>
-                      <span className="text-[11px] font-bold text-zinc-800 truncate max-w-[150px] md:max-w-[300px]">{name}</span>
-                    </div>
-                    <button 
-                      type="button"
-                      onClick={() => removeFile(i)}
-                      className="text-zinc-300 hover:text-red-500 transition-colors"
-                    >
-                      <i className="fas fa-times text-[10px]"></i>
-                    </button>
+                  <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 border border-zinc-100 rounded-xl animate-fade-in">
+                    <span className="text-[11px] font-bold text-zinc-800 truncate">{name}</span>
+                    <button type="button" onClick={() => removeFile(i)} className="text-zinc-300 hover:text-red-500"><i className="fas fa-times text-[10px]"></i></button>
                   </div>
                 ))}
               </div>
@@ -241,9 +212,9 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-6 md:py-8 font-black rounded-3xl transition-all shadow-xl active:scale-[0.98] text-sm md:text-base uppercase tracking-[0.2em] italic mt-8 ${isSubmitting ? 'bg-zinc-400 cursor-not-allowed text-white/50' : 'bg-zinc-900 hover:bg-black text-white'}`}
+            className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl transition-all shadow-xl active:scale-[0.98] uppercase tracking-[0.2em] italic mt-8 disabled:bg-zinc-400"
           >
-            {isSubmitting ? 'Analyzing Data...' : 'Run Expert AI Analysis'}
+            {isSubmitting ? 'Analyzing...' : 'Run Expert Analysis'}
           </button>
         </form>
       </div>

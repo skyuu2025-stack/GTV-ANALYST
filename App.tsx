@@ -41,7 +41,11 @@ const App: React.FC = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(localStorage.getItem('gtv_demo_mode') === 'true');
+
+  useEffect(() => {
+    sessionStorage.setItem('gtv_demo_active', isDemoMode.toString());
+  }, [isDemoMode]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -50,29 +54,22 @@ const App: React.FC = () => {
 
     if (isSuccess || hasExistingPremium) {
       setIsVerifyingPayment(true);
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         try {
           const rawData = localStorage.getItem('gtv_assessment_data');
           const rawResult = localStorage.getItem('gtv_analysis_result');
-          
           if (rawData && rawResult) {
             setAssessmentData(JSON.parse(rawData));
             setAnalysisResult(JSON.parse(rawResult));
             sessionStorage.setItem('gtv_is_premium', 'true');
             setStep(AppStep.RESULTS_PREMIUM);
-            if (isSuccess) {
-              window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
-            }
+            if (isSuccess) window.history.replaceState({}, '', window.location.pathname);
           } else {
             setStep(AppStep.LANDING);
           }
-        } catch (err) {
-          setStep(AppStep.LANDING);
-        } finally {
-          setIsVerifyingPayment(false);
-        }
+        } catch (err) { setStep(AppStep.LANDING); }
+        finally { setIsVerifyingPayment(false); }
       }, 800);
-      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -85,6 +82,11 @@ const App: React.FC = () => {
       setLogoClickCount(newCount);
       setTimeout(() => setLogoClickCount(0), 3000);
     }
+  };
+
+  const handleToggleDemo = (enabled: boolean) => {
+    setIsDemoMode(enabled);
+    localStorage.setItem('gtv_demo_mode', enabled.toString());
   };
 
   const handleFormSubmit = async (data: AssessmentData, fileNames: string[]) => {
@@ -109,114 +111,43 @@ const App: React.FC = () => {
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
     } catch (err: any) {
-      setError(err.message || "AI Analysis Error.");
+      setError(err.message);
       setStep(AppStep.FORM);
     }
   };
 
-  const resetToForm = () => {
-    setError(null);
-    localStorage.clear();
-    sessionStorage.clear();
-    setStep(AppStep.FORM);
-  };
-
-  if (isVerifyingPayment) {
-    return (
-      <div className="fixed inset-0 z-[100] bg-[#0A0A0A] flex flex-col items-center justify-center text-center p-6">
-        <div className="relative w-32 h-32 mb-12">
-          <div className="absolute inset-0 border-[3px] border-amber-500/5 rounded-full"></div>
-          <div className="absolute inset-0 border-[3px] border-amber-500 rounded-full border-t-transparent animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <i className="fas fa-crown text-amber-500 text-4xl animate-pulse"></i>
-          </div>
-        </div>
-        <div className="space-y-6">
-          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white italic">Session Recovery</h2>
-          <p className="text-amber-500 font-bold uppercase tracking-[0.5em] text-[10px] animate-pulse">Unlocking High-Resolution Report</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`min-h-screen flex flex-col bg-[#FDFDFD] ${isDemoMode ? 'screenshot-frame' : ''}`}>
-      <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 pt-[var(--sat)] h-[calc(80px+var(--sat))] flex items-center justify-between px-6 md:px-12 print:hidden">
-        <div 
-          className="flex items-center space-x-3 cursor-pointer group" 
-          onClick={handleLogoClick}
-        >
-          <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black text-base shadow-xl group-active:scale-95 transition-transform">G</div>
-          <span className="text-sm md:text-xl font-light tracking-widest uppercase text-zinc-900">
-            GTV <span className="font-black">Analyst</span>
-          </span>
+    <div className="min-h-screen flex flex-col bg-[#FDFDFD]">
+      <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 safe-top flex items-center justify-between px-6 md:px-12 h-[calc(80px+var(--sat))]">
+        <div className="flex items-center space-x-3 cursor-pointer group" onClick={handleLogoClick}>
+          <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black">G</div>
+          <span className="text-sm md:text-xl font-light tracking-widest uppercase">GTV <span className="font-black">Analyst</span></span>
           {isDemoMode && <span className="px-2 py-0.5 bg-green-500 text-white text-[8px] rounded-full font-black animate-pulse uppercase">DEMO</span>}
         </div>
-        <button 
-          onClick={resetToForm}
-          className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-4 py-2.5 rounded-full hover:text-zinc-900 transition-all active:scale-95"
-        >
-          Reset
-        </button>
+        <button onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.reload(); }} className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-4 py-2 rounded-full">Reset</button>
       </header>
 
-      <main className="flex-grow pb-[var(--sab)]">
-        {step === AppStep.LANDING && (
-          <>
-            <Hero onStart={() => setStep(AppStep.FORM)} />
-            <SocialProof />
-            <FAQ />
-            <LeadCapture />
-          </>
-        )}
+      <main className="flex-grow">
+        {step === AppStep.LANDING && <><Hero onStart={() => setStep(AppStep.FORM)} /><SocialProof /><FAQ /><LeadCapture /></>}
         {step === AppStep.FORM && <AssessmentForm onSubmit={handleFormSubmit} error={error} />}
         {step === AppStep.ANALYZING && <LoadingState />}
         {(step === AppStep.RESULTS_FREE || step === AppStep.RESULTS_PREMIUM) && analysisResult && assessmentData && (
-          <ResultsDashboard 
-            result={analysisResult} 
-            data={assessmentData} 
-            isPremium={step === AppStep.RESULTS_PREMIUM}
-            onUpgrade={() => setStep(AppStep.PAYMENT)}
-          />
+          <ResultsDashboard result={analysisResult} data={assessmentData} isPremium={step === AppStep.RESULTS_PREMIUM} onUpgrade={() => setStep(AppStep.PAYMENT)} />
         )}
         {step === AppStep.PAYMENT && assessmentData && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-50 overflow-y-auto">
-            <PaymentModal 
-              email={assessmentData.email} 
-              onSuccess={() => {
-                sessionStorage.setItem('gtv_is_premium', 'true');
-                setStep(AppStep.RESULTS_PREMIUM);
-              }}
-              onCancel={() => setStep(AppStep.RESULTS_FREE)}
-            />
+            <PaymentModal email={assessmentData.email} onSuccess={() => setStep(AppStep.RESULTS_PREMIUM)} onCancel={() => setStep(AppStep.RESULTS_FREE)} />
           </div>
         )}
       </main>
 
-      <footer className="bg-white border-t border-zinc-100 py-12 text-center px-6 print:hidden pb-[calc(48px+var(--sab))]">
-        <div className="max-w-xs mx-auto space-y-4">
-          <p className="text-[9px] text-zinc-400 font-black tracking-widest uppercase">
-            &copy; {new Date().getFullYear()} GTV AI ASSESSOR. ENCRYPTED & SECURE.
-          </p>
-          <div className="flex justify-center gap-6">
-            <button 
-              onClick={() => setShowPrivacy(true)}
-              className="text-[10px] text-zinc-300 font-bold uppercase tracking-widest hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-100"
-            >
-              Privacy Policy & Terms
-            </button>
-          </div>
-        </div>
+      <footer className="bg-white border-t border-zinc-100 py-12 text-center pb-[calc(48px+var(--sab))]">
+        <p className="text-[9px] text-zinc-400 font-black tracking-widest">&copy; {new Date().getFullYear()} GTV AI. SECURE.</p>
+        <button onClick={() => setShowPrivacy(true)} className="text-[10px] text-zinc-300 font-bold uppercase mt-4">Privacy & Terms</button>
       </footer>
 
       {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
-      {showAdmin && (
-        <AdminDashboard 
-          onClose={() => setShowAdmin(false)} 
-          isDemoMode={isDemoMode}
-          onToggleDemoMode={setIsDemoMode}
-        />
-      )}
+      {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} isDemoMode={isDemoMode} onToggleDemoMode={handleToggleDemo} />}
     </div>
   );
 };
