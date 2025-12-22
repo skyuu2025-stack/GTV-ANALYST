@@ -30,12 +30,12 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
       </div>
       
       <h1 className="text-[36px] md:text-[84px] font-bold text-[#1A1A1A] max-w-5xl leading-[1.1] md:leading-[1.1] mb-8 md:mb-10 tracking-tighter">
-        Get Your <span className="font-serif italic text-[#D4AF37]">Global Talent</span> <br/> 
-        Success Roadmap
+        UK Global Talent <span className="font-serif italic text-[#D4AF37]">Visa Eligibility</span> <br/> 
+        Assessment by AI
       </h1>
       
       <h2 className="text-zinc-400 text-sm md:text-[22px] max-w-2xl mx-auto leading-relaxed mb-10 md:mb-16 font-medium opacity-80 px-4 italic">
-        Expert Gemini 3 Pro AI audit for Tech Nation, Arts Council, and RIBA. Stop guessing, start your roadmap today.
+        Check Your Global Talent Visa Readiness in Minutes. Expert Gemini 3 Pro AI audit for Tech Nation, Arts Council, and RIBA.
       </h2>
       
       <div className="flex flex-col items-center gap-6 w-full px-4">
@@ -43,7 +43,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
           onClick={onStart}
           className="w-full md:w-auto px-16 md:px-24 py-6 md:py-8 bg-[#1A1A1A] text-white font-black rounded-3xl transition-all hover:bg-black hover:shadow-[0_20px_60px_rgba(0,0,0,0.2)] active:scale-95 shadow-2xl text-base md:text-2xl tracking-widest uppercase italic"
         >
-          Check My Eligibility
+          Start AI Assessment
         </button>
         <div className="flex items-center gap-4 opacity-40">
            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Stripe_logo%2C_revised_2016.svg" className="h-4" alt="Stripe" />

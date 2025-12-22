@@ -1,23 +1,30 @@
-
 import React, { useState } from 'react';
 
 const FAQ: React.FC = () => {
   const faqs = [
     {
-      q: "What is the Global Talent Visa (GTV) endorsement?",
-      a: "The endorsement is the first stage of the GTV application where a designated body (like Tech Nation or Arts Council England) reviews your achievements and confirms you are a leader or potential leader in your field."
+      q: "What is the UK Global Talent Visa?",
+      a: "The UK Global Talent Visa allows leaders or potential leaders in fields such as arts, fashion, digital technology, and academia to live and work in the UK without employer sponsorship."
     },
     {
-      q: "How accurate is the AI Assessor?",
-      a: "Our AI model is trained on the latest official UK Home Office guidelines and Tech Nation digital visa criteria. While it provides high-fidelity analysis based on professional logic, it is an assessment tool and not a legal guarantee."
+      q: "Who is eligible for the Global Talent Visa?",
+      a: "Applicants must demonstrate exceptional talent or exceptional promise and be endorsed by an official UK endorsing body such as Arts Council England or Tech Nation."
     },
     {
-      q: "Can I apply for GTV if I am an emerging talent?",
-      a: "Yes, the GTV has two routes: 'Exceptional Talent' for established leaders and 'Exceptional Promise' for emerging stars with less than 5 years of professional experience."
+      q: "How accurate is the GTV Assessor AI evaluation?",
+      a: "GTV Assessor uses structured criteria based on UK endorsement guidelines to analyze your background and evidence. While not a legal decision, it provides a strong indication of readiness and areas for improvement."
     },
     {
-      q: "What evidence is typically required?",
-      a: "Common evidence includes high-profile media coverage, international awards, letters of recommendation from industry experts, and proof of commercial or artistic impact."
+      q: "Is GTV Assessor a legal service?",
+      a: "No. GTV Assessor is an AI-powered assessment tool designed for guidance and preparation. It does not replace immigration lawyers or official UK Home Office decisions."
+    },
+    {
+      q: "How long does the assessment take?",
+      a: "The assessment typically takes 3–5 minutes to complete, and results are generated automatically after submission."
+    },
+    {
+      q: "Is the assessment free?",
+      a: "The initial evaluation requires payment. Pricing is displayed clearly before checkout."
     }
   ];
 

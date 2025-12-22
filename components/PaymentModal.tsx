@@ -37,10 +37,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
     // This prevents the browser from cancelling navigation if DOM changes are too fast
     const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
     
+    // 冗余记录状态
+    localStorage.setItem('gtv_pending_payment', 'true');
+    localStorage.setItem('gtv_pending_email', email);
+
     setTimeout(() => {
-      console.log("Redirecting to Stripe:", checkoutUrl);
-      window.location.assign(checkoutUrl);
-    }, 150);
+      try {
+        console.log("Initiating Secure Stripe Checkout:", checkoutUrl);
+        // 使用 assign 是为了防止在某些严格安全模式下无法记录历史记录导致返回按钮失效
+        window.location.assign(checkoutUrl);
+      } catch (err) {
+        console.error("Redirection Error:", err);
+        // 降级方案
+        window.location.href = checkoutUrl;
+      }
+    }, 200);
   };
 
   return (
