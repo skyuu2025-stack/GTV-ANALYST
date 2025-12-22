@@ -34,6 +34,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
   const BUNDLE_ID = "com.gtvassessor.ai";
   const isConnected = !!supabase;
 
+  const RLS_SQL = `-- Run this in your Supabase SQL Editor to fix Insert error:
+ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow Public Insert" ON assessments FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow Public Select" ON assessments FOR SELECT USING (true);
+-- Also for leads table:
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow Public Leads Insert" ON leads FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow Public Leads Select" ON leads FOR SELECT USING (true);`;
+
   const loadData = async () => {
     if (!isConnected) return;
     setLoading(true);
@@ -100,7 +109,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
         <div className="max-w-5xl mx-auto space-y-8 pb-20">
           <div className="flex justify-between items-center border-b border-zinc-100 pb-8 sticky top-0 bg-white z-10">
             <div>
-              <h2 className="text-3xl font-black uppercase tracking-tighter italic">Cloud Command</h2>
+              <h2 className="text-3xl font-black uppercase tracking-tighter italic text-zinc-900">Cloud Command</h2>
               <div className="flex items-center gap-2 mt-1">
                  <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
@@ -159,6 +168,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
                      </button>
                   </div>
                </div>
+
+               <div className="bg-amber-50 p-8 rounded-[3rem] border border-amber-200 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs">
+                      <i className="fas fa-shield-alt"></i>
+                    </div>
+                    <h4 className="font-black uppercase tracking-tighter italic text-amber-800">Database RLS Fixer</h4>
+                  </div>
+                  <p className="text-amber-700/70 text-[11px] font-medium leading-relaxed">If you see "Row-Level Security policy" errors, your Supabase tables are locked. Click the button below to copy the SQL fix, then paste it into your Supabase SQL Editor and run it.</p>
+                  <button 
+                    onClick={() => copyToClipboard(RLS_SQL, "SQL Fix Script")}
+                    className="w-full py-4 bg-amber-600 text-white font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-lg hover:bg-amber-700 transition-all"
+                  >
+                    Copy SQL Fix Script
+                  </button>
+               </div>
                
                <AssetGenerator />
             </div>
@@ -168,13 +193,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
                 <h3 className="font-black text-xl uppercase tracking-tighter italic text-zinc-900">{activeTab === 'leads' ? 'Database' : 'Evaluations'}</h3>
                 <button onClick={() => copyToClipboard((activeTab === 'leads' ? leads : assessments).map(l => l.email).join('\n'), "Email list")} className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Export All</button>
                </div>
+               
+               {errorMsg && (
+                 <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-[10px] font-bold uppercase border border-red-100">
+                    <i className="fas fa-exclamation-triangle mr-2"></i> {errorMsg}
+                 </div>
+               )}
+
                <div className="grid gap-4">
                  {(activeTab === 'leads' ? leads : assessments).slice(0, 10).map((item: any) => (
                    <div key={item.id} className="p-4 bg-zinc-50 rounded-2xl flex justify-between items-center">
-                     <span className="font-bold text-sm">{item.email}</span>
+                     <span className="font-bold text-sm text-zinc-700">{item.email}</span>
                      {'score' in item && <span className="text-amber-600 font-black text-xs">{item.score}%</span>}
                    </div>
                  ))}
+                 {(activeTab === 'leads' ? leads : assessments).length === 0 && !loading && (
+                    <div className="text-center py-20 opacity-20 italic text-sm">No records found. Check RLS policies.</div>
+                 )}
                </div>
              </div>
           )}

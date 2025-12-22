@@ -80,7 +80,6 @@ const App: React.FC = () => {
       setLogoClickCount(0);
     } else {
       setLogoClickCount(newCount);
-      // 3秒内不点满5次会自动重置
       const timer = setTimeout(() => setLogoClickCount(0), 3000);
       return () => clearTimeout(timer);
     }
@@ -100,16 +99,24 @@ const App: React.FC = () => {
     if (isDemoMode) {
       setTimeout(() => {
         setAnalysisResult(MOCK_PREMIUM_RESULT);
-        setStep(AppStep.RESULTS_FREE); // 先展示免费版，引导进入支付弹窗
+        setStep(AppStep.RESULTS_FREE);
       }, 2000);
       return;
     }
 
     try {
+      // 1. 获取 AI 结果
       const result = await analyzeVisaEligibility(data, fileNames);
+      
+      // 2. 本地持久化 (确保如果数据库保存失败，用户依然能看到结果)
       localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
       localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
-      await saveAssessment(data, result);
+      
+      // 3. 尝试保存到 Supabase (非阻塞)
+      saveAssessment(data, result).catch(err => {
+        console.warn("Supabase Save failed (likely RLS), but proceeding to results:", err);
+      });
+      
       setAnalysisResult(result);
       setStep(AppStep.RESULTS_FREE);
     } catch (err: any) {
