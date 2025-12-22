@@ -25,30 +25,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [assessments, setAssessments] = useState<AssessmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'leads' | 'assessments'>('leads');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   const envStatus = getEnvStatus();
   const isConnected = !!supabase;
 
-  useEffect(() => {
-    if (!isConnected) {
-      setLoading(false);
-      return;
-    }
-
-    const loadData = async () => {
-      try {
-        const [lData, aData] = await Promise.all([
-          fetchAllLeads(),
-          fetchAllAssessments()
-        ]);
-        setLeads(lData || []);
-        setAssessments(aData || []);
-      } catch (err) {
-        console.error("Failed to load admin data:", err);
-      } finally {
-        setLoading(false);
+  const loadData = async () => {
+    if (!isConnected) return;
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const [lRes, aRes] = await Promise.all([
+        fetchAllLeads(),
+        fetchAllAssessments()
+      ]);
+      
+      if (lRes.error || aRes.error) {
+        setErrorMsg(lRes.error || aRes.error);
       }
-    };
+      
+      setLeads(lRes.data);
+      setAssessments(aRes.data);
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadData();
   }, [isConnected]);
 
@@ -57,7 +62,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     if (!list.length) return;
     const text = list.map(l => l.email).join('\n');
     navigator.clipboard.writeText(text);
-    alert("Email list copied to clipboard!");
+    alert("Email list copied!");
   };
 
   return (
@@ -73,42 +78,31 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-14 h-14 bg-zinc-50 rounded-full flex items-center justify-center hover:bg-zinc-100 transition-colors">
-            <i className="fas fa-times"></i>
-          </button>
+          <div className="flex items-center gap-3">
+             <button 
+                onClick={loadData}
+                disabled={loading || !isConnected}
+                className="w-12 h-12 bg-zinc-50 rounded-full flex items-center justify-center hover:bg-zinc-100 transition-all active:scale-90 disabled:opacity-30"
+                title="Refresh Data"
+              >
+                <i className={`fas fa-sync-alt ${loading ? 'animate-spin' : ''}`}></i>
+             </button>
+             <button onClick={onClose} className="w-12 h-12 bg-zinc-900 text-white rounded-full flex items-center justify-center hover:bg-black transition-colors shadow-lg">
+                <i className="fas fa-times"></i>
+             </button>
+          </div>
         </div>
 
-        {!isConnected && (
-          <div className="bg-amber-50 border border-amber-100 p-8 rounded-[2rem] space-y-6">
-             <div className="flex items-center gap-3 text-amber-600">
-                <i className="fas fa-triangle-exclamation text-xl"></i>
-                <h4 className="font-black uppercase tracking-widest text-xs">Environment Troubleshooting</h4>
+        {errorMsg && (
+          <div className="bg-red-50 border border-red-100 p-6 rounded-2xl flex flex-col gap-3">
+             <div className="flex items-center gap-3 text-red-600">
+                <i className="fas fa-bug"></i>
+                <h4 className="font-black uppercase text-xs tracking-widest">Database Fetch Error</h4>
              </div>
-             
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
-                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-2">VITE_SUPABASE_URL</p>
-                   <p className={`font-bold text-sm ${envStatus.hasUrl ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasUrl ? 'DETECTED' : 'MISSING'}</p>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
-                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-2">VITE_SUPABASE_ANON_KEY</p>
-                   <p className={`font-bold text-sm ${envStatus.hasKey ? 'text-green-600' : 'text-red-500'}`}>{envStatus.hasKey ? 'DETECTED' : 'MISSING'}</p>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
-                   <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest mb-2">Prefix Hint</p>
-                   <p className="font-bold text-xs text-zinc-600 truncate">{envStatus.urlValue}</p>
-                </div>
-             </div>
-
-             <div className="space-y-3 bg-white/50 p-6 rounded-2xl border border-amber-100/50">
-               <p className="text-zinc-800 text-xs font-bold uppercase tracking-tight">Resolution Checklist:</p>
-               <ol className="text-[11px] text-zinc-600 space-y-2 list-decimal ml-4 font-medium leading-relaxed">
-                 <li>Go to <b>Netlify Dashboard</b> &rarr; <b>Site Configuration</b> &rarr; <b>Environment Variables</b>.</li>
-                 <li>Add <b>VITE_SUPABASE_URL</b> (Value from Supabase Project Settings).</li>
-                 <li>Add <b>VITE_SUPABASE_ANON_KEY</b> (Value from Supabase API keys).</li>
-                 <li><b>IMPORTANT</b>: Go to <b>Deploys</b> tab &rarr; Click <b>Trigger deploy</b> &rarr; <b>Clear cache and deploy site</b>.</li>
-               </ol>
-             </div>
+             <p className="text-xs text-red-500 font-medium">"{errorMsg}"</p>
+             <p className="text-[10px] text-red-400 leading-relaxed italic">
+                * Note: If data exists but you see 0 records, ensure you have disabled RLS (Row Level Security) or added a SELECT policy for 'anon' role in your Supabase dashboard.
+             </p>
           </div>
         )}
 
@@ -128,8 +122,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         </div>
 
         {loading ? (
-          <div className="py-40 text-center">
-            <i className="fas fa-circle-notch animate-spin text-4xl text-zinc-200"></i>
+          <div className="py-40 text-center flex flex-col items-center gap-6">
+            <div className="w-12 h-12 border-4 border-zinc-100 border-t-zinc-900 rounded-full animate-spin"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Synchronizing Live Data...</p>
           </div>
         ) : (
           <div className="bg-white rounded-[3rem] p-10 border border-zinc-100 shadow-sm space-y-8">
@@ -185,9 +180,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             )}
 
             {(activeTab === 'leads' ? leads.length : assessments.length) === 0 && (
-              <div className="py-24 text-center opacity-20">
-                <i className="fas fa-ghost text-5xl mb-4"></i>
+              <div className="py-24 text-center opacity-40">
+                <i className="fas fa-ghost text-5xl mb-4 text-zinc-200"></i>
                 <p className="font-black uppercase tracking-[0.4em] text-xs">Waiting for your first conversion</p>
+                <button onClick={loadData} className="mt-6 text-[9px] font-black uppercase tracking-widest underline underline-offset-4">Try Force Refresh</button>
               </div>
             )}
           </div>

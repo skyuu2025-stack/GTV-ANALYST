@@ -1,5 +1,10 @@
 {
-  "name": "GTV AI Assessor - UK Global Talent Visa Checker",
-  "description": "The professional AI-driven roadmap for UK Global Talent Visa applicants. Instant eligibility scores for Tech Nation and Arts Council endorsement routes.",
-  "requestFramePermissions": []
+  "name": "GTV Analyst: UK Visa AI",
+  "short_name": "GTV AI",
+  "description": "Professional AI-driven assessment for the UK Global Talent Visa. Specialized in Tech Nation and Arts Council routes with instant eligibility scoring.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "apple_app_id": "com.gtvassessor.ai",
+  "version": "1.0.0"
 }

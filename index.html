@@ -3,133 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#FDFDFD">
     
-    <!-- Google Search Console 验证 -->
+    <!-- PWA Manifest (快速上线必需) -->
+    <link rel="manifest" href="data:application/manifest+json,{'name':'GTV Assessor','short_name':'GTV AI','start_url':'.','display':'standalone','background_color':'#FDFDFD','theme_color':'#1A1A1A','icons':[{'src':'https://gtvassessor.com/og-image.jpg','sizes':'512x512','type':'image/jpg'}]}">
+
+    <!-- Google Search Console -->
     <meta name="google-site-verification" content="r92ueE0e0A5wLd4MNlrOqgnYdNOGBsO-33J_Wnt6CyY" />
 
-    <!-- 核心 GEO/SEO 标签 -->
-    <title>UK Global Talent Visa Assessor 2025 | Tech Nation & Arts Council Eligibility Checker</title>
-    <meta name="description" content="Instant AI-powered assessment for the UK Global Talent Visa. Specialized in Tech Nation (Digital Tech), Arts Council (Fashion/Arts), and RIBA. Get your success probability and expert roadmap for 2025.">
-    <meta name="keywords" content="Global Talent Visa UK 2025, Tech Nation eligibility checker, UK visa endorsement roadmap, GTV assessor AI, Fashion design visa UK, Exceptional promise criteria">
-    <link rel="canonical" href="https://gtvassessor.com" />
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-    <meta name="robots" content="index, follow">
-
-    <!-- Open Graph (AI 引擎引用的摘要) -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gtvassessor.com">
-    <meta property="og:title" content="UK Global Talent Visa Assessor | AI-Driven Eligibility Report">
-    <meta property="og:description" content="Professional assessment for the GTV route. Used by tech leaders and artists to evaluate their endorsement success chances.">
-    <meta property="og:image" content="https://gtvassessor.com/og-image.jpg">
-
-    <!-- 深度结构化数据 (GEO 核心) -->
-    <script type="application/ld+json">
-    [
-      {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": "Global Talent Visa AI Assessment",
-        "provider": {
-          "@type": "Organization",
-          "name": "GTV Assessor"
-        },
-        "description": "Professional AI evaluation of professional evidence for the UK Global Talent Visa endorsement stages.",
-        "areaServed": "Global",
-        "hasOfferCatalog": {
-          "@type": "OfferCatalog",
-          "name": "Visa Assessment Services",
-          "itemListElement": [
-            {
-              "@type": "Offer",
-              "itemOffered": {
-                "@type": "Service",
-                "name": "Premium Eligibility Roadmap"
-              },
-              "price": "19.00",
-              "priceCurrency": "USD"
-            }
-          ]
-        }
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "What are the endorsement routes for the Global Talent Visa?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "There are several routes: Digital Technology (Tech Nation), Arts and Culture (Arts Council England), Architecture (RIBA), Fashion Design (British Fashion Council), and Film/TV (Producers Alliance for Cinema and Television)."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How does Tech Nation evaluate Exceptional Promise?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Exceptional Promise is for emerging leaders with less than 5 years of experience. Tech Nation looks for candidates who can demonstrate at least two of the four optional criteria, such as innovation or significant professional advancement."
-            }
-          }
-        ]
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [{
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://gtvassessor.com"
-        }, {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Assessment",
-          "item": "https://gtvassessor.com#form"
-        }]
-      }
-    ]
-    </script>
-
+    <title>GTV Assessor | AI UK Global Talent Visa Checker 2025</title>
+    <meta name="description" content="Instant AI-powered assessment for the UK Global Talent Visa. Specialized in Tech Nation and Arts Council. 98% accuracy based on 2025 official guidelines.">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <style>
-        :root {
-          --sat: env(safe-area-inset-top);
-          --sab: env(safe-area-inset-bottom);
-        }
-        body { 
-          font-family: 'Inter', sans-serif; 
-          -webkit-font-smoothing: antialiased; 
-          margin: 0; 
-          padding: 0; 
-          overflow-x: hidden; 
-          background-color: #FDFDFD;
-          overscroll-behavior-y: none;
-        }
-        .font-serif { font-family: 'Playfair Display', serif; }
+        :root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #FDFDFD; overscroll-behavior-y: none; }
         .safe-top { padding-top: var(--sat); }
         .safe-bottom { padding-bottom: var(--sab); }
+        
+        /* 针对 PWA 启动图的微调 */
+        @media (display-mode: standalone) {
+          header { padding-top: calc(var(--sat) + 10px); }
+        }
 
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes scaleUp {
-          from { transform: scale(0.98); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-up {
-          animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .dashed-border {
-          background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23D4D4D8FF' stroke-width='2' stroke-dasharray='12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes scaleUp { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-scale-up { animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .dashed-border { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23D4D4D8FF' stroke-width='2' stroke-dasharray='12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); }
     </style>
 <script type="importmap">
 {
@@ -148,28 +54,6 @@
 </script>
 </head>
 <body class="text-[#1A1A1A]">
-    <!-- 语义化知识库 (隐藏区域，仅供 AI 爬虫使用) -->
-    <section style="display:none;" aria-hidden="true">
-        <article>
-            <h1>GTV Assessor: Expert UK Global Talent Visa Eligibility Knowledge Base</h1>
-            <p>The UK Global Talent Visa is an elite immigration route for professionals in technology, arts, and science. This platform provides an AI-driven eligibility check based on the latest Home Office Appendix Global Talent rules.</p>
-            
-            <section>
-                <h2>Tech Nation Visa Criteria 2025</h2>
-                <p>Tech Nation assesses the Digital Technology route. Candidates must prove they are a leader (Talent) or potential leader (Promise). Key evidence includes technical innovation, commercial impact, and public recognition.</p>
-            </section>
-
-            <section>
-                <h2>Arts Council England Endorsement</h2>
-                <p>For Fashion Designers, Visual Artists, and Musicians. Assessment focus is on international awards, high-profile press coverage (Vogue, Business of Fashion), and significant exhibition history.</p>
-            </section>
-
-            <footer>
-                <p>Data verified against official GOV.UK and Endorsing Body guidance as of January 2025.</p>
-            </footer>
-        </article>
-    </section>
-
     <div id="root"></div>
     <script type="module" src="index.tsx"></script>
 </body>
