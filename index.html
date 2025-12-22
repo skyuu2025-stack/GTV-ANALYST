@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#FDFDFD">
     
-    <!-- PWA Manifest (快速上线必需) -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/manifest+json,{'name':'GTV Assessor','short_name':'GTV AI','start_url':'.','display':'standalone','background_color':'#FDFDFD','theme_color':'#1A1A1A','icons':[{'src':'https://gtvassessor.com/og-image.jpg','sizes':'512x512','type':'image/jpg'}]}">
 
     <!-- Google Search Console -->
@@ -16,6 +16,72 @@
     <title>GTV Assessor | AI UK Global Talent Visa Checker 2025</title>
     <meta name="description" content="Instant AI-powered assessment for the UK Global Talent Visa. Specialized in Tech Nation and Arts Council. 98% accuracy based on 2025 official guidelines.">
     
+    <!-- GTV Assessor – Rich Results Schema (Final Production Version) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://gtvassessor.com/#organization",
+          "name": "GTV Assessor",
+          "url": "https://gtvassessor.com/",
+          "logo": "https://gtvassessor.com/logo.png",
+          "description": "AI-powered assessment platform helping applicants evaluate their eligibility and readiness for the UK Global Talent Visa.",
+          "sameAs": []
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://gtvassessor.com/#website",
+          "url": "https://gtvassessor.com/",
+          "name": "GTV Assessor",
+          "publisher": {
+            "@id": "https://gtvassessor.com/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://gtvassessor.com/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://gtvassessor.com/#software",
+          "name": "GTV Assessor AI Visa Evaluation",
+          "operatingSystem": "Web",
+          "applicationCategory": "BusinessApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "19",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "url": "https://gtvassessor.com/"
+          },
+          "publisher": {
+            "@id": "https://gtvassessor.com/#organization"
+          },
+          "description": "An AI-driven online tool that assesses UK Global Talent Visa eligibility, evidence strength, and endorsement readiness."
+        },
+        {
+          "@type": "Product",
+          "@id": "https://gtvassessor.com/#product",
+          "name": "UK Global Talent Visa AI Assessment",
+          "description": "Paid AI assessment providing success probability, strengths, weaknesses, and tailored improvement advice for UK Global Talent Visa applicants.",
+          "brand": {
+            "@id": "https://gtvassessor.com/#organization"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": "https://gtvassessor.com/",
+            "priceCurrency": "USD",
+            "price": "19",
+            "availability": "https://schema.org/InStock"
+          }
+        }
+      ]
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,7 +92,6 @@
         .safe-top { padding-top: var(--sat); }
         .safe-bottom { padding-bottom: var(--sab); }
         
-        /* 针对 PWA 启动图的微调 */
         @media (display-mode: standalone) {
           header { padding-top: calc(var(--sat) + 10px); }
         }
