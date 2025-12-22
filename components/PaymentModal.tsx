@@ -46,8 +46,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             App Store Reviewer Account
           </div>
         )}
-        <div className="w-16 h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-2xl rotate-3 ring-4 ring-white/10">
-          <i className="fas fa-crown"></i>
+        {/* Removed rotate-3 to straighten the icon container */}
+        <div className="w-16 h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-2xl ring-4 ring-white/10 relative">
+          <i className="fas fa-crown text-white"></i>
         </div>
         <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2 uppercase italic leading-tight">
           Unlock <span className="text-[#D4AF37]">Premium</span> Audit
