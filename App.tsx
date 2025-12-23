@@ -146,39 +146,39 @@ const App: React.FC = () => {
           <>
             <Hero onStart={() => setStep(AppStep.FORM)} />
             
-            {/* How it Works Section */}
+            {/* How it Works Section - SEO H2 */}
             <section className="py-24 px-6 max-w-6xl mx-auto border-t border-zinc-50">
               <div className="text-center mb-16">
-                <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-4">The Process</h3>
-                <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic italic">How GTV Assessor Works</h2>
+                <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-4">Official Criteria Scan</h3>
+                <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic">How GTV Assessor Works</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div className="space-y-4">
                   <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black">1</div>
-                  <h3 className="text-xl font-bold italic">AI Eligibility Analysis</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Our system evaluates your achievements, recognition, and professional impact based on official endorsement criteria.</p>
+                  <h3 className="text-xl font-bold italic">AI-Powered Eligibility Analysis</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Our system evaluates your achievements, recognition, and professional impact based on official UK Global Talent Visa criteria.</p>
                 </div>
                 <div className="space-y-4">
                   <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black">2</div>
-                  <h3 className="text-xl font-bold italic">Identify Strengths & Gaps</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Understand where your profile stands and which areas require improvement or more evidence before submission.</p>
+                  <h3 className="text-xl font-bold italic">Identify Strengths and Weaknesses</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Understand exactly where your profile stands and which requirements need more evidence before your final submission.</p>
                 </div>
                 <div className="space-y-4">
                   <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black">3</div>
-                  <h3 className="text-xl font-bold italic">Tactical Roadmap</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Receive tailored advice on evidence preparation and positioning strategy to maximize your endorsement success.</p>
+                  <h3 className="text-xl font-bold italic">Actionable Improvement Guidance</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Receive a 5-phase tactical roadmap tailored to your specific field (Tech, Arts, or Research) to maximize success.</p>
                 </div>
               </div>
             </section>
 
-            {/* Who Should Use Section */}
+            {/* Who Should Use Section - SEO H2 */}
             <section className="py-24 bg-zinc-50 px-6">
               <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16">
                 <div className="md:w-1/2 space-y-8">
                   <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic">Who Should Use <br/>GTV Assessor?</h2>
-                  <p className="text-zinc-600 text-lg italic leading-relaxed">The Global Talent Visa endorsement process is highly selective. An early-stage AI evaluation helps reduce risk and save time.</p>
+                  <p className="text-zinc-600 text-lg italic leading-relaxed">The UK Global Talent Visa endorsement process is highly selective. An early-stage AI evaluation helps you avoid weak submissions.</p>
                   <ul className="grid grid-cols-1 gap-4">
-                    {["Fashion Designers & Creative Pros", "Digital Tech Specialists & Founders", "Artists, Musicians & Curators", "Researchers & Academic Leaders"].map((item, idx) => (
+                    {["Fashion designers and creative professionals", "Digital technology specialists and founders", "Artists, curators, and musicians", "Researchers and academic professionals"].map((item, idx) => (
                       <li key={idx} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 font-bold uppercase text-[11px] tracking-widest">
                         <i className="fas fa-check-circle text-[#D4AF37]"></i> {item}
                       </li>
@@ -190,7 +190,7 @@ const App: React.FC = () => {
                     <div className="w-full h-4 bg-zinc-50 rounded-full overflow-hidden"><div className="w-4/5 h-full bg-[#D4AF37]"></div></div>
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-zinc-400">
                       <span>Eligibility Score</span>
-                      <span className="text-zinc-900">82% (Excellent)</span>
+                      <span className="text-zinc-900">82% (High Readiness)</span>
                     </div>
                     <div className="pt-6 border-t border-zinc-50 space-y-4">
                        <div className="h-2 w-full bg-zinc-50 rounded-full"></div>
@@ -202,9 +202,30 @@ const App: React.FC = () => {
               </div>
             </section>
 
+            {/* Trust Section - SEO H2 */}
+            <section className="py-24 px-6 text-center max-w-4xl mx-auto">
+              <h2 className="text-3xl font-black tracking-tighter uppercase italic mb-6">Why Use an AI Assessment Before Applying?</h2>
+              <p className="text-zinc-500 text-lg italic leading-relaxed">The endorsement process is highly selective. Our tool helps reduce risk by identifying weak points early, saving you significant time and legal costs.</p>
+            </section>
+
             <SocialProof />
             <FAQ />
             <LeadCapture />
+
+            {/* Final CTA Section - SEO H2 */}
+            <section className="py-24 px-6 text-center bg-zinc-900 text-white rounded-[4rem] mx-4 mb-24 overflow-hidden relative">
+              <div className="absolute inset-0 bg-amber-600/5 blur-[100px]"></div>
+              <div className="relative z-10 space-y-10">
+                <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic">Start Your Global Talent Visa Assessment Today</h2>
+                <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto font-light italic">Get a clear picture of your chances and a tailored evidence map before you apply.</p>
+                <button 
+                  onClick={() => { setStep(AppStep.FORM); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="px-16 py-7 bg-white text-zinc-900 font-black rounded-3xl uppercase tracking-widest text-sm hover:bg-zinc-100 transition-all shadow-2xl active:scale-95"
+                >
+                  Start Assessment
+                </button>
+              </div>
+            </section>
           </>
         )}
         {step === AppStep.FORM && <AssessmentForm onSubmit={handleFormSubmit} error={error} />}

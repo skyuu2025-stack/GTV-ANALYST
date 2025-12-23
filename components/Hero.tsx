@@ -29,13 +29,14 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         <i className="fas fa-bolt-lightning mr-2"></i> 2025 Updated Criteria
       </div>
       
-      <h1 className="text-[36px] md:text-[84px] font-bold text-[#1A1A1A] max-w-5xl leading-[1.1] md:leading-[1.1] mb-8 md:mb-10 tracking-tighter">
-        UK Global Talent <span className="font-serif italic text-[#D4AF37]">Visa Eligibility</span> <br/> 
-        Assessment by AI
+      <h1 className="text-[32px] md:text-[72px] font-bold text-[#1A1A1A] max-w-5xl leading-[1.1] md:leading-[1.1] mb-8 md:mb-10 tracking-tighter uppercase italic">
+        UK Global Talent Visa <br/>
+        <span className="font-serif text-[#D4AF37]">Eligibility Assessment</span> <br/>
+        by AI
       </h1>
       
       <h2 className="text-zinc-400 text-sm md:text-[22px] max-w-2xl mx-auto leading-relaxed mb-10 md:mb-16 font-medium opacity-80 px-4 italic">
-        Check Your Global Talent Visa Readiness in Minutes. Expert Gemini 3 Pro AI audit for Tech Nation, Arts Council, and RIBA.
+        Check Your Global Talent Visa Readiness in Minutes. AI-powered evaluation for Tech Nation, Arts Council, and RIBA.
       </h2>
       
       <div className="flex flex-col items-center gap-6 w-full px-4">
