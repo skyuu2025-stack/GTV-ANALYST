@@ -1,4 +1,4 @@
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 
 interface PaymentModalProps {
   email: string;
@@ -7,41 +7,25 @@ interface PaymentModalProps {
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel }) => {
-  const [isPending, startTransition] = useTransition();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showManualLink, setShowManualLink] = useState(false);
   
   const isDemo = localStorage.getItem('gtv_demo_mode') === 'true' || sessionStorage.getItem('gtv_demo_active') === 'true';
 
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
   const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(email)}`;
   
-  const handlePayment = () => {
-    if (isDemo) {
-      setIsProcessing(true);
-      setTimeout(() => {
-        setIsProcessing(false);
-        onSuccess();
-      }, 1200);
-      return;
-    }
-
+  const handleDemoPayment = () => {
     setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+      onSuccess();
+    }, 1200);
+  };
+
+  const handleRealPaymentClick = () => {
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
-
-    // Direct redirection to minimize browser blocking
-    try {
-      window.location.href = checkoutUrl;
-      
-      // Safety timeout: if the redirect takes too long, show manual link
-      setTimeout(() => {
-        setShowManualLink(true);
-      }, 3000);
-    } catch (error) {
-      console.error("Stripe Redirect Error:", error);
-      setShowManualLink(true);
-    }
+    // Standard link click will handle the navigation naturally
   };
 
   return (
@@ -70,19 +54,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             </div>
             <div className="space-y-4">
               <p className="text-zinc-900 font-black text-xs uppercase tracking-widest animate-pulse">
-                {isDemo ? 'Verifying Sandbox...' : 'Connecting to Stripe...'}
+                Verifying Sandbox...
               </p>
-              {showManualLink && !isDemo && (
-                <div className="space-y-4 pt-4 border-t border-zinc-50 animate-fade-in">
-                  <p className="text-zinc-400 text-[10px] font-bold italic">Redirect blocked? Please click below:</p>
-                  <a 
-                    href={checkoutUrl}
-                    className="inline-block px-8 py-4 bg-zinc-900 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-lg hover:bg-black transition-all active:scale-95"
-                  >
-                    Continue to Payment
-                  </a>
-                </div>
-              )}
             </div>
           </div>
         ) : (
@@ -113,12 +86,23 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
               ))}
             </div>
 
-            <button 
-              onClick={handlePayment} 
-              className={`w-full py-6 font-black rounded-3xl shadow-2xl uppercase tracking-[0.2em] text-[11px] mb-4 transition-all active:scale-95 ${isDemo ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-zinc-900 text-white hover:bg-black'}`}
-            >
-              {isDemo ? 'Verify Reviewer Access' : 'Purchase Full Audit'}
-            </button>
+            {isDemo ? (
+              <button 
+                onClick={handleDemoPayment}
+                className="w-full py-6 bg-green-600 text-white font-black rounded-3xl shadow-2xl uppercase tracking-[0.2em] text-[11px] mb-4 transition-all active:scale-95 hover:bg-green-700"
+              >
+                Verify Reviewer Access
+              </button>
+            ) : (
+              <a 
+                href={checkoutUrl}
+                onClick={handleRealPaymentClick}
+                className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl shadow-2xl uppercase tracking-[0.2em] text-[11px] mb-4 transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center"
+              >
+                Purchase Full Audit
+              </a>
+            )}
+            
             <button onClick={onCancel} className="text-zinc-300 hover:text-zinc-900 text-[10px] font-black uppercase tracking-widest transition-all">Back to Score</button>
           </>
         )}

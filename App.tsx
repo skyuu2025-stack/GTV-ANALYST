@@ -134,16 +134,19 @@ const App: React.FC = () => {
   };
 
   const navigateTo = (path: string) => {
-    // 1. Attempt to update URL for SEO/Sharing
+    // Determine the next step immediately
+    const nextStep = determineStepFromPath(path);
+    
+    // 1. Attempt to update URL
     try {
       window.history.pushState({}, '', path);
     } catch (e) {
-      console.warn('History API restricted - routing internally', e);
+      console.warn('History pushState failed (environment restricted)', e);
     }
     
-    // 2. Explicitly set state to ensure jump happens even if pushState failed
+    // 2. Explicitly update state to ensure UI jump
     startTransition(() => {
-      setStep(determineStepFromPath(path));
+      setStep(nextStep);
     });
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -233,10 +236,19 @@ const App: React.FC = () => {
                            <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Eligibility Score</span>
                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">82% (High Readiness)</span>
                         </div>
-                        <div className="space-y-2 pt-4 opacity-10">
-                           <div className="h-1 bg-zinc-200 w-full rounded-full"></div>
-                           <div className="h-1 bg-zinc-200 w-3/4 rounded-full"></div>
-                           <div className="h-1 bg-zinc-200 w-full rounded-full"></div>
+                        <div className="space-y-3 pt-6 border-t border-zinc-50">
+                           <div className="flex items-center gap-2">
+                             <div className="w-3 h-3 bg-green-500 rounded-full opacity-50"></div>
+                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Leadership Profile: Confirmed</span>
+                           </div>
+                           <div className="flex items-center gap-2">
+                             <div className="w-3 h-3 bg-green-500 rounded-full opacity-50"></div>
+                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Innovation Record: Strong</span>
+                           </div>
+                           <div className="flex items-center gap-2">
+                             <div className="w-3 h-3 bg-amber-500 rounded-full opacity-50"></div>
+                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Media Gap: 1 Clipping Needed</span>
+                           </div>
                         </div>
                       </div>
                    </div>
