@@ -1,10 +1,10 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
-  // Use process.env.API_KEY directly when initializing the GoogleGenAI client instance
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
   const prompt = `
     ROLE: Senior UK Immigration Analyst.
     TASK: Critical assessment of Global Talent Visa (GTV) eligibility.
@@ -21,7 +21,6 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   `;
 
   try {
-    // Calling generateContent with gemini-3-pro-preview for complex reasoning task
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
       contents: prompt,
@@ -66,18 +65,46 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
       }
     });
 
-    // Extract generated text from response using the .text property (not a function)
     const resultText = response.text;
     if (!resultText) throw new Error("Empty response from AI engine.");
     
     return JSON.parse(resultText) as AnalysisResult;
   } catch (err: any) {
     console.error("Gemini Analysis Error:", err);
-    
-    if (err.message?.includes('429') || err.message?.includes('quota')) {
-      throw new Error("QUOTA_EXCEEDED");
-    }
-    
+    if (err.message?.includes('429')) throw new Error("QUOTA_EXCEEDED");
     throw new Error("AI 评估遇到异常，请检查网络后重试。");
+  }
+};
+
+/**
+ * 使用 Google Maps Grounding 寻找附近的签证支持机构
+ */
+export const searchLocalVisaSupport = async (lat: number, lng: number) => {
+  const prompt = "Find 3 reputable immigration law firms or visa consultants nearby that specialize in UK Global Talent or High Potential visas.";
+  
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        tools: [{ googleMaps: {} }],
+        toolConfig: {
+          retrievalConfig: {
+            latLng: {
+              latitude: lat,
+              longitude: lng
+            }
+          }
+        }
+      }
+    });
+
+    return {
+      text: response.text,
+      grounding: response.candidates?.[0]?.groundingMetadata?.groundingChunks || []
+    };
+  } catch (err) {
+    console.error("Maps Grounding Error:", err);
+    throw new Error("Unable to fetch local support at this time.");
   }
 };

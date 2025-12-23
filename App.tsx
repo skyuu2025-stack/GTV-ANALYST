@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useTransition, Suspense, useCallback, useRef } from 'react';
 import { AppStep, AssessmentData, AnalysisResult } from './types.ts';
 import { analyzeVisaEligibility } from './geminiService.ts';
@@ -16,6 +17,7 @@ import GuideGeneral from './components/GuideGeneral.tsx';
 import GuideFashion from './components/GuideFashion.tsx';
 import GuideTech from './components/GuideTech.tsx';
 import FAQSchema from './components/FAQSchema.tsx';
+import LocalSupportFinder from './components/LocalSupportFinder.tsx';
 
 const MOCK_PREMIUM_RESULT: AnalysisResult = {
   probabilityScore: 92,
@@ -44,7 +46,6 @@ const App: React.FC = () => {
     }
   });
 
-  // Admin click trigger state
   const logoClicks = useRef(0);
   const lastClickTime = useRef(0);
 
@@ -134,35 +135,26 @@ const App: React.FC = () => {
   };
 
   const navigateTo = (path: string) => {
-    // Determine the next step immediately
     const nextStep = determineStepFromPath(path);
-    
-    // 1. Attempt to update URL
     try {
       window.history.pushState({}, '', path);
     } catch (e) {
-      console.warn('History pushState failed (environment restricted)', e);
+      console.warn('History pushState failed', e);
     }
-    
-    // 2. Explicitly update state to ensure UI jump
     startTransition(() => {
       setStep(nextStep);
     });
-    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
     const now = Date.now();
-    
     if (now - lastClickTime.current > 2000) {
       logoClicks.current = 0;
     }
-    
     logoClicks.current += 1;
     lastClickTime.current = now;
-
     if (logoClicks.current >= 5) {
       setShowAdmin(true);
       logoClicks.current = 0;
@@ -179,7 +171,6 @@ const App: React.FC = () => {
             <FAQSchema />
             <Hero onStart={() => navigateTo('/eligibility-check')} />
             
-            {/* How it works */}
             <section className="py-24 px-6 max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-4">Official Criteria Scan</h3>
@@ -204,7 +195,6 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            {/* Who should use */}
             <section className="py-24 bg-zinc-50/50 overflow-hidden">
               <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
                 <div className="flex-1 space-y-8">
@@ -256,11 +246,11 @@ const App: React.FC = () => {
               </div>
             </section>
 
+            <LocalSupportFinder />
             <SocialProof />
             <FAQ />
             <LeadCapture />
 
-            {/* Final CTA */}
             <section className="py-24 px-6">
               <div className="max-w-6xl mx-auto bg-zinc-900 rounded-[4rem] p-12 md:p-24 text-center text-white space-y-12 shadow-2xl border border-zinc-800 relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-500/5 to-transparent"></div>
@@ -317,11 +307,7 @@ const App: React.FC = () => {
         </div>
         <button onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.href = '/'; }} className="text-[9px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-4 py-2 rounded-full hover:bg-zinc-50 transition-colors">Reset Session</button>
       </header>
-
-      <main className="flex-grow">
-        {renderContent()}
-      </main>
-
+      <main className="flex-grow">{renderContent()}</main>
       <footer className="bg-white border-t border-zinc-100 py-24 text-left">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16 mb-24">
            <div className="space-y-6">
