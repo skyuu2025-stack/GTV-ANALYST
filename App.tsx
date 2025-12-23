@@ -129,7 +129,7 @@ const App: React.FC = () => {
         >
           <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black shadow-lg group-hover:scale-105 transition-transform">G</div>
           <div className="flex flex-col">
-            <span className="text-sm md:text-xl font-light tracking-widest uppercase">GTV <span className="font-black">Analyst</span></span>
+            <span className="text-sm md:text-xl font-light tracking-widest uppercase">GTV <span className="font-black">Assessor</span></span>
             {isDemoMode && <span className="text-[8px] font-black text-green-500 uppercase tracking-widest mt-0.5 animate-pulse">DEMO Active</span>}
           </div>
         </div>
@@ -227,7 +227,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="bg-white border-t border-zinc-100 py-12 text-center pb-[calc(48px+var(--sab))]">
-        <p className="text-[9px] text-zinc-400 font-black tracking-widest uppercase">&copy; {new Date().getFullYear()} GTV AI. PROUDLY BUILT FOR TALENTS.</p>
+        <p className="text-[9px] text-zinc-400 font-black tracking-widest uppercase">&copy; {new Date().getFullYear()} GTV Assessor. PROUDLY BUILT FOR TALENTS.</p>
         <div className="flex justify-center gap-6 mt-6">
           <button onClick={() => setShowPrivacy(true)} className="text-[9px] text-zinc-300 font-bold uppercase tracking-widest hover:text-zinc-600">Privacy Policy</button>
           <span className="text-zinc-100">|</span>
