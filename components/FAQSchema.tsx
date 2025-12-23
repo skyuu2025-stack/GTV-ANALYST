@@ -17,15 +17,15 @@ const DEFAULT_FAQS: FAQItem[] = [
   },
   {
     question: "Who is eligible for the Global Talent Visa?",
-    answer: "Eligibility is based on professional achievements, recognition, and impact in your field. Applicants are assessed as either Exceptional Talent or Exceptional Promise."
+    answer: "Eligibility is based on professional achievements and recognition in your field. Applicants are assessed as either Exceptional Talent or Exceptional Promise."
   },
   {
     question: "How does the GTV AI Assessor work?",
-    answer: "GTV AI Assessor analyzes your background against UK Home Office criteria to provide an instant eligibility assessment, highlighting strengths and areas for improvement."
+    answer: "GTV AI Assessor analyzes your profile against UK Home Office criteria to provide an instant eligibility assessment and evidence mapping."
   }
 ];
 
-export default function FAQSchema({ items = DEFAULT_FAQS }: FAQSchemaProps) {
+const FAQSchema: React.FC<FAQSchemaProps> = ({ items = DEFAULT_FAQS }) => {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -41,9 +41,12 @@ export default function FAQSchema({ items = DEFAULT_FAQS }: FAQSchemaProps) {
 
   return (
     <Helmet>
-      <script type="application/ld+json">
-        {JSON.stringify(faqSchema)}
-      </script>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
     </Helmet>
   );
-}
+};
+
+export default FAQSchema;

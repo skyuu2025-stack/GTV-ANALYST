@@ -18,45 +18,30 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
   
   const handlePayment = () => {
     if (isDemo) {
-      startTransition(() => {
-        setIsProcessing(true);
-      });
+      setIsProcessing(true);
       setTimeout(() => {
-        startTransition(() => {
-          setIsProcessing(false);
-          onSuccess();
-        });
-      }, 1500);
+        setIsProcessing(false);
+        onSuccess();
+      }, 1200);
       return;
     }
 
-    // Set processing first to show UI feedback
-    startTransition(() => {
-      setIsProcessing(true);
-    });
-    
+    setIsProcessing(true);
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
 
-    // Use a small delay to ensure React finishes the current frame and shows the loading spinner
-    setTimeout(() => {
-      try {
-        // window.location.assign is more robust for programmatic redirection
-        window.location.assign(checkoutUrl);
-        
-        // Safety timeout: if the browser blocks the automatic redirect or it's slow, show a manual link
-        setTimeout(() => {
-          startTransition(() => {
-            setShowManualLink(true);
-          });
-        }, 3500);
-      } catch (error) {
-        console.error("Stripe Redirect Error:", error);
-        startTransition(() => {
-          setShowManualLink(true);
-        });
-      }
-    }, 200);
+    // Direct redirection to minimize browser blocking
+    try {
+      window.location.href = checkoutUrl;
+      
+      // Safety timeout: if the redirect takes too long, show manual link
+      setTimeout(() => {
+        setShowManualLink(true);
+      }, 3000);
+    } catch (error) {
+      console.error("Stripe Redirect Error:", error);
+      setShowManualLink(true);
+    }
   };
 
   return (
@@ -85,7 +70,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             </div>
             <div className="space-y-4">
               <p className="text-zinc-900 font-black text-xs uppercase tracking-widest animate-pulse">
-                {isDemo ? 'Verifying Sandbox...' : 'Entering Payment Gateway...'}
+                {isDemo ? 'Verifying Sandbox...' : 'Connecting to Stripe...'}
               </p>
               {showManualLink && !isDemo && (
                 <div className="space-y-4 pt-4 border-t border-zinc-50 animate-fade-in">

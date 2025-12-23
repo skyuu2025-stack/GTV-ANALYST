@@ -9,16 +9,16 @@ interface GuideProps {
 const GuideTech: React.FC<GuideProps> = ({ onStart }) => {
   const techFaqs = [
     {
-      question: "Can software engineers apply for the Global Talent Visa?",
-      answer: "Yes. Software engineers, startup founders, AI specialists, and tech leaders can apply under the Tech Nation route if they demonstrate significant technical or commercial impact."
+      question: "Who can apply for the Global Talent Visa under the tech route?",
+      answer: "Software engineers, startup founders, AI specialists, product managers, and technical leaders with proven impact may qualify under the Digital Technology route."
     },
     {
-      question: "What are the Tech Nation endorsement criteria?",
-      answer: "Criteria include innovation in products, commercial impact metrics, technical leadership in fields like AI or Cloud, and high-quality recommendation letters from established tech CEOs."
+      question: "Is Tech Nation endorsement still required?",
+      answer: "Applicants must meet the UK Home Office requirements for the digital technology route. Endorsing bodies and criteria may change over time, and our AI reflects the latest 2025 guidelines."
     },
     {
-      question: "Does the AI assessment analyze GitHub and technical impact?",
-      answer: "Yes, our AI Assessor evaluates your technical background and product impact to determine your eligibility probability for a Tech Nation endorsement."
+      question: "How does the AI assess my technical background?",
+      answer: "Our AI Assessor evaluates your professional experience, technical contributions, and leadership indicators against official endorsement criteria."
     }
   ];
 
@@ -48,18 +48,17 @@ const GuideTech: React.FC<GuideProps> = ({ onStart }) => {
           </p>
         </section>
 
-        <section className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic mb-6">Who Is Eligible for the Global Talent Visa in Tech?</h2>
-          <p className="text-zinc-500 leading-relaxed mb-6">
-            You may be eligible if you are a technology professional with a proven track record or strong potential for leadership.
-          </p>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["Software engineers & Technical architects", "Startup founders & Co-founders", "Product managers & Technical leads", "AI, Blockchain & Data specialists"].map((item, idx) => (
-              <li key={idx} className="flex items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-100 font-bold uppercase text-[10px] tracking-widest italic">
-                <i className="fas fa-check-circle text-[#D4AF37]"></i> {item}
-              </li>
+        {/* Explicit FAQ for SEO Consistency */}
+        <section className="mb-16 border-t border-zinc-100 pt-16">
+          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic mb-10">Frequently Asked Questions</h2>
+          <div className="space-y-8">
+            {techFaqs.map((faq, i) => (
+              <div key={i} className="space-y-3">
+                <h3 className="font-black text-zinc-900 text-lg italic">{faq.question}</h3>
+                <p className="text-zinc-500 leading-relaxed">{faq.answer}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
 
         <section className="mb-16 bg-zinc-900 text-white p-12 rounded-[3rem] text-center">

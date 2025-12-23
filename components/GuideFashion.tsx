@@ -9,16 +9,16 @@ interface GuideProps {
 const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
   const fashionFaqs = [
     {
-      question: "Can fashion designers apply for the Global Talent Visa?",
-      answer: "Yes. Fashion designers with international recognition, runway experience, media coverage in Vogue, or major awards are eligible under the Global Talent Visa route endorsed by Arts Council England."
+      question: "Can fashion designers apply for the UK Global Talent Visa?",
+      answer: "Yes. Fashion designers with international recognition, runway experience, fashion week participation, media coverage, or awards may be eligible for the UK Global Talent Visa."
     },
     {
-      question: "What evidence is required for a Global Talent fashion designer endorsement?",
-      answer: "Key evidence includes runway show proofs, presentations, press clippings in recognized fashion media like Vogue or Harper's Bazaar, sales performance, and high-quality recommendation letters from industry leaders."
+      question: "What evidence is required for fashion applicants?",
+      answer: "Evidence may include press coverage in titles like Vogue, fashion shows, awards, professional endorsements, and proof of industry impact."
     },
     {
-      question: "Does the AI assessment score runway achievements?",
-      answer: "Yes, GTV Assessor analyzes runway participation and fashion week appearances to calculate your eligibility probability for the Arts Council endorsement."
+      question: "Does GTV AI Assessor replace an immigration lawyer?",
+      answer: "No. GTV AI Assessor provides an AI-based eligibility assessment and guidance but does not replace legal advice or Home Office decisions."
     }
   ];
 
@@ -48,18 +48,17 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
           </p>
         </section>
 
-        <section className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic mb-6">Who Is Eligible for the Global Talent Visa in Fashion?</h2>
-          <p className="text-zinc-500 leading-relaxed mb-6">
-            You may be eligible if you are a fashion professional with a strong creative track record and industry recognition.
-          </p>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["Independent fashion designers", "Fashion brand founders and creative directors", "Designers featured in fashion weeks", "Fashion professionals with awards"].map((item, idx) => (
-              <li key={idx} className="flex items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-100 font-bold uppercase text-[10px] tracking-widest italic">
-                <i className="fas fa-check-circle text-[#D4AF37]"></i> {item}
-              </li>
+        {/* Explicit FAQ for SEO Consistency */}
+        <section className="mb-16 border-t border-zinc-100 pt-16">
+          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic mb-10">Frequently Asked Questions</h2>
+          <div className="space-y-8">
+            {fashionFaqs.map((faq, i) => (
+              <div key={i} className="space-y-3">
+                <h3 className="font-black text-zinc-900 text-lg italic">{faq.question}</h3>
+                <p className="text-zinc-500 leading-relaxed">{faq.answer}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
 
         <section className="mb-16 bg-zinc-900 text-white p-12 rounded-[3rem] text-center">
