@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
     
-    <!-- SEO & Robots Fix: 索引关键 -->
-    <title>GTV AI Assessor – Global Talent Visa Eligibility Check</title>
-    <meta name="description" content="AI-powered Global Talent Visa eligibility assessment for Fashion, Tech, and Arts professionals. Trusted by global creators to evaluate endorsement readiness." />
+    <!-- SEO & Robots -->
+    <title>GTV AI Assessor – UK Global Talent Visa Eligibility Check</title>
+    <meta name="description" content="AI-powered UK Global Talent Visa eligibility assessment for Fashion, Tech, and Arts professionals. Check your endorsement readiness instantly." />
     
     <meta name="robots" content="index,follow" />
     <meta name="googlebot" content="index,follow" />
@@ -23,35 +23,23 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Rich Results Schema -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Organization",
-          "name": "GTV Assessor",
-          "url": "https://gtvassessor.com/",
-          "description": "AI-powered assessment platform for the UK Global Talent Visa."
-        },
-        {
-          "@type": "WebSite",
-          "url": "https://gtvassessor.com/",
-          "name": "GTV Assessor"
-        }
-      ]
-    }
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    
+    <!-- Critical Polyfill for process.env before any modules load -->
+    <script>
+      window.process = window.process || { env: {} };
+    </script>
+
     <style>
         :root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); }
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #FDFDFD; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .spin-loader { animation: spin 0.8s linear infinite; }
     </style>
 <script type="importmap">
 {
@@ -61,16 +49,16 @@
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "react-dom/": "https://esm.sh/react-dom@19.0.0/",
+    "react-helmet-async": "https://esm.sh/react-helmet-async@2.0.5",
     "@google/genai": "https://esm.sh/@google/genai@1.34.0",
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.4",
-    "recharts": "https://esm.sh/recharts@3.6.0?external=react,react-dom",
+    "recharts": "https://esm.sh/recharts@2.12.7?external=react,react-dom",
     "@capacitor/cli": "https://esm.sh/@capacitor/cli@^8.0.0"
   }
 }
 </script>
 </head>
 <body class="text-[#1A1A1A]">
-    <!-- SEO fallback (Google 索引的关键点) -->
     <noscript>
       <div style="padding: 40px; text-align: center;">
         <h1>Global Talent Visa Eligibility Check</h1>

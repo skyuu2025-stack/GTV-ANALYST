@@ -1,4 +1,5 @@
 import React from 'react';
+import FAQSchema from './FAQSchema.tsx';
 
 interface GuideProps {
   onStart: () => void;
@@ -7,6 +8,7 @@ interface GuideProps {
 const GuideGeneral: React.FC<GuideProps> = ({ onStart }) => {
   return (
     <div className="max-w-4xl mx-auto py-20 px-6 animate-fade-in">
+      <FAQSchema />
       <div className="prose prose-zinc max-w-none">
         <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic text-zinc-900 mb-8">UK Global Talent Visa: Eligibility, Requirements and Assessment</h1>
         
@@ -81,7 +83,7 @@ const GuideGeneral: React.FC<GuideProps> = ({ onStart }) => {
           </p>
           <button 
             onClick={onStart}
-            className="cta-button"
+            className="w-full md:w-auto px-24 py-8 bg-[#1A1A1A] text-white font-black rounded-3xl transition-all hover:bg-black shadow-2xl text-base tracking-widest uppercase italic"
           >
             Start Your AI Assessment
           </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useTransition } from 'react';
 
 interface PaymentModalProps {
   email: string;
@@ -7,40 +7,56 @@ interface PaymentModalProps {
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel }) => {
+  const [isPending, startTransition] = useTransition();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showManualLink, setShowManualLink] = useState(false);
   
-  // 检查演示模式/审核模式
   const isDemo = localStorage.getItem('gtv_demo_mode') === 'true' || sessionStorage.getItem('gtv_demo_active') === 'true';
 
-  // Stripe 支付链接
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
+  const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(email)}`;
   
   const handlePayment = () => {
-    console.log("Initiating Stripe Payment Redirect...");
-    
-    // 如果是演示模式，跳过 Stripe
     if (isDemo) {
-      console.log("Demo mode active, bypassing Stripe.");
-      setIsProcessing(true);
+      startTransition(() => {
+        setIsProcessing(true);
+      });
       setTimeout(() => {
-        setIsProcessing(false);
-        onSuccess();
+        startTransition(() => {
+          setIsProcessing(false);
+          onSuccess();
+        });
       }, 1500);
       return;
     }
 
-    // 构造 Checkout URL
-    const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
+    // Set processing first to show UI feedback
+    startTransition(() => {
+      setIsProcessing(true);
+    });
     
-    // 存储状态以便分析恢复
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
 
-    setIsProcessing(true);
-    
-    // 执行重定向 (修复连接问题的关键)
-    console.log("Redirecting to Stripe:", checkoutUrl);
-    window.location.assign(checkoutUrl);
+    // Use a small delay to ensure React finishes the current frame and shows the loading spinner
+    setTimeout(() => {
+      try {
+        // window.location.assign is more robust for programmatic redirection
+        window.location.assign(checkoutUrl);
+        
+        // Safety timeout: if the browser blocks the automatic redirect or it's slow, show a manual link
+        setTimeout(() => {
+          startTransition(() => {
+            setShowManualLink(true);
+          });
+        }, 3500);
+      } catch (error) {
+        console.error("Stripe Redirect Error:", error);
+        startTransition(() => {
+          setShowManualLink(true);
+        });
+      }
+    }, 200);
   };
 
   return (
@@ -48,7 +64,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
       <div className="bg-[#1a1a1a] text-white p-8 md:p-12 text-center relative overflow-hidden">
         {isDemo && (
           <div className="absolute top-0 left-0 bg-green-500 text-white px-4 py-1 text-[8px] font-black uppercase tracking-widest z-10 animate-pulse">
-            Reviewer Sandbox
+            App Store Reviewer Account
           </div>
         )}
         <div className="w-16 h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-2xl ring-4 ring-white/10 relative">
@@ -57,21 +73,31 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
         <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2 uppercase italic leading-tight">
           Unlock <span className="text-[#D4AF37]">Premium</span> Audit
         </h2>
-        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase italic">Full Eligibility & Roadmap</p>
+        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase italic">Evidence Mapping & Gap Analysis</p>
       </div>
 
       <div className="p-8 md:p-12 bg-white flex flex-col">
         {isProcessing ? (
-          <div className="text-center animate-fade-in space-y-10 py-12">
-            <div className="relative w-20 h-20 mx-auto">
-              <div className="absolute inset-0 border-[5px] border-zinc-50 rounded-full"></div>
-              <div className="absolute inset-0 border-[5px] border-[#D4AF37] rounded-full border-t-transparent animate-spin"></div>
+          <div className="text-center animate-fade-in space-y-8 py-12">
+            <div className="relative w-16 h-16 mx-auto">
+              <div className="absolute inset-0 border-[4px] border-zinc-50 rounded-full"></div>
+              <div className="absolute inset-0 border-[4px] border-[#D4AF37] rounded-full border-t-transparent animate-spin"></div>
             </div>
-            <div className="space-y-2">
-              <p className="text-zinc-900 font-black text-xs uppercase tracking-widest">
-                {isDemo ? 'Verifying...' : 'Connecting to Stripe...'}
+            <div className="space-y-4">
+              <p className="text-zinc-900 font-black text-xs uppercase tracking-widest animate-pulse">
+                {isDemo ? 'Verifying Sandbox...' : 'Entering Payment Gateway...'}
               </p>
-              <p className="text-zinc-400 text-[10px] italic">Please wait while we secure your connection</p>
+              {showManualLink && !isDemo && (
+                <div className="space-y-4 pt-4 border-t border-zinc-50 animate-fade-in">
+                  <p className="text-zinc-400 text-[10px] font-bold italic">Redirect blocked? Please click below:</p>
+                  <a 
+                    href={checkoutUrl}
+                    className="inline-block px-8 py-4 bg-zinc-900 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-lg hover:bg-black transition-all active:scale-95"
+                  >
+                    Continue to Payment
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -79,7 +105,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             <div className="flex justify-between items-center mb-10 pb-8 border-b border-zinc-50">
               <div className="flex flex-col">
                 <span className="text-zinc-900 font-black text-3xl tracking-tighter">$19</span>
-                <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">One-time Assessment</span>
+                <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">Full Criteria Map</span>
               </div>
               <div className="text-right">
                 <span className="px-3 py-1 bg-amber-50 text-[#D4AF37] rounded-full text-[9px] font-black uppercase border border-amber-100">AI Verified</span>
@@ -91,7 +117,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                 "10-Point Evidence Gap Scan", 
                 "Criteria-by-Criteria Breakdown", 
                 "5-Phase Tactical Roadmap", 
-                "Export PDF for Legal Review"
+                "PDF Export for Legal Review"
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-4 text-zinc-600">
                   <div className="w-4 h-4 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">

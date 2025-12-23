@@ -1,12 +1,37 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
+import FAQSchema from './FAQSchema.tsx';
 
 interface GuideProps {
   onStart: () => void;
 }
 
 const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
+  const fashionFaqs = [
+    {
+      question: "Can fashion designers apply for the Global Talent Visa?",
+      answer: "Yes. Fashion designers with international recognition, runway experience, media coverage in Vogue, or major awards are eligible under the Global Talent Visa route endorsed by Arts Council England."
+    },
+    {
+      question: "What evidence is required for a Global Talent fashion designer endorsement?",
+      answer: "Key evidence includes runway show proofs, presentations, press clippings in recognized fashion media like Vogue or Harper's Bazaar, sales performance, and high-quality recommendation letters from industry leaders."
+    },
+    {
+      question: "Does the AI assessment score runway achievements?",
+      answer: "Yes, GTV Assessor analyzes runway participation and fashion week appearances to calculate your eligibility probability for the Arts Council endorsement."
+    }
+  ];
+
   return (
     <div className="max-w-4xl mx-auto py-20 px-6 animate-fade-in">
+      <Helmet>
+        <title>Global Talent Visa for Fashion Designers | GTV AI Assessor</title>
+        <meta name="description" content="Check your eligibility for the UK Global Talent Visa as a fashion designer. AI-powered assessment based on Home Office and Arts Council criteria." />
+        <link rel="canonical" href="https://gtvassessor.com/global-talent-visa-fashion" />
+      </Helmet>
+
+      <FAQSchema items={fashionFaqs} />
+
       <div className="prose prose-zinc max-w-none">
         <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic text-zinc-900 mb-8">UK Global Talent Visa for Fashion Designers</h1>
         
@@ -37,49 +62,6 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
           </ul>
         </section>
 
-        <section className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic mb-6">Arts Council England Endorsement Criteria for Fashion</h2>
-          <p className="text-zinc-500 leading-relaxed mb-6">
-            Key evidence areas include:
-          </p>
-          <ul className="space-y-4">
-            <li className="flex gap-4 items-start">
-              <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                <i className="fas fa-camera text-amber-600 text-xs"></i>
-              </div>
-              <span className="text-zinc-600 font-medium italic">Runway shows, presentations, or major exhibitions</span>
-            </li>
-            <li className="flex gap-4 items-start">
-              <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                <i className="fas fa-newspaper text-amber-600 text-xs"></i>
-              </div>
-              <span className="text-zinc-600 font-medium italic">Press coverage in recognized fashion media (Vogue, Hypebeast, etc.)</span>
-            </li>
-            <li className="flex gap-4 items-start">
-              <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                <i className="fas fa-chart-line text-amber-600 text-xs"></i>
-              </div>
-              <span className="text-zinc-600 font-medium italic">Sales performance or verifiable brand growth</span>
-            </li>
-            <li className="flex gap-4 items-start">
-              <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                <i className="fas fa-envelope-open-text text-amber-600 text-xs"></i>
-              </div>
-              <span className="text-zinc-600 font-medium italic">Strong recommendation letters from global industry leaders</span>
-            </li>
-          </ul>
-        </section>
-
-        <section className="mb-16 p-8 bg-amber-50 rounded-[2.5rem] border border-amber-200">
-          <h2 className="text-xl md:text-2xl font-black uppercase italic mb-6 text-amber-800">Common Reasons Fashion Applicants Are Refused</h2>
-          <ul className="space-y-3">
-             <li className="text-amber-700 text-sm font-bold italic">• Weak or unstructured evidence presentation</li>
-             <li className="text-amber-700 text-sm font-bold italic">• Too much focus on aesthetics without industry impact</li>
-             <li className="text-amber-700 text-sm font-bold italic">• Lack of independent recognition</li>
-             <li className="text-amber-700 text-sm font-bold italic">• Unclear professional positioning</li>
-          </ul>
-        </section>
-
         <section className="mb-16 bg-zinc-900 text-white p-12 rounded-[3rem] text-center">
           <h2 className="text-2xl md:text-3xl font-black uppercase italic mb-6 text-amber-500">AI-Powered Global Talent Visa Assessment for Fashion Designers</h2>
           <p className="text-zinc-400 mb-10 italic">
@@ -88,17 +70,10 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
           </p>
           <button 
             onClick={onStart}
-            className="cta-button"
+            className="w-full md:w-auto px-12 py-5 bg-amber-600 text-white font-black rounded-2xl uppercase tracking-widest text-xs hover:bg-amber-500 transition-all shadow-xl"
           >
             Start Fashion Visa Assessment
           </button>
-        </section>
-
-        <section className="text-zinc-400 text-xs italic space-x-4">
-          <span>Related guides:</span>
-          <a href="/global-talent-visa" className="underline hover:text-zinc-900">GTV Overview</a>
-          <span>|</span>
-          <a href="/global-talent-visa-fashion" className="underline hover:text-zinc-900">Fashion Guide</a>
         </section>
       </div>
     </div>

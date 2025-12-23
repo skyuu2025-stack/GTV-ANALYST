@@ -2,6 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
+  // Use process.env.API_KEY directly when initializing the GoogleGenAI client instance
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
@@ -20,8 +21,9 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   `;
 
   try {
+    // Calling generateContent with gemini-3-pro-preview for complex reasoning task
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         systemInstruction: "You are an expert AI Immigration Consultant. Output ONLY strictly valid JSON matching the provided schema.",
@@ -64,6 +66,7 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
       }
     });
 
+    // Extract generated text from response using the .text property (not a function)
     const resultText = response.text;
     if (!resultText) throw new Error("Empty response from AI engine.");
     
