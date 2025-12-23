@@ -64,12 +64,13 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.personalStatement) {
-      alert("Fields required.");
+      alert("Please fill in all required fields.");
       return;
     }
     setIsSubmitting(true);
     onSubmit(formData, fileList);
-    setTimeout(() => setIsSubmitting(false), 3000);
+    // Reset submitting state if error occurs (usually handled by props but safe to have a timeout)
+    setTimeout(() => setIsSubmitting(false), 5000);
   };
 
   const enterSandboxMode = () => {
@@ -83,27 +84,43 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
     <div className="max-w-[800px] mx-auto py-6 md:py-16 px-4 md:px-6 animate-scale-up">
       <div className="bg-white rounded-[1.5rem] md:rounded-[32px] shadow-sm md:shadow-[0_4px_30px_rgba(0,0,0,0.04)] overflow-hidden border border-zinc-100 p-6 md:p-12">
         {error && (
-          <div className="mb-8 md:mb-10 p-4 md:p-6 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col items-start gap-4 text-amber-800 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center shrink-0">
-                <i className="fas fa-robot text-sm"></i>
+          <div className="mb-8 p-6 bg-amber-50/50 border border-amber-100 rounded-[2rem] animate-fade-in">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
+                <i className="fas fa-robot text-lg"></i>
               </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">AI Engine Notice</p>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em]">System Status</span>
+                <p className="text-sm font-bold text-amber-900">
+                  {isQuotaError ? "High Traffic Volume Detected" : "Service Interruption"}
+                </p>
+              </div>
             </div>
-            <p className="text-sm font-bold tracking-tight leading-relaxed">
+            
+            <p className="text-zinc-600 text-xs leading-relaxed mb-6 font-medium italic">
               {isQuotaError 
                 ? "AI 引擎目前繁忙（配额已达上限）。请 1 分钟后重试，或使用应急演示模式完成体验。" 
                 : error}
             </p>
-            {isQuotaError && (
+
+            <div className="flex flex-col sm:flex-row gap-3">
               <button 
                 type="button"
-                onClick={enterSandboxMode}
-                className="w-full md:w-auto bg-zinc-900 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-black transition-all"
+                onClick={() => window.location.reload()}
+                className="flex-1 bg-white border border-amber-200 text-amber-900 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-50 transition-all active:scale-95"
               >
-                Enter Sandbox Mode
+                <i className="fas fa-rotate-right mr-2"></i> Retry
               </button>
-            )}
+              {isQuotaError && (
+                <button 
+                  type="button"
+                  onClick={enterSandboxMode}
+                  className="flex-1 bg-zinc-900 text-white px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black transition-all active:scale-95"
+                >
+                  <i className="fas fa-flask mr-2"></i> Enter Sandbox Mode
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -235,7 +252,12 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
             disabled={isSubmitting}
             className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl transition-all shadow-xl active:scale-95 uppercase tracking-widest text-sm italic mt-8 disabled:bg-zinc-400"
           >
-            {isSubmitting ? 'Analyzing...' : 'Run Expert Analysis'}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <i className="fas fa-circle-notch animate-spin"></i>
+                Analyzing...
+              </span>
+            ) : 'Run Expert Analysis'}
           </button>
         </form>
       </div>

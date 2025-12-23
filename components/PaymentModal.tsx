@@ -23,9 +23,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
     }, 1200);
   };
 
-  const handleRealPaymentClick = () => {
+  const handleRealPaymentClick = (e: React.MouseEvent) => {
+    setIsProcessing(true);
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
+    
+    // Safety timeout to reset state if browser doesn't navigate instantly
+    setTimeout(() => setIsProcessing(false), 8000);
   };
 
   return (
@@ -53,7 +57,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
               <div className="absolute inset-0 border-[3px] md:border-[4px] border-[#D4AF37] rounded-full border-t-transparent animate-spin"></div>
             </div>
             <p className="text-zinc-900 font-black text-[10px] md:text-xs uppercase tracking-widest animate-pulse">
-              Verifying Access...
+              Connecting to Secure Checkout...
             </p>
           </div>
         ) : (
@@ -98,11 +102,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                   onClick={handleRealPaymentClick}
                   className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center"
                 >
-                  Purchase Full Audit
+                  <i className="fas fa-lock mr-2"></i> Purchase Full Audit
                 </a>
               )}
               
-              <button onClick={onCancel} className="w-full text-zinc-300 hover:text-zinc-900 text-[9px] font-black uppercase tracking-widest transition-all py-2 active:scale-95">Back to Score</button>
+              <button 
+                onClick={onCancel} 
+                className="w-full text-zinc-300 hover:text-zinc-900 text-[9px] font-black uppercase tracking-widest transition-all py-2 active:scale-95"
+              >
+                Back to Score
+              </button>
             </div>
           </>
         )}

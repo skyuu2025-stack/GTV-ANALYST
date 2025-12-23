@@ -7,25 +7,31 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
   const prompt = `
     ROLE: Senior UK Immigration Analyst.
-    TASK: Critical assessment of Global Talent Visa (GTV) eligibility.
+    TASK: Critical assessment of Global Talent Visa (GTV) eligibility for ${data.endorsementRoute}.
     
-    DATA:
+    CANDIDATE PROFILE:
     - Name: ${data.name}
-    - Route: ${data.endorsementRoute}
     - Level: ${data.yearsOfExperience}
     - Role: ${data.jobTitle}
-    - Summary: ${data.personalStatement}
-    - Files: ${fileNames.length}
+    - Professional Summary: ${data.personalStatement}
+    - Attached Evidence Pieces: ${fileNames.length} (${fileNames.join(', ')})
 
-    OUTPUT: Strictly valid JSON mapping probability and criteria.
+    REQUIREMENTS:
+    1. Benchmark against official 2025 Home Office / Endorsing Body (Tech Nation/Arts Council) criteria.
+    2. Provide a probability score (0-100).
+    3. Map Mandatory and Optional criteria.
+    4. Identify specific evidence gaps.
+    5. Generate a tactical 3-step roadmap.
+
+    OUTPUT: Strictly valid JSON.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
-        systemInstruction: "You are an expert AI Immigration Consultant. Output ONLY strictly valid JSON matching the provided schema.",
+        systemInstruction: "You are a specialized GTV Endorsement AI. Provide objective, high-accuracy analysis. Output ONLY strictly valid JSON matching the schema.",
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -71,8 +77,11 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
     return JSON.parse(resultText) as AnalysisResult;
   } catch (err: any) {
     console.error("Gemini Analysis Error:", err);
-    if (err.message?.includes('429')) throw new Error("QUOTA_EXCEEDED");
-    throw new Error("AI 评估遇到异常，请检查网络后重试。");
+    // Standardizing quota error for the UI
+    if (err.message?.includes('429') || err.status === 429) {
+      throw new Error("QUOTA_EXCEEDED");
+    }
+    throw new Error("AI analysis engine timed out. Please check your connection and try again.");
   }
 };
 
@@ -80,7 +89,7 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
  * 使用 Google Maps Grounding 寻找附近的签证支持机构
  */
 export const searchLocalVisaSupport = async (lat: number, lng: number) => {
-  const prompt = "Find 3 reputable immigration law firms or visa consultants nearby that specialize in UK Global Talent or High Potential visas.";
+  const prompt = "List 3 professional immigration consultants or law firms near this location specializing in UK Global Talent Visa (GTV) or Tech Nation endorsements.";
   
   try {
     const response = await ai.models.generateContent({
@@ -105,6 +114,6 @@ export const searchLocalVisaSupport = async (lat: number, lng: number) => {
     };
   } catch (err) {
     console.error("Maps Grounding Error:", err);
-    throw new Error("Unable to fetch local support at this time.");
+    throw new Error("Local search unavailable. Please check location permissions.");
   }
 };
