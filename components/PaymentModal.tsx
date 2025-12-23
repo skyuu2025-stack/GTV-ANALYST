@@ -8,23 +8,19 @@ interface PaymentModalProps {
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isNativeApp, setIsNativeApp] = useState(false);
   
-  // Check for Demo/Reviewer Mode
+  // 检查演示模式/审核模式
   const isDemo = localStorage.getItem('gtv_demo_mode') === 'true' || sessionStorage.getItem('gtv_demo_active') === 'true';
 
-  useEffect(() => {
-    // Detect if running inside the Capacitor shell
-    const isCap = (window as any).Capacitor?.isNativePlatform || /iPad|iPhone|iPod/.test(navigator.userAgent);
-    setIsNativeApp(!!isCap);
-  }, []);
-
-  // Standard Stripe Payment Link
+  // Stripe 支付链接
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
   
   const handlePayment = () => {
-    // Logic for App Store Reviewers or Demo users
+    console.log("Initiating Stripe Payment Redirect...");
+    
+    // 如果是演示模式，跳过 Stripe
     if (isDemo) {
+      console.log("Demo mode active, bypassing Stripe.");
       setIsProcessing(true);
       setTimeout(() => {
         setIsProcessing(false);
@@ -33,19 +29,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
       return;
     }
 
-    // Direct redirect to Stripe Checkout
-    // Prefilling the email improves the user experience significantly
+    // 构造 Checkout URL
     const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
     
-    // Persist state locally so the analysis can be recovered if the user navigates back
+    // 存储状态以便分析恢复
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
 
     setIsProcessing(true);
     
-    // Direct redirection is the most robust method for mobile browsers
-    // and helps avoid being blocked by browser navigation security
-    window.location.href = checkoutUrl;
+    // 执行重定向 (修复连接问题的关键)
+    console.log("Redirecting to Stripe:", checkoutUrl);
+    window.location.assign(checkoutUrl);
   };
 
   return (
@@ -53,7 +48,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
       <div className="bg-[#1a1a1a] text-white p-8 md:p-12 text-center relative overflow-hidden">
         {isDemo && (
           <div className="absolute top-0 left-0 bg-green-500 text-white px-4 py-1 text-[8px] font-black uppercase tracking-widest z-10 animate-pulse">
-            App Store Reviewer Account
+            Reviewer Sandbox
           </div>
         )}
         <div className="w-16 h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-2xl ring-4 ring-white/10 relative">
@@ -62,7 +57,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
         <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2 uppercase italic leading-tight">
           Unlock <span className="text-[#D4AF37]">Premium</span> Audit
         </h2>
-        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase italic">Evidence Mapping & Gap Analysis</p>
+        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase italic">Full Eligibility & Roadmap</p>
       </div>
 
       <div className="p-8 md:p-12 bg-white flex flex-col">
@@ -74,10 +69,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             </div>
             <div className="space-y-2">
               <p className="text-zinc-900 font-black text-xs uppercase tracking-widest">
-                {isDemo ? 'Verifying Sandbox...' : 'Redirecting to Secure Gateway...'}
+                {isDemo ? 'Verifying...' : 'Connecting to Stripe...'}
               </p>
-              <p className="text-zinc-400 text-[10px] italic">Finalizing roadmap for {email}</p>
-              <p className="text-zinc-300 text-[9px] mt-4">Please do not close the window.</p>
+              <p className="text-zinc-400 text-[10px] italic">Please wait while we secure your connection</p>
             </div>
           </div>
         ) : (
@@ -85,7 +79,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             <div className="flex justify-between items-center mb-10 pb-8 border-b border-zinc-50">
               <div className="flex flex-col">
                 <span className="text-zinc-900 font-black text-3xl tracking-tighter">$19</span>
-                <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">Full Criteria Map</span>
+                <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">One-time Assessment</span>
               </div>
               <div className="text-right">
                 <span className="px-3 py-1 bg-amber-50 text-[#D4AF37] rounded-full text-[9px] font-black uppercase border border-amber-100">AI Verified</span>
@@ -97,7 +91,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                 "10-Point Evidence Gap Scan", 
                 "Criteria-by-Criteria Breakdown", 
                 "5-Phase Tactical Roadmap", 
-                "PDF Export for Legal Review"
+                "Export PDF for Legal Review"
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-4 text-zinc-600">
                   <div className="w-4 h-4 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
