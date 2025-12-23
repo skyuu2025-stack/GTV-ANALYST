@@ -19,13 +19,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
     setIsNativeApp(!!isCap);
   }, []);
 
+  // Standard Stripe Payment Link
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
   
   const handlePayment = () => {
-    setIsProcessing(true);
-    
     // Logic for App Store Reviewers or Demo users
     if (isDemo) {
+      setIsProcessing(true);
       setTimeout(() => {
         setIsProcessing(false);
         onSuccess();
@@ -33,25 +33,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
       return;
     }
 
-    // WEB VERSION: Redirect to Stripe with a slight delay to allow UI to update
-    // This prevents the browser from cancelling navigation if DOM changes are too fast
+    // Direct redirect to Stripe Checkout
+    // Prefilling the email improves the user experience significantly
     const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}`;
     
-    // 冗余记录状态
+    // Persist state locally so the analysis can be recovered if the user navigates back
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
 
-    setTimeout(() => {
-      try {
-        console.log("Initiating Secure Stripe Checkout:", checkoutUrl);
-        // 使用 assign 是为了防止在某些严格安全模式下无法记录历史记录导致返回按钮失效
-        window.location.assign(checkoutUrl);
-      } catch (err) {
-        console.error("Redirection Error:", err);
-        // 降级方案
-        window.location.href = checkoutUrl;
-      }
-    }, 200);
+    setIsProcessing(true);
+    
+    // Direct redirection is the most robust method for mobile browsers
+    // and helps avoid being blocked by browser navigation security
+    window.location.href = checkoutUrl;
   };
 
   return (
