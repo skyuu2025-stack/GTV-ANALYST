@@ -48,6 +48,14 @@ const App: React.FC = () => {
   const logoClicks = useRef(0);
   const lastClickTime = useRef(0);
 
+  const determineStepFromPath = (path: string): AppStep => {
+    if (path === '/global-talent-visa') return AppStep.GUIDE_GENERAL;
+    if (path === '/global-talent-visa-fashion') return AppStep.GUIDE_FASHION;
+    if (path === '/global-talent-visa-tech') return AppStep.GUIDE_TECH;
+    if (path === '/eligibility-check') return AppStep.FORM;
+    return AppStep.LANDING;
+  };
+
   const handleRouting = useCallback(() => {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
@@ -75,15 +83,17 @@ const App: React.FC = () => {
           setStep(AppStep.LANDING);
         }
         setIsVerifyingPayment(false);
-        if (isSuccess) window.history.replaceState({}, '', window.location.pathname);
+        if (isSuccess) {
+          try {
+            window.history.replaceState({}, '', window.location.pathname);
+          } catch (e) {
+            console.warn('History API restricted', e);
+          }
+        }
         return;
       }
 
-      if (path === '/global-talent-visa') setStep(AppStep.GUIDE_GENERAL);
-      else if (path === '/global-talent-visa-fashion') setStep(AppStep.GUIDE_FASHION);
-      else if (path === '/global-talent-visa-tech') setStep(AppStep.GUIDE_TECH);
-      else if (path === '/eligibility-check') setStep(AppStep.FORM);
-      else setStep(AppStep.LANDING);
+      setStep(determineStepFromPath(path));
     });
   }, []);
 
@@ -124,8 +134,18 @@ const App: React.FC = () => {
   };
 
   const navigateTo = (path: string) => {
-    window.history.pushState({}, '', path);
-    handleRouting();
+    // 1. Attempt to update URL for SEO/Sharing
+    try {
+      window.history.pushState({}, '', path);
+    } catch (e) {
+      console.warn('History API restricted - routing internally', e);
+    }
+    
+    // 2. Explicitly set state to ensure jump happens even if pushState failed
+    startTransition(() => {
+      setStep(determineStepFromPath(path));
+    });
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -133,8 +153,7 @@ const App: React.FC = () => {
     e.preventDefault();
     const now = Date.now();
     
-    // If more than 3 seconds since last click, reset counter
-    if (now - lastClickTime.current > 3000) {
+    if (now - lastClickTime.current > 2000) {
       logoClicks.current = 0;
     }
     
@@ -143,9 +162,8 @@ const App: React.FC = () => {
 
     if (logoClicks.current >= 5) {
       setShowAdmin(true);
-      logoClicks.current = 0; // Reset after success
+      logoClicks.current = 0;
     } else if (logoClicks.current === 1) {
-      // Only navigate on the first click to avoid jittering during multi-click
       navigateTo('/');
     }
   };
@@ -158,7 +176,7 @@ const App: React.FC = () => {
             <FAQSchema />
             <Hero onStart={() => navigateTo('/eligibility-check')} />
             
-            {/* Image 2: How it works */}
+            {/* How it works */}
             <section className="py-24 px-6 max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-4">Official Criteria Scan</h3>
@@ -183,7 +201,7 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            {/* Image 3: Who should use */}
+            {/* Who should use */}
             <section className="py-24 bg-zinc-50/50 overflow-hidden">
               <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
                 <div className="flex-1 space-y-8">
@@ -230,7 +248,7 @@ const App: React.FC = () => {
             <FAQ />
             <LeadCapture />
 
-            {/* Image 7: Final CTA */}
+            {/* Final CTA */}
             <section className="py-24 px-6">
               <div className="max-w-6xl mx-auto bg-zinc-900 rounded-[4rem] p-12 md:p-24 text-center text-white space-y-12 shadow-2xl border border-zinc-800 relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-500/5 to-transparent"></div>
@@ -292,23 +310,22 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
 
-      {/* Image 8: Footer */}
       <footer className="bg-white border-t border-zinc-100 py-24 text-left">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16 mb-24">
            <div className="space-y-6">
               <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">Resources</h4>
               <ul className="space-y-3">
-                 <li><button onClick={() => navigateTo('/global-talent-visa')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors">Visa Overview Guide</button></li>
-                 <li><button onClick={() => navigateTo('/global-talent-visa-fashion')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors">Fashion Designer Guide</button></li>
-                 <li><button onClick={() => navigateTo('/global-talent-visa-tech')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors">Digital Tech Guide</button></li>
-                 <li><button onClick={() => navigateTo('/')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors">Home Page</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Visa Overview Guide</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa-fashion')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Fashion Designer Guide</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa-tech')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Digital Tech Guide</button></li>
+                 <li><button onClick={() => navigateTo('/')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Home Page</button></li>
               </ul>
            </div>
            <div className="space-y-6">
               <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">Connect</h4>
               <ul className="space-y-3">
-                 <li><a href="https://chat.whatsapp.com/GTV" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block">WhatsApp Community</a></li>
-                 <li><a href="mailto:support@gtvassessor.com" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block">Email Support</a></li>
+                 <li><a href="https://chat.whatsapp.com/GTV" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block text-left">WhatsApp Community</a></li>
+                 <li><a href="mailto:support@gtvassessor.com" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block text-left">Email Support</a></li>
               </ul>
            </div>
            <div className="space-y-6">
