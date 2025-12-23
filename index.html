@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,16 +10,30 @@
     
     <!-- SEO & Robots -->
     <title>GTV AI Assessor – UK Global Talent Visa Eligibility Check</title>
-    <meta name="description" content="AI-powered UK Global Talent Visa eligibility assessment for Fashion, Tech, and Arts professionals. Check your endorsement readiness instantly." />
+    <meta name="description" content="AI-powered UK Global Talent Visa assessment. Instantly check your eligibility for Tech Nation, Arts Council, and RIBA routes with our 2025 criteria engine." />
+    <meta name="keywords" content="Global Talent Visa UK, Tech Nation endorsement, Arts Council England fashion, visa eligibility check, UK immigration AI, GTV Assessor" />
     
     <meta name="robots" content="index,follow" />
     <meta name="googlebot" content="index,follow" />
     <link rel="canonical" href="https://gtvassessor.com/" />
 
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gtvassessor.com/">
+    <meta property="og:title" content="GTV AI Assessor | UK Global Talent Visa Roadmap">
+    <meta property="og:description" content="Check your endorsement readiness for the UK Global Talent Visa using AI. Detailed mapping for Tech, Arts, and Fashion.">
+    <meta property="og:image" content="https://gtvassessor.com/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://gtvassessor.com/">
+    <meta property="twitter:title" content="GTV AI Assessor | UK Global Talent Visa Roadmap">
+    <meta property="twitter:description" content="Check your endorsement readiness for the UK Global Talent Visa using AI.">
+    <meta property="twitter:image" content="https://gtvassessor.com/og-image.jpg">
+
     <!-- Google Search Console -->
     <meta name="google-site-verification" content="r92ueE0e0A5wLd4MNlrOqgnYdNOGBsO-33J_Wnt6CyY" />
 
-    <!-- Favicon & PWA -->
     <link rel="icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
@@ -28,7 +43,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     
-    <!-- Critical Polyfill for process.env before any modules load -->
     <script>
       window.process = window.process || { env: {} };
     </script>
@@ -36,16 +50,10 @@
     <style>
         :root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); }
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #FDFDFD; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleUp { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.05); } }
-        
         .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-scale-up { animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .spin-loader { animation: spin 0.8s linear infinite; }
-        .neural-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 <script type="importmap">
 {
@@ -65,13 +73,6 @@
 </script>
 </head>
 <body class="text-[#1A1A1A]">
-    <noscript>
-      <div style="padding: 40px; text-align: center;">
-        <h1>Global Talent Visa Eligibility Check</h1>
-        <p>GTV AI Assessor helps Fashion, Tech, and Arts professionals assess their eligibility for the UK Global Talent Visa using AI. Professional roadmap for Tech Nation, Arts Council, and RIBA routes.</p>
-      </div>
-    </noscript>
-
     <div id="root"></div>
     <script type="module" src="index.tsx"></script>
 </body>

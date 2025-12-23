@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useTransition, Suspense, useCallback, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { AppStep, AssessmentData, AnalysisResult } from './types.ts';
 import { analyzeVisaEligibility } from './geminiService.ts';
 import { saveAssessment } from './supabaseService.ts';
@@ -18,6 +19,7 @@ import GuideFashion from './components/GuideFashion.tsx';
 import GuideTech from './components/GuideTech.tsx';
 import FAQSchema from './components/FAQSchema.tsx';
 import LocalSupportFinder from './components/LocalSupportFinder.tsx';
+import SEOManager from './components/SEOManager.tsx';
 
 const MOCK_PREMIUM_RESULT: AnalysisResult = {
   probabilityScore: 92,
@@ -168,6 +170,10 @@ const App: React.FC = () => {
       case AppStep.LANDING:
         return (
           <>
+            <Helmet>
+               <title>GTV AI Assessor | Home - UK Global Talent Visa Eligibility</title>
+               <meta name="description" content="Official AI evaluation for UK Global Talent Visa. Check your Tech Nation or Arts Council endorsement readiness in minutes." />
+            </Helmet>
             <FAQSchema />
             <Hero onStart={() => navigateTo('/eligibility-check')} />
             
@@ -271,6 +277,10 @@ const App: React.FC = () => {
       case AppStep.GUIDE_TECH: return <GuideTech onStart={() => navigateTo('/eligibility-check')} />;
       case AppStep.FORM: return (
         <>
+          <Helmet>
+             <title>Start Eligibility Check | GTV AI Assessor</title>
+             <meta name="description" content="Complete our professional intake form to receive your UK Global Talent Visa readiness score." />
+          </Helmet>
           <FAQSchema items={[{ question: "Is this GTV check accurate?", answer: "Our AI uses the latest 2025 UK Home Office criteria." }]} />
           <AssessmentForm onSubmit={handleFormSubmit} error={error} />
         </>
@@ -279,7 +289,13 @@ const App: React.FC = () => {
       case AppStep.RESULTS_FREE:
       case AppStep.RESULTS_PREMIUM:
         return analysisResult && assessmentData ? (
-          <ResultsDashboard result={analysisResult} data={assessmentData} isPremium={step === AppStep.RESULTS_PREMIUM} onUpgrade={() => startTransition(() => setStep(AppStep.PAYMENT))} />
+          <>
+            <Helmet>
+               <title>{analysisResult.probabilityScore}% Score - GTV Readiness Report</title>
+               <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
+            <ResultsDashboard result={analysisResult} data={assessmentData} isPremium={step === AppStep.RESULTS_PREMIUM} onUpgrade={() => startTransition(() => setStep(AppStep.PAYMENT))} />
+          </>
         ) : null;
       case AppStep.PAYMENT:
         return assessmentData ? (
@@ -293,6 +309,7 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen flex flex-col bg-[#FDFDFD] transition-opacity duration-300 ${isPending || isVerifyingPayment ? 'opacity-50' : 'opacity-100'}`}>
+      <SEOManager />
       <header className="bg-white border-b border-zinc-100 sticky top-0 z-40 safe-top flex items-center justify-between px-6 md:px-12 h-[calc(80px+var(--sat))]">
         <div 
           className="flex items-center space-x-3 cursor-pointer group py-2 pr-10 select-none" 
