@@ -333,7 +333,7 @@ const App: React.FC = () => {
               <h4 className="text-[9px] md:text-[10px] font-black text-zinc-900 uppercase tracking-widest">Support</h4>
               <ul className="space-y-2 md:space-y-3">
                  <li><a href="mailto:support@gtvassessor.com" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors block text-left">Email Support</a></li>
-                 <li><a href="https://chat.whatsapp.com/GTV" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors block text-left">WhatsApp Community</a></li>
+                 <li><a href="https://chat.whatsapp.com/Io8JuhicgTa1RAF0GgKTFU" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors block text-left">WhatsApp Community</a></li>
               </ul>
            </div>
            <div className="space-y-4 md:space-y-6">
