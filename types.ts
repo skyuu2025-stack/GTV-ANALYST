@@ -1,4 +1,3 @@
-
 export interface AssessmentData {
   name: string;
   email: string;
@@ -33,5 +32,7 @@ export enum AppStep {
   ANALYZING = 'analyzing',
   RESULTS_FREE = 'results_free',
   PAYMENT = 'payment',
-  RESULTS_PREMIUM = 'results_premium'
+  RESULTS_PREMIUM = 'results_premium',
+  GUIDE_GENERAL = 'guide_general',
+  GUIDE_FASHION = 'guide_fashion'
 }
