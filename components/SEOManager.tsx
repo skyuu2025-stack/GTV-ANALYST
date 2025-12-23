@@ -12,7 +12,7 @@ const SEOManager: React.FC = () => {
     "url": "https://gtvassessor.com",
     "operatingSystem": "Web, iOS, Android",
     "applicationCategory": "ProductivityApplication",
-    "description": "Professional AI-driven assessment tool for UK Global Talent Visa endorsement readiness. Analyzes Tech Nation and Arts Council criteria.",
+    "description": "Professional AI-driven assessment tool for UK Global Talent Visa endorsement readiness. Analyzes Tech Nation and Arts Council criteria across global talent hubs.",
     "offers": {
       "@type": "Offer",
       "price": "19.00",
@@ -22,6 +22,37 @@ const SEOManager: React.FC = () => {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
       "ratingCount": "520"
+    }
+  };
+
+  const serviceData = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "UK Global Talent Visa Assessment",
+    "provider": {
+      "@type": "Organization",
+      "name": "GTV Assessor"
+    },
+    "areaServed": [
+      { "@type": "City", "name": "London" },
+      { "@type": "City", "name": "New York" },
+      { "@type": "City", "name": "San Francisco" },
+      { "@type": "City", "name": "Bangalore" },
+      { "@type": "City", "name": "Dubai" },
+      { "@type": "Country", "name": "United Kingdom" }
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Visa Assessment Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "AI GTV Readiness Audit"
+          }
+        }
+      ]
     }
   };
 
@@ -60,6 +91,9 @@ const SEOManager: React.FC = () => {
       <link rel="canonical" href={currentUrl} />
       <script type="application/ld+json">
         {JSON.stringify(structuredData)}
+      </script>
+      <script type="application/ld+json">
+        {JSON.stringify(serviceData)}
       </script>
       <script type="application/ld+json">
         {JSON.stringify(breadcrumbData)}
