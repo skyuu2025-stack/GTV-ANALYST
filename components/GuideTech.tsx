@@ -26,7 +26,7 @@ const GuideTech: React.FC<GuideProps> = ({ onStart }) => {
   return (
     <article className="max-w-4xl mx-auto py-20 px-6 animate-fade-in" id="tech-guide">
       <Helmet>
-        <title>Tech Nation Endorsement Guide: UK Global Talent Visa AI Eligibility Check</title>
+        <title>{`Tech Nation Endorsement Guide: UK Global Talent Visa AI Eligibility Check`}</title>
         <meta name="description" content="Complete Tech Nation endorsement guide for the UK Global Talent Visa. Use our AI tool to check your tech visa eligibility and map your evidence instantly." />
         <link rel="canonical" href="https://gtvassessor.com/global-talent-visa-tech" />
       </Helmet>

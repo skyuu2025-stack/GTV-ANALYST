@@ -26,7 +26,7 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
   return (
     <article className="max-w-4xl mx-auto py-20 px-6 animate-fade-in" id="fashion-guide">
       <Helmet>
-        <title>Arts Council Fashion Visa: UK Global Talent Endorsement Guide for Designers</title>
+        <title>{`Arts Council Fashion Visa: UK Global Talent Endorsement Guide for Designers`}</title>
         <meta name="description" content="Ultimate guide to the Arts Council fashion visa endorsement for designers. Check your UK Global Talent Visa eligibility with AI-powered criteria mapping." />
         <link rel="canonical" href="https://gtvassessor.com/global-talent-visa-fashion" />
       </Helmet>

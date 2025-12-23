@@ -51,12 +51,29 @@
     </script>
 
     <style>
-        :root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); }
-        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #FDFDFD; }
+        :root { 
+          --sat: env(safe-area-inset-top); 
+          --sab: env(safe-area-inset-bottom);
+          --sal: env(safe-area-inset-left);
+          --sar: env(safe-area-inset-right);
+        }
+        body { 
+          font-family: 'Inter', sans-serif; 
+          -webkit-font-smoothing: antialiased; 
+          background-color: #FDFDFD;
+          -webkit-tap-highlight-color: transparent;
+          overflow-x: hidden;
+        }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleUp { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-scale-up { animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Mobile height fixes for iOS Safari */
+        .min-h-dynamic { min-height: 100dvh; }
+        
+        /* Input focus zoom prevention */
+        input, select, textarea { font-size: 16px !important; }
     </style>
 <script type="importmap">
 {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 
 interface PaymentModalProps {
@@ -25,85 +26,84 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
   const handleRealPaymentClick = () => {
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
-    // Standard link click will handle the navigation naturally
   };
 
   return (
-    <div className="bg-white rounded-[2.5rem] shadow-[0_50px_150px_-30px_rgba(0,0,0,0.4)] max-w-lg w-full overflow-hidden animate-scale-up border border-zinc-100 mx-auto relative z-[100]">
-      <div className="bg-[#1a1a1a] text-white p-8 md:p-12 text-center relative overflow-hidden">
+    <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl max-w-lg w-full max-h-[90dvh] overflow-y-auto animate-scale-up border border-zinc-100 mx-auto relative z-[100] custom-scrollbar">
+      <div className="bg-[#1a1a1a] text-white p-8 md:p-12 text-center relative overflow-hidden sticky top-0 z-10">
         {isDemo && (
           <div className="absolute top-0 left-0 bg-green-500 text-white px-4 py-1 text-[8px] font-black uppercase tracking-widest z-10 animate-pulse">
-            App Store Reviewer Account
+            Reviewer Access
           </div>
         )}
-        <div className="w-16 h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-2xl ring-4 ring-white/10 relative">
+        <div className="w-14 h-14 md:w-16 md:h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 md:mb-6 shadow-2xl ring-4 ring-white/10 relative">
           <i className="fas fa-crown text-white"></i>
         </div>
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2 uppercase italic leading-tight">
+        <h2 className="text-xl md:text-3xl font-black tracking-tight mb-1 uppercase italic leading-tight">
           Unlock <span className="text-[#D4AF37]">Premium</span> Audit
         </h2>
-        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase italic">Evidence Mapping & Gap Analysis</p>
+        <p className="text-zinc-500 text-[8px] md:text-[10px] font-black tracking-widest uppercase italic">Full Evidence Gap Analysis</p>
       </div>
 
-      <div className="p-8 md:p-12 bg-white flex flex-col">
+      <div className="p-6 md:p-12 bg-white flex flex-col">
         {isProcessing ? (
           <div className="text-center animate-fade-in space-y-8 py-12">
-            <div className="relative w-16 h-16 mx-auto">
-              <div className="absolute inset-0 border-[4px] border-zinc-50 rounded-full"></div>
-              <div className="absolute inset-0 border-[4px] border-[#D4AF37] rounded-full border-t-transparent animate-spin"></div>
+            <div className="relative w-12 h-12 md:w-16 md:h-16 mx-auto">
+              <div className="absolute inset-0 border-[3px] md:border-[4px] border-zinc-50 rounded-full"></div>
+              <div className="absolute inset-0 border-[3px] md:border-[4px] border-[#D4AF37] rounded-full border-t-transparent animate-spin"></div>
             </div>
-            <div className="space-y-4">
-              <p className="text-zinc-900 font-black text-xs uppercase tracking-widest animate-pulse">
-                Verifying Sandbox...
-              </p>
-            </div>
+            <p className="text-zinc-900 font-black text-[10px] md:text-xs uppercase tracking-widest animate-pulse">
+              Verifying Access...
+            </p>
           </div>
         ) : (
           <>
-            <div className="flex justify-between items-center mb-10 pb-8 border-b border-zinc-50">
+            <div className="flex justify-between items-center mb-8 pb-6 border-b border-zinc-50">
               <div className="flex flex-col">
-                <span className="text-zinc-900 font-black text-3xl tracking-tighter">$19</span>
-                <span className="text-zinc-400 font-bold text-[9px] uppercase tracking-widest italic">Full Criteria Map</span>
+                <span className="text-zinc-900 font-black text-2xl md:text-3xl tracking-tighter">$19</span>
+                <span className="text-zinc-400 font-bold text-[8px] md:text-[9px] uppercase tracking-widest italic">One-time payment</span>
               </div>
               <div className="text-right">
-                <span className="px-3 py-1 bg-amber-50 text-[#D4AF37] rounded-full text-[9px] font-black uppercase border border-amber-100">AI Verified</span>
+                <span className="px-3 py-1 bg-amber-50 text-[#D4AF37] rounded-full text-[8px] md:text-[9px] font-black uppercase border border-amber-100">AI Verified</span>
               </div>
             </div>
 
-            <div className="space-y-5 mb-10">
+            <div className="space-y-4 md:space-y-5 mb-8 md:mb-10">
               {[
                 "10-Point Evidence Gap Scan", 
                 "Criteria-by-Criteria Breakdown", 
-                "5-Phase Tactical Roadmap", 
-                "PDF Export for Legal Review"
+                "Tactical Success Roadmap", 
+                "PDF Report Generation"
               ].map((item, idx) => (
-                <div key={idx} className="flex items-start gap-4 text-zinc-600">
+                <div key={idx} className="flex items-start gap-3 text-zinc-600">
                   <div className="w-4 h-4 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
                     <i className="fas fa-check text-amber-600 text-[8px]"></i>
                   </div>
-                  <span className="text-[13px] font-bold tracking-tight">{item}</span>
+                  <span className="text-xs md:text-[13px] font-bold tracking-tight">{item}</span>
                 </div>
               ))}
             </div>
 
-            {isDemo ? (
-              <button 
-                onClick={handleDemoPayment}
-                className="w-full py-6 bg-green-600 text-white font-black rounded-3xl shadow-2xl uppercase tracking-[0.2em] text-[11px] mb-4 transition-all active:scale-95 hover:bg-green-700"
-              >
-                Verify Reviewer Access
-              </button>
-            ) : (
-              <a 
-                href={checkoutUrl}
-                onClick={handleRealPaymentClick}
-                className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl shadow-2xl uppercase tracking-[0.2em] text-[11px] mb-4 transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center"
-              >
-                Purchase Full Audit
-              </a>
-            )}
-            
-            <button onClick={onCancel} className="text-zinc-300 hover:text-zinc-900 text-[10px] font-black uppercase tracking-widest transition-all">Back to Score</button>
+            <div className="space-y-4">
+              {isDemo ? (
+                <button 
+                  onClick={handleDemoPayment}
+                  className="w-full py-5 md:py-6 bg-green-600 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-green-700"
+                >
+                  Verify Reviewer Access
+                </button>
+              ) : (
+                <a 
+                  href={checkoutUrl}
+                  onClick={handleRealPaymentClick}
+                  className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center"
+                >
+                  Purchase Full Audit
+                </a>
+              )}
+              
+              <button onClick={onCancel} className="w-full text-zinc-300 hover:text-zinc-900 text-[9px] font-black uppercase tracking-widest transition-all py-2 active:scale-95">Back to Score</button>
+            </div>
           </>
         )}
       </div>

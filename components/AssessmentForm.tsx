@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { AssessmentData } from '../types.ts';
 
@@ -79,39 +80,37 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
   const isQuotaError = error === "QUOTA_EXCEEDED";
 
   return (
-    <div className="max-w-[800px] mx-auto py-10 md:py-16 px-4 md:px-6 animate-scale-up">
-      <div className="bg-white rounded-[2rem] md:rounded-[32px] shadow-[0_4px_30px_rgba(0,0,0,0.04)] overflow-hidden border border-zinc-100 p-8 md:p-12">
+    <div className="max-w-[800px] mx-auto py-6 md:py-16 px-4 md:px-6 animate-scale-up">
+      <div className="bg-white rounded-[1.5rem] md:rounded-[32px] shadow-sm md:shadow-[0_4px_30px_rgba(0,0,0,0.04)] overflow-hidden border border-zinc-100 p-6 md:p-12">
         {error && (
-          <div className="mb-10 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col md:flex-row items-start gap-4 text-amber-800 animate-fade-in">
-            <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center shrink-0">
-              <i className="fas fa-robot text-sm"></i>
-            </div>
-            <div className="space-y-3 flex-grow">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">AI Engine Notice</p>
-                <p className="text-sm font-bold tracking-tight leading-relaxed">
-                  {isQuotaError 
-                    ? "AI 引擎目前繁忙（配额已达上限）。请 1 分钟后重试，或使用应急演示模式完成体验。" 
-                    : error}
-                </p>
+          <div className="mb-8 md:mb-10 p-4 md:p-6 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col items-start gap-4 text-amber-800 animate-fade-in">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center shrink-0">
+                <i className="fas fa-robot text-sm"></i>
               </div>
-              {isQuotaError && (
-                <button 
-                  type="button"
-                  onClick={enterSandboxMode}
-                  className="bg-zinc-900 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black transition-all"
-                >
-                  Enter Sandbox Mode (Bypass)
-                </button>
-              )}
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">AI Engine Notice</p>
             </div>
+            <p className="text-sm font-bold tracking-tight leading-relaxed">
+              {isQuotaError 
+                ? "AI 引擎目前繁忙（配额已达上限）。请 1 分钟后重试，或使用应急演示模式完成体验。" 
+                : error}
+            </p>
+            {isQuotaError && (
+              <button 
+                type="button"
+                onClick={enterSandboxMode}
+                className="w-full md:w-auto bg-zinc-900 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-black transition-all"
+              >
+                Enter Sandbox Mode
+              </button>
+            )}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-10 md:space-y-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-             <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">Candidate Name</label>
+        <form onSubmit={handleSubmit} className="space-y-8 md:space-y-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             <div className="space-y-2">
+                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Candidate Name</label>
                 <input 
                   required 
                   type="text" 
@@ -121,8 +120,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                   className="w-full border-b border-zinc-100 py-3 outline-none focus:border-[#D4AF37] text-base font-medium placeholder:text-zinc-200 transition-colors bg-transparent"
                 />
              </div>
-             <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">Email Address</label>
+             <div className="space-y-2">
+                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Email Address</label>
                 <input 
                   required 
                   type="email" 
@@ -134,8 +133,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
              </div>
           </div>
 
-          <div className="space-y-4">
-            <label className="flex items-center gap-3 text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest">
               <i className="fas fa-briefcase text-zinc-300"></i>
               Endorsement Route
             </label>
@@ -143,7 +142,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
               <select
                 value={formData.endorsementRoute}
                 onChange={e => setFormData(prev => ({ ...prev, endorsementRoute: e.target.value }))}
-                className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-5 py-4 text-zinc-800 font-bold focus:ring-1 focus:ring-[#D4AF37] outline-none appearance-none cursor-pointer"
+                className="w-full bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-4 text-zinc-800 font-bold focus:ring-1 focus:ring-[#D4AF37] outline-none appearance-none cursor-pointer"
               >
                 <option>Arts & Culture (Fashion Design)</option>
                 <option>Arts & Culture (Visual Arts)</option>
@@ -153,13 +152,13 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 <option>Architecture</option>
                 <option>Film & Television</option>
               </select>
-              <i className="fas fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-zinc-300 pointer-events-none text-[10px]"></i>
+              <i className="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 pointer-events-none text-[10px]"></i>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-            <div className="space-y-4">
-              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Job Title</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest">Job Title</label>
               <input
                 type="text"
                 value={formData.jobTitle}
@@ -168,8 +167,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 className="w-full border-b border-zinc-100 py-3 text-base font-medium text-zinc-900 placeholder:text-zinc-200 focus:border-[#D4AF37] outline-none bg-transparent"
               />
             </div>
-            <div className="space-y-4">
-              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Experience</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest">Experience</label>
               <div className="relative">
                 <select
                   value={formData.yearsOfExperience}
@@ -185,8 +184,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <label className="flex items-center gap-3 text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest">
               <i className="far fa-user text-zinc-300"></i>
               Impact Summary
             </label>
@@ -196,35 +195,35 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
               value={formData.personalStatement}
               onChange={e => setFormData(prev => ({ ...prev, personalStatement: e.target.value }))}
               placeholder="Describe your achievements..."
-              className="w-full bg-zinc-50/50 border border-zinc-100 rounded-2xl p-6 text-zinc-600 text-sm font-medium focus:ring-1 focus:ring-[#D4AF37] outline-none resize-none placeholder:text-zinc-200 transition-all"
+              className="w-full bg-zinc-50/50 border border-zinc-100 rounded-xl p-4 md:p-6 text-zinc-600 text-sm font-medium focus:ring-1 focus:ring-[#D4AF37] outline-none resize-none placeholder:text-zinc-200 transition-all"
             />
           </div>
 
-          <div className="space-y-8 pt-4">
-            <div className="flex justify-between items-end">
-              <label className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-widest">Evidence Documents</label>
-              <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest">{6 - fileList.length} Slots Left</span>
+          <div className="space-y-6 pt-4">
+            <div className="flex justify-between items-center">
+              <label className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest">Evidence Documents</label>
+              <span className="text-[8px] font-black text-[#D4AF37] uppercase tracking-widest">{6 - fileList.length} Slots Left</span>
             </div>
 
             <input type="file" multiple ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".pdf,.png,.jpg,.jpeg" />
             
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div onClick={handleUploadClick} className="w-full md:w-48 h-48 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all bg-white border-2 border-dashed border-zinc-100 hover:border-amber-200">
+            <div className="flex flex-col gap-4">
+              <div onClick={handleUploadClick} className="w-full h-32 md:h-48 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all bg-white border-2 border-dashed border-zinc-100 hover:border-amber-200 active:bg-zinc-50">
                 {!isUploading ? (
                   <>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${fileList.length > 0 ? 'bg-green-500 text-white' : 'bg-zinc-50 text-zinc-300'}`}>
+                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${fileList.length > 0 ? 'bg-green-500 text-white shadow-lg' : 'bg-zinc-50 text-zinc-300'}`}>
                       <i className={`fas ${fileList.length > 0 ? 'fa-check' : 'fa-plus'}`}></i>
                     </div>
-                    <span className="text-[9px] font-black text-zinc-300 uppercase">Add Evidence</span>
+                    <span className="text-[8px] font-black text-zinc-300 uppercase">Add Evidence</span>
                   </>
-                ) : <div className="w-8 h-8 border-2 border-t-amber-500 rounded-full animate-spin"></div>}
+                ) : <div className="w-6 h-6 border-2 border-t-amber-500 rounded-full animate-spin"></div>}
               </div>
 
-              <div className="flex-1 w-full space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {fileList.map((name, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 border border-zinc-100 rounded-xl animate-fade-in">
-                    <span className="text-[11px] font-bold text-zinc-800 truncate">{name}</span>
-                    <button type="button" onClick={() => removeFile(i)} className="text-zinc-300 hover:text-red-500"><i className="fas fa-times text-[10px]"></i></button>
+                  <div key={i} className="flex items-center justify-between p-3 bg-zinc-50 border border-zinc-100 rounded-xl animate-fade-in">
+                    <span className="text-[10px] font-bold text-zinc-800 truncate pr-4">{name}</span>
+                    <button type="button" onClick={() => removeFile(i)} className="w-8 h-8 flex items-center justify-center text-zinc-300 hover:text-red-500 active:scale-90 transition-transform"><i className="fas fa-times text-[10px]"></i></button>
                   </div>
                 ))}
               </div>
@@ -234,7 +233,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-6 bg-zinc-900 text-white font-black rounded-3xl transition-all shadow-xl active:scale-[0.98] uppercase tracking-[0.2em] italic mt-8 disabled:bg-zinc-400"
+            className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl transition-all shadow-xl active:scale-95 uppercase tracking-widest text-sm italic mt-8 disabled:bg-zinc-400"
           >
             {isSubmitting ? 'Analyzing...' : 'Run Expert Analysis'}
           </button>
