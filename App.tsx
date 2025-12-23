@@ -14,6 +14,7 @@ import LeadCapture from './components/LeadCapture.tsx';
 import AdminDashboard from './components/AdminDashboard.tsx';
 import GuideGeneral from './components/GuideGeneral.tsx';
 import GuideFashion from './components/GuideFashion.tsx';
+import GuideTech from './components/GuideTech.tsx';
 
 const MOCK_PREMIUM_RESULT: AnalysisResult = {
   probabilityScore: 92,
@@ -51,6 +52,8 @@ const App: React.FC = () => {
       setStep(AppStep.GUIDE_GENERAL);
     } else if (path === '/global-talent-visa-fashion') {
       setStep(AppStep.GUIDE_FASHION);
+    } else if (path === '/global-talent-visa-tech') {
+      setStep(AppStep.GUIDE_TECH);
     } else {
       setStep(AppStep.LANDING);
     }
@@ -246,6 +249,7 @@ const App: React.FC = () => {
         )}
         {step === AppStep.GUIDE_GENERAL && <GuideGeneral onStart={() => setStep(AppStep.FORM)} />}
         {step === AppStep.GUIDE_FASHION && <GuideFashion onStart={() => setStep(AppStep.FORM)} />}
+        {step === AppStep.GUIDE_TECH && <GuideTech onStart={() => setStep(AppStep.FORM)} />}
         {step === AppStep.FORM && <AssessmentForm onSubmit={handleFormSubmit} error={error} />}
         {step === AppStep.ANALYZING && <LoadingState />}
         {(step === AppStep.RESULTS_FREE || step === AppStep.RESULTS_PREMIUM) && analysisResult && assessmentData && (
@@ -272,6 +276,7 @@ const App: React.FC = () => {
               <ul className="space-y-2">
                  <li><button onClick={() => navigateTo('/global-talent-visa')} className="text-zinc-500 hover:text-zinc-900 text-xs font-bold italic transition-colors">Visa Overview Guide</button></li>
                  <li><button onClick={() => navigateTo('/global-talent-visa-fashion')} className="text-zinc-500 hover:text-zinc-900 text-xs font-bold italic transition-colors">Fashion Designer Guide</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa-tech')} className="text-zinc-500 hover:text-zinc-900 text-xs font-bold italic transition-colors">Digital Tech Guide</button></li>
                  <li><button onClick={() => setStep(AppStep.LANDING)} className="text-zinc-500 hover:text-zinc-900 text-xs font-bold italic transition-colors">Home Page</button></li>
               </ul>
            </div>

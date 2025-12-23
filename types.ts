@@ -34,5 +34,6 @@ export enum AppStep {
   PAYMENT = 'payment',
   RESULTS_PREMIUM = 'results_premium',
   GUIDE_GENERAL = 'guide_general',
-  GUIDE_FASHION = 'guide_fashion'
+  GUIDE_FASHION = 'guide_fashion',
+  GUIDE_TECH = 'guide_tech'
 }
