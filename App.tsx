@@ -171,32 +171,32 @@ const App: React.FC = () => {
         return (
           <>
             <Helmet>
-               <title>GTV AI Assessor | Home - UK Global Talent Visa Eligibility</title>
-               <meta name="description" content="Official AI evaluation for UK Global Talent Visa. Check your Tech Nation or Arts Council endorsement readiness in minutes." />
+               <title>UK Global Talent Visa AI Assessment 2025 | GTV Assessor</title>
+               <meta name="description" content="Check your eligibility for the UK Global Talent Visa with our professional AI assessment tool. Map your evidence for Tech Nation and Arts Council endorsements instantly." />
             </Helmet>
             <FAQSchema />
             <Hero onStart={() => navigateTo('/eligibility-check')} />
             
             <section className="py-24 px-6 max-w-6xl mx-auto">
               <div className="text-center mb-16">
-                <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-4">Official Criteria Scan</h3>
-                <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic">How GTV Assessor Works</h2>
+                <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-4">Professional Assessment Framework</h3>
+                <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic">GTV Endorsement AI Engine</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div className="space-y-6">
-                  <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-xl">1</div>
-                  <h3 className="text-2xl font-black italic uppercase tracking-tighter">AI-Powered Eligibility Analysis</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Our system evaluates your achievements, recognition, and professional impact based on official UK Global Talent Visa criteria.</p>
+                  <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg">1</div>
+                  <h3 className="text-2xl font-black italic uppercase tracking-tighter">Criteria Benchmarking</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Our AI cross-references your professional profile against the latest 2025 UK Home Office and endorsing body mandates.</p>
                 </div>
                 <div className="space-y-6">
-                  <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-xl">2</div>
-                  <h3 className="text-2xl font-black italic uppercase tracking-tighter">Identify Strengths and Weaknesses</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Understand exactly where your profile stands and which requirements need more evidence before your final submission.</p>
+                  <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg">2</div>
+                  <h3 className="text-2xl font-black italic uppercase tracking-tighter">Evidence Gap Mapping</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Identify exactly which mandatory or optional criteria require more documented proof to meet the 'Exceptional' threshold.</p>
                 </div>
                 <div className="space-y-6">
-                  <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-xl">3</div>
-                  <h3 className="text-2xl font-black italic uppercase tracking-tighter">Actionable Improvement Guidance</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Receive a 5-phase tactical roadmap tailored to your specific field (Tech, Arts, or Research) to maximize success.</p>
+                  <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg">3</div>
+                  <h3 className="text-2xl font-black italic uppercase tracking-tighter">Success Roadmap</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Receive a custom tactical plan to strengthen your application before formal submission to Tech Nation or Arts Council.</p>
                 </div>
               </div>
             </section>
@@ -204,14 +204,14 @@ const App: React.FC = () => {
             <section className="py-24 bg-zinc-50/50 overflow-hidden">
               <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
                 <div className="flex-1 space-y-8">
-                  <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-[0.95]">Who should use <br/> GTV Assessor?</h2>
-                  <p className="text-zinc-500 text-lg italic leading-relaxed">The UK Global Talent Visa endorsement process is highly selective. An early-stage AI evaluation helps you avoid weak submissions.</p>
+                  <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-[0.95]">GTV Eligibility <br/> for Professionals</h2>
+                  <p className="text-zinc-500 text-lg italic leading-relaxed">Endorsement is the highest hurdle for UK immigration. Our AI audit minimizes the risk of rejection for leaders in:</p>
                   <ul className="space-y-4">
                     {[
-                      "FASHION DESIGNERS AND CREATIVE PROFESSIONALS",
-                      "DIGITAL TECHNOLOGY SPECIALISTS AND FOUNDERS",
-                      "ARTISTS, CURATORS, AND MUSICIANS",
-                      "RESEARCHERS AND ACADEMIC PROFESSIONALS"
+                      "FASHION DESIGNERS AND CREATIVE LEADERS",
+                      "AI RESEARCHERS AND SOFTWARE FOUNDERS",
+                      "VISUAL ARTISTS AND MUSIC PROFESSIONALS",
+                      "ACADEMIC SCHOLARS AND SCIENTISTS"
                     ].map((item, idx) => (
                       <li key={idx} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
                         <div className="w-5 h-5 bg-amber-50 rounded-full flex items-center justify-center text-[8px] text-amber-600">
@@ -229,21 +229,21 @@ const App: React.FC = () => {
                           <div className="h-full bg-amber-500 w-[82%]"></div>
                         </div>
                         <div className="flex justify-between items-end">
-                           <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Eligibility Score</span>
-                           <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">82% (High Readiness)</span>
+                           <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">GTV Readiness</span>
+                           <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">82% (Strong Candidate)</span>
                         </div>
                         <div className="space-y-3 pt-6 border-t border-zinc-50">
                            <div className="flex items-center gap-2">
                              <div className="w-3 h-3 bg-green-500 rounded-full opacity-50"></div>
-                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Leadership Profile: Confirmed</span>
+                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Leadership Profile: Pass</span>
                            </div>
                            <div className="flex items-center gap-2">
                              <div className="w-3 h-3 bg-green-500 rounded-full opacity-50"></div>
-                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Innovation Record: Strong</span>
+                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Innovation Impact: Pass</span>
                            </div>
                            <div className="flex items-center gap-2">
                              <div className="w-3 h-3 bg-amber-500 rounded-full opacity-50"></div>
-                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Media Gap: 1 Clipping Needed</span>
+                             <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Media Coverage: Gap</span>
                            </div>
                         </div>
                       </div>
@@ -260,13 +260,13 @@ const App: React.FC = () => {
             <section className="py-24 px-6">
               <div className="max-w-6xl mx-auto bg-zinc-900 rounded-[4rem] p-12 md:p-24 text-center text-white space-y-12 shadow-2xl border border-zinc-800 relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-500/5 to-transparent"></div>
-                <h2 className="text-4xl md:text-7xl font-black uppercase italic tracking-tighter leading-none relative z-10">Start Your Global Talent Visa Assessment Today</h2>
-                <p className="text-zinc-400 text-lg md:text-2xl italic font-light max-w-2xl mx-auto relative z-10">Get a clear picture of your chances and a tailored evidence map before you apply.</p>
+                <h2 className="text-4xl md:text-7xl font-black uppercase italic tracking-tighter leading-none relative z-10">Start Your Professional Visa Assessment</h2>
+                <p className="text-zinc-400 text-lg md:text-2xl italic font-light max-w-2xl mx-auto relative z-10">Get a clear picture of your probability of success before starting the official Home Office application.</p>
                 <button 
                   onClick={() => navigateTo('/eligibility-check')}
                   className="px-12 py-6 bg-white text-zinc-900 font-black rounded-3xl uppercase tracking-widest text-sm hover:bg-zinc-100 transition-all shadow-xl active:scale-95 relative z-10 italic"
                 >
-                  Start Assessment
+                  Start My Audit
                 </button>
               </div>
             </section>
@@ -278,8 +278,8 @@ const App: React.FC = () => {
       case AppStep.FORM: return (
         <>
           <Helmet>
-             <title>Start Eligibility Check | GTV AI Assessor</title>
-             <meta name="description" content="Complete our professional intake form to receive your UK Global Talent Visa readiness score." />
+             <title>GTV Eligibility Intake | Global Talent Visa Assessment</title>
+             <meta name="description" content="Submit your professional details for an AI-powered UK Global Talent Visa eligibility check. Private and secure data mapping." />
           </Helmet>
           <FAQSchema items={[{ question: "Is this GTV check accurate?", answer: "Our AI uses the latest 2025 UK Home Office criteria." }]} />
           <AssessmentForm onSubmit={handleFormSubmit} error={error} />
@@ -291,7 +291,7 @@ const App: React.FC = () => {
         return analysisResult && assessmentData ? (
           <>
             <Helmet>
-               <title>{analysisResult.probabilityScore}% Score - GTV Readiness Report</title>
+               <title>Eligibility Score: {analysisResult.probabilityScore}% - GTV Professional Report</title>
                <meta name="robots" content="noindex, nofollow" />
             </Helmet>
             <ResultsDashboard result={analysisResult} data={assessmentData} isPremium={step === AppStep.RESULTS_PREMIUM} onUpgrade={() => startTransition(() => setStep(AppStep.PAYMENT))} />
@@ -328,28 +328,28 @@ const App: React.FC = () => {
       <footer className="bg-white border-t border-zinc-100 py-24 text-left">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16 mb-24">
            <div className="space-y-6">
-              <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">Resources</h4>
+              <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">Official Guides</h4>
               <ul className="space-y-3">
-                 <li><button onClick={() => navigateTo('/global-talent-visa')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Visa Overview Guide</button></li>
-                 <li><button onClick={() => navigateTo('/global-talent-visa-fashion')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Fashion Designer Guide</button></li>
-                 <li><button onClick={() => navigateTo('/global-talent-visa-tech')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Digital Tech Guide</button></li>
-                 <li><button onClick={() => navigateTo('/')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Home Page</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">GTV Requirements Overview</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa-fashion')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Fashion Endorsement Guide</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa-tech')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Digital Technology Criteria</button></li>
+                 <li><button onClick={() => navigateTo('/')} className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors text-left">Assessment Portal</button></li>
               </ul>
            </div>
            <div className="space-y-6">
-              <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">Connect</h4>
+              <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">Support</h4>
               <ul className="space-y-3">
-                 <li><a href="https://chat.whatsapp.com/GTV" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block text-left">WhatsApp Community</a></li>
-                 <li><a href="mailto:support@gtvassessor.com" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block text-left">Email Support</a></li>
+                 <li><a href="https://chat.whatsapp.com/GTV" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block text-left">Talent Community</a></li>
+                 <li><a href="mailto:support@gtvassessor.com" className="text-zinc-500 hover:text-zinc-900 text-sm font-black italic transition-colors block text-left">Legal Referral Support</a></li>
               </ul>
            </div>
            <div className="space-y-6">
-              <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">GTV Assessor</h4>
-              <p className="text-zinc-400 text-xs leading-relaxed italic font-medium">AI-driven platform for UK Global Talent Visa readiness assessment. Empowering international talent through data transparency.</p>
+              <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em]">GTV AI Engine</h4>
+              <p className="text-zinc-400 text-xs leading-relaxed italic font-medium">Advanced algorithmic platform for UK Global Talent Visa readiness analysis. Built for founders, researchers, and creative leaders globally.</p>
            </div>
         </div>
         <div className="max-w-6xl mx-auto px-6 border-t border-zinc-50 pt-12 flex flex-col items-center gap-8">
-          <p className="text-[9px] text-zinc-400 font-black tracking-widest uppercase">&copy; {new Date().getFullYear()} GTV Assessor. PROUDLY BUILT FOR TALENTS.</p>
+          <p className="text-[9px] text-zinc-400 font-black tracking-widest uppercase">&copy; {new Date().getFullYear()} GTV Assessor. INDEPENDENT VISA ASSESSMENT PLATFORM.</p>
           <div className="flex items-center gap-8">
             <button onClick={() => setShowPrivacy(true)} className="text-[9px] font-black text-zinc-300 uppercase tracking-widest hover:text-zinc-900 transition-colors">Privacy Policy</button>
             <span className="w-px h-3 bg-zinc-100"></span>
