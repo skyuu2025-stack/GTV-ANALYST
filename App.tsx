@@ -172,9 +172,9 @@ const App: React.FC = () => {
           <>
             <Hero onStart={() => navigateTo('/eligibility-check')} />
             
-            <section className="py-12 md:py-16 px-6 max-w-6xl mx-auto" id="how-it-works">
-              <div className="text-center mb-8">
-                <h3 className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mb-3">Framework</h3>
+            <section className="py-8 md:py-10 px-6 max-w-6xl mx-auto" id="how-it-works">
+              <div className="text-center mb-6">
+                <h3 className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mb-2">Framework</h3>
                 <h2 className="text-2xl md:text-5xl font-black tracking-tighter uppercase italic">GTV Endorsement Engine</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -196,7 +196,7 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            <section className="py-12 md:py-16 bg-zinc-50/50" id="routes">
+            <section className="py-8 md:py-10 bg-zinc-50/50" id="routes">
               <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-10">
                 <div className="flex-1 space-y-5">
                   <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic leading-[1.1]">GTV Eligibility <br/> for Leaders</h2>
@@ -230,7 +230,7 @@ const App: React.FC = () => {
             <FAQ />
             <LeadCapture />
 
-            <section className="py-12 md:py-16 px-4">
+            <section className="py-8 md:py-10 px-4">
               <div className="max-w-6xl mx-auto bg-zinc-900 rounded-[2.5rem] p-10 text-center text-white space-y-6 shadow-2xl">
                 <h2 className="text-3xl md:text-6xl font-black uppercase italic tracking-tighter leading-tight">Check Eligibility</h2>
                 <button 

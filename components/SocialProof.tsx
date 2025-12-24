@@ -7,9 +7,9 @@ const SocialProof: React.FC = () => {
   ];
 
   return (
-    <section className="py-12 md:py-16 bg-zinc-50/50">
+    <section className="py-10 md:py-14 bg-zinc-50/50">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-10 space-y-3">
+        <div className="text-center mb-8 space-y-2">
           <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em]">Global Success Stories</h3>
           <h2 className="text-2xl md:text-4xl font-black tracking-tighter uppercase italic text-zinc-900">Trusted by Global Talents</h2>
         </div>
@@ -32,11 +32,11 @@ const SocialProof: React.FC = () => {
           ))}
         </div>
 
-        {/* Improved Framework Alignment Section */}
-        <div className="mt-16 pt-12 border-t border-zinc-200/60 overflow-hidden">
-           <p className="text-center text-[8px] font-black text-zinc-400 uppercase tracking-[0.5em] mb-10">Aligned with Official Endorsement Frameworks</p>
+        {/* Improved Framework Alignment Section - Tightened spacing */}
+        <div className="mt-10 pt-8 border-t border-zinc-200/60 overflow-hidden">
+           <p className="text-center text-[8px] font-black text-zinc-400 uppercase tracking-[0.5em] mb-6">Aligned with Official Endorsement Frameworks</p>
            
-           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-4 items-center opacity-40 hover:opacity-100 transition-all duration-700">
+           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-4 items-center opacity-40 hover:opacity-100 transition-all duration-700">
               {['Tech Nation', 'Arts Council', 'Royal Academy', 'Home Office'].map(logo => (
                 <div key={logo} className="flex flex-col items-center justify-center text-center group cursor-default">
                   <div className="relative">
@@ -45,17 +45,17 @@ const SocialProof: React.FC = () => {
                     </span>
                     <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-amber-500 group-hover:w-full transition-all duration-500 ease-out"></div>
                   </div>
-                  <span className="mt-3 text-[6px] font-black text-zinc-300 uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-500">
+                  <span className="mt-2 text-[6px] font-black text-zinc-300 uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-500">
                     Criteria
                   </span>
                 </div>
               ))}
            </div>
 
-           <div className="mt-10 flex justify-center gap-6 opacity-20">
-              <div className="w-10 h-1 bg-zinc-200 rounded-full"></div>
-              <div className="w-10 h-1 bg-zinc-200 rounded-full"></div>
-              <div className="w-10 h-1 bg-zinc-200 rounded-full"></div>
+           <div className="mt-6 flex justify-center gap-4 opacity-20">
+              <div className="w-8 h-1 bg-zinc-200 rounded-full"></div>
+              <div className="w-8 h-1 bg-zinc-200 rounded-full"></div>
+              <div className="w-8 h-1 bg-zinc-200 rounded-full"></div>
            </div>
         </div>
       </div>

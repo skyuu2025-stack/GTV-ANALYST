@@ -12,7 +12,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
       ></div>
       
       {/* Social Proof */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-4">
         <div className="flex -space-x-2" aria-label="Successful applicants">
           {[1,2,3,4].map(i => (
             <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-zinc-200 overflow-hidden">
@@ -50,7 +50,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         <span className="text-[#A48020]">AI ELIGIBILITY AUDIT</span>
       </h1>
       
-      <h2 className="text-zinc-600 text-sm md:text-lg max-w-xl mx-auto leading-relaxed mb-10 font-medium italic px-6">
+      <h2 className="text-zinc-600 text-sm md:text-lg max-w-xl mx-auto leading-relaxed mb-6 font-medium italic px-6">
         Definitive professional assessment tool for UK GTV readiness. Map your evidence for Tech Nation and Arts Council instantly.
       </h2>
       
@@ -62,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
           START PROFESSIONAL AUDIT
         </button>
 
-        <nav className="flex gap-4 mt-8 opacity-40 text-[7px] font-black uppercase tracking-widest" aria-label="GTV Categories">
+        <nav className="flex gap-4 mt-6 opacity-40 text-[7px] font-black uppercase tracking-widest" aria-label="GTV Categories">
            <span>Digital Tech</span>
            <span>Arts & Culture</span>
            <span>Fashion</span>
