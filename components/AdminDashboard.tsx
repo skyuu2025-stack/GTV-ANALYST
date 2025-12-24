@@ -152,7 +152,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
           <p className="text-red-800 text-[11px] italic leading-relaxed font-medium">
             Stripe has reported <span className="font-black">800+ failed delivery attempts</span> to your root URL endpoint (https://gtvassessor.com). 
             As this is a serverless frontend application, <span className="font-black">you must remove the Webhook endpoint</span> from your Stripe Dashboard 
-            (Developers > Webhooks) to prevent account flags and stop delivery failure emails. 
+            (Developers &gt; Webhooks) to prevent account flags and stop delivery failure emails. 
             The app uses a client-side verification flow and does not require active webhooks.
           </p>
         </div>
