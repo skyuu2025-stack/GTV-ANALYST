@@ -5,55 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GTV Assessor">
-    <meta name="theme-color" content="#000000">
+    <title>UK Global Talent Visa Eligibility Check 2025</title>
+    <meta name="description" content="Check your UK Global Talent Visa eligibility instantly with our AI audit tool.">
     
     <!-- Critical Preconnects -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://js.stripe.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- SEO & Primary Meta Tags -->
-    <title>UK Global Talent Visa (GTV) Eligibility Check 2025 | Dubai & Global AI Audit</title>
-    <meta name="title" content="UK Global Talent Visa (GTV) Eligibility Check 2025 | Dubai & Global AI Audit">
-    <meta name="description" content="Check your UK Global Talent Visa eligibility instantly. Professional AI roadmap for Tech Nation and Arts Council endorsements. Expert support in London, Dubai, SF, and Singapore." />
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="index.tsx" as="script" crossorigin>
     
-    <!-- Geo-Targeting Metadata -->
-    <meta name="geo.region" content="GB;AE;SG;US" />
-    <meta name="geo.placename" content="London;Dubai;Singapore;San Francisco" />
-
-    <link rel="canonical" href="https://gtvassessor.com/" />
-
-    <!-- Optimized Font Loading -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-
-    <!-- Deferred Scripts for Performance -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
-    <script src="https://js.stripe.com/v3/" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-    
-    <script>
-      window.process = window.process || { env: {} };
-    </script>
-
+    <!-- Inline Critical CSS for FCP -->
     <style>
-        :root { 
-          --sat: env(safe-area-inset-top); 
-          --sab: env(safe-area-inset-bottom);
-        }
-        body { 
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-          -webkit-font-smoothing: antialiased; 
-          background-color: #FDFDFD;
-          overflow-x: hidden;
-          font-display: swap;
-        }
-        /* Critical CSS for above the fold */
-        #root { min-height: 100vh; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      :root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); }
+      body { 
+        margin: 0; 
+        font-family: 'Inter', -apple-system, system-ui, sans-serif; 
+        background-color: #FDFDFD; 
+        color: #1A1A1A;
+        -webkit-font-smoothing: antialiased;
+      }
+      .hero-critical {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        box-sizing: border-box;
+        opacity: 0;
+        animation: fadeIn 0.4s ease-out forwards;
+      }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      .h1-critical {
+        font-size: clamp(34px, 8vw, 88px);
+        font-weight: 900;
+        line-height: 0.9;
+        text-transform: uppercase;
+        font-style: italic;
+        margin-bottom: 24px;
+        letter-spacing: -0.05em;
+      }
+      .badge-critical {
+        display: inline-flex;
+        padding: 8px 16px;
+        border: 1px solid #FEF3C7;
+        border-radius: 999px;
+        color: #B45309;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.2em;
+        margin-bottom: 32px;
+      }
+      .btn-critical {
+        width: fit-content;
+        max-width: 95vw;
+        white-space: nowrap;
+        background: #121212;
+        color: white;
+        padding: 20px 40px;
+        border-radius: 16px;
+        font-weight: 900;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        border: none;
+        cursor: pointer;
+        font-size: clamp(12px, 2.5vw, 16px);
+      }
+      /* Prevent CLS for off-screen components */
+      section { content-visibility: auto; contain-intrinsic-size: 0 500px; }
     </style>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
 <script type="importmap">
 {
@@ -72,7 +99,7 @@
 }
 </script>
 </head>
-<body class="text-[#1A1A1A]">
+<body>
     <div id="root"></div>
     <script type="module" src="index.tsx"></script>
 </body>
