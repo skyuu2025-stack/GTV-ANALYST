@@ -75,7 +75,8 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+    const finalUrl = window.location.origin.includes('gtvassessor') ? shareUrl : window.location.origin;
+    navigator.clipboard.writeText(`${shareText} ${finalUrl}`);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 2000);
   };
@@ -175,7 +176,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
                     aria-label="Copy share link to clipboard"
                   >
                     <i className={`fas ${copyFeedback ? 'fa-check' : 'fa-link'} text-xs`} aria-hidden="true"></i>
-                    <span className="text-[9px] font-black uppercase tracking-widest">{copyFeedback ? 'Copied' : 'Copy'}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest">{copyFeedback ? 'Copied' : 'Copy Link'}</span>
                   </button>
                 </div>
               </div>

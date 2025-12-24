@@ -39,7 +39,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
     setLoading(true);
     setErrorMsg(null);
     
-    // 1. Gather Local Data
     const localLeads: Lead[] = JSON.parse(localStorage.getItem('gtv_newsletter_leads') || '[]').map((l: any, i: number) => ({
       id: `local-lead-${i}`,
       email: l.email,
@@ -68,7 +67,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
       console.warn("Failed to parse local assessment data", e);
     }
 
-    // 2. Fetch Cloud Data and Merge
     try {
       if (isConnected) {
         const [lRes, aRes] = await Promise.all([
@@ -79,7 +77,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
         const cloudLeads = (lRes.data || []).map(l => ({ ...l, source: 'cloud' as const }));
         const cloudAssessments = (aRes.data || []).map(a => ({ ...a, source: 'cloud' as const }));
 
-        // Deduplicate Leads by Email
         const leadMap = new Map();
         [...cloudLeads, ...localLeads].forEach(l => {
           if (!leadMap.has(l.email)) leadMap.set(l.email, l);
@@ -127,9 +124,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto safe-top safe-bottom p-6 animate-scale-up">
+    <div className="fixed inset-0 z-[120] bg-white overflow-y-auto safe-top safe-bottom p-6 animate-scale-up">
       <div className="max-w-5xl mx-auto space-y-8 pb-20">
-        <div className="flex justify-between items-center border-b border-zinc-100 pb-8 sticky top-0 bg-white z-10">
+        <div className="flex justify-between items-center border-b border-zinc-100 pb-8 sticky top-0 bg-white z-20">
           <div>
             <h2 className="text-3xl font-black uppercase tracking-tighter italic text-zinc-900">Cloud Command</h2>
             <div className="flex items-center gap-2 mt-1">
@@ -142,6 +139,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
           <button onClick={onClose} className="w-12 h-12 bg-zinc-900 text-white rounded-full flex items-center justify-center hover:bg-black transition-colors shadow-lg">
              <i className="fas fa-times"></i>
           </button>
+        </div>
+
+        {/* Technical Health Alert Section */}
+        <div className="bg-red-50 border border-red-200 p-6 rounded-[2rem] space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] animate-pulse">
+              <i className="fas fa-exclamation-circle"></i>
+            </div>
+            <h3 className="text-red-900 font-black uppercase text-xs tracking-widest">Webhook Health Warning</h3>
+          </div>
+          <p className="text-red-800 text-[11px] italic leading-relaxed font-medium">
+            Stripe has reported <span className="font-black">800+ failed delivery attempts</span> to your root URL endpoint (https://gtvassessor.com). 
+            As this is a serverless frontend application, <span className="font-black">you must remove the Webhook endpoint</span> from your Stripe Dashboard 
+            (Developers > Webhooks) to prevent account flags and stop delivery failure emails. 
+            The app uses a client-side verification flow and does not require active webhooks.
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-4 p-2 bg-zinc-50 rounded-3xl w-fit">

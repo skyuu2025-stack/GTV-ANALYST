@@ -79,16 +79,52 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
 
   const getEvidenceGuidance = (route: string) => {
     if (route.includes('Fashion')) {
-      return "Critical: Lookbooks, runway press clippings, award certificates, and high-impact commercial look-sheets.";
+      return (
+        <div className="space-y-1">
+          <p className="font-black text-amber-700">HIGH-IMPACT EXAMPLES:</p>
+          <ul className="list-disc pl-4 space-y-0.5">
+            <li>Press features in top-tier titles (e.g., Vogue, Harper's Bazaar, Business of Fashion).</li>
+            <li>Official Fashion Week schedules (Paris, Milan, London) showing your brand or lead role.</li>
+            <li>Commercial records from luxury stockists (e.g., Harrods, Net-a-Porter, Selfridges).</li>
+          </ul>
+        </div>
+      );
     }
     if (route.includes('Digital Technology')) {
-      return "Critical: GitHub/Lab profiles, project portfolios, patent filings, business performance metrics, or high-level technical architecture docs.";
+      return (
+        <div className="space-y-1">
+          <p className="font-black text-amber-700">HIGH-IMPACT EXAMPLES:</p>
+          <ul className="list-disc pl-4 space-y-0.5">
+            <li>Public GitHub repositories with significant stars/contributions or patent filing numbers.</li>
+            <li>Architecture diagrams for platforms scaling to 1M+ users or handling $1M+ daily transactions.</li>
+            <li>Evidence of Series A/B technical leadership or high-value project completion reports.</li>
+          </ul>
+        </div>
+      );
     }
     if (route.includes('Visual Arts') || route.includes('Architecture')) {
-      return "Critical: Exhibition catalogs, portfolio images, project contracts, major commission proof, or design competition awards.";
+      return (
+        <div className="space-y-1">
+          <p className="font-black text-amber-700">HIGH-IMPACT EXAMPLES:</p>
+          <ul className="list-disc pl-4 space-y-0.5">
+            <li>Exhibition catalogs from major international galleries or museum acquisition letters.</li>
+            <li>Signed contracts for major public commissions or high-value architecture project bids.</li>
+            <li>Certificates for international design competition wins (e.g., Pritzker, RIBA Gold Medal).</li>
+          </ul>
+        </div>
+      );
     }
     if (route.includes('Music') || route.includes('Film')) {
-      return "Critical: Distribution agreements, credit lists (IMDb), festival selection letters, media reviews, or broadcast confirmation.";
+      return (
+        <div className="space-y-1">
+          <p className="font-black text-amber-700">HIGH-IMPACT EXAMPLES:</p>
+          <ul className="list-disc pl-4 space-y-0.5">
+            <li>International distribution agreements (e.g., Netflix, Spotify Editorial, Warner Music).</li>
+            <li>Media reviews in recognized outlets (e.g., Rolling Stone, Variety, Pitchfork, BBC).</li>
+            <li>Grammy/BAFTA/Oscar credits or nominations from official industry voting bodies.</li>
+          </ul>
+        </div>
+      );
     }
     return "Upload high-impact professional evidence (PDF/JPG) mapped to your chosen endorsement criteria.";
   };
@@ -246,10 +282,12 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 <label id="evidence-label" className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest">Evidence Documents</label>
                 <span className="text-[8px] font-black text-amber-700 uppercase tracking-widest" aria-live="polite">{6 - fileList.length} Slots Left</span>
               </div>
-              <p className="text-[10px] text-zinc-400 font-medium italic bg-zinc-50 p-3 rounded-lg border border-zinc-100 leading-relaxed transition-all duration-300">
-                <i className="fas fa-info-circle mr-2 text-amber-500"></i>
-                {getEvidenceGuidance(formData.endorsementRoute)}
-              </p>
+              <div className="text-[10px] text-zinc-500 font-medium italic bg-zinc-50 p-4 rounded-xl border border-zinc-100 leading-relaxed transition-all duration-300 shadow-inner">
+                <div className="flex items-start gap-3">
+                  <i className="fas fa-info-circle text-amber-500 mt-0.5"></i>
+                  {getEvidenceGuidance(formData.endorsementRoute)}
+                </div>
+              </div>
             </div>
 
             <input 
