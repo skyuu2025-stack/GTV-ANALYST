@@ -77,7 +77,6 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
     return JSON.parse(resultText) as AnalysisResult;
   } catch (err: any) {
     console.error("Gemini Analysis Error:", err);
-    // Standardizing quota error for the UI
     if (err.message?.includes('429') || err.status === 429) {
       throw new Error("QUOTA_EXCEEDED");
     }
@@ -85,9 +84,71 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   }
 };
 
-/**
- * 使用 Google Maps Grounding 寻找附近的签证支持机构
- */
+export const generateAILogo = async (style: string): Promise<string> => {
+  const prompt = `
+    Create a professional, modern app icon and logo for "GTV Assessor".
+    The logo should feature a prominent white letter "G" inside a sophisticated golden circular border.
+    Theme: ${style === 'tech' ? 'Digital Technology & AI analysis' : 'Global reach and Visa precision'}.
+    Visual Elements: 
+    - Incorporate subtle neural network pathways (thin golden lines) in the background.
+    - A faint silhouette of a globe or travel pathways.
+    - Style: Luxury tech, minimalist, high contrast. 
+    - Palette: Deep Onyx black background, 24K Gold, and Pure White.
+    - Composition: Centered, symmetrical, suitable for a 1024x1024 app icon.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts: [{ text: prompt }]
+      },
+      config: {
+        imageConfig: {
+          aspectRatio: "1:1"
+        }
+      }
+    });
+
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        return `data:image/png;base64,${part.inlineData.data}`;
+      }
+    }
+    throw new Error("No image data returned.");
+  } catch (err) {
+    console.error("Logo Generation Error:", err);
+    throw err;
+  }
+};
+
+export const chatWithConcierge = async (message: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) => {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: history.concat([{ role: 'user', parts: [{ text: message }] }]),
+      config: {
+        systemInstruction: `You are the GTV Assessor Concierge. You are a professional, polite, and highly knowledgeable assistant specialized in the UK Global Talent Visa (GTV). 
+        Help users with:
+        1. Explaining the Tech Nation, Arts Council, and RIBA routes.
+        2. Clarifying endorsement criteria (Mandatory/Optional).
+        3. Answering questions about visa costs, duration, and ILR (Indefinite Leave to Remain) timelines.
+        4. Guiding them on how to use this tool.
+        
+        RULES:
+        - Keep answers concise and strictly related to GTV.
+        - Use a professional, encouraging tone.
+        - Mention that for formal legal advice, they should consult a qualified solicitor.
+        - If the user asks about something unrelated, politely bring them back to GTV topics.`,
+      }
+    });
+    return response.text || "I'm sorry, I couldn't process that request.";
+  } catch (err) {
+    console.error("Concierge Chat Error:", err);
+    return "The GTV Concierge is currently offline. Please try again later.";
+  }
+};
+
 export const searchLocalVisaSupport = async (lat: number, lng: number) => {
   const prompt = "List 3 professional immigration consultants or law firms near this location specializing in UK Global Talent Visa (GTV) or Tech Nation endorsements.";
   

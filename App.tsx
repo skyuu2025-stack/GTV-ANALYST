@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useTransition, Suspense, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { AppStep, AssessmentData, AnalysisResult } from './types.ts';
@@ -20,6 +19,7 @@ import GuideTech from './components/GuideTech.tsx';
 import FAQSchema from './components/FAQSchema.tsx';
 import LocalSupportFinder from './components/LocalSupportFinder.tsx';
 import SEOManager from './components/SEOManager.tsx';
+import LiveChatWidget from './components/LiveChatWidget.tsx';
 
 const MOCK_PREMIUM_RESULT: AnalysisResult = {
   probabilityScore: 92,
@@ -170,43 +170,38 @@ const App: React.FC = () => {
       case AppStep.LANDING:
         return (
           <>
-            <Helmet>
-               <title>{`UK Global Talent Visa AI Assessment 2025: Tech Nation & Arts Council Audit`}</title>
-               <meta name="description" content="Official AI evaluation for UK Global Talent Visa. Instant criteria mapping for Tech Nation endorsement and Arts Council routes. Start your roadmap today." />
-            </Helmet>
-            <FAQSchema />
             <Hero onStart={() => navigateTo('/eligibility-check')} />
             
-            <section className="py-16 md:py-24 px-6 max-w-6xl mx-auto" id="how-it-works">
+            <section className="py-16 md:py-24 px-6 max-w-6xl mx-auto" id="how-it-works" aria-labelledby="how-it-works-title">
               <div className="text-center mb-12 md:mb-16">
-                <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-4">Framework</h3>
-                <h2 className="text-2xl md:text-6xl font-black tracking-tighter uppercase italic">GTV Endorsement Engine</h2>
+                <h3 id="how-it-works-subtitle" className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mb-4">Framework</h3>
+                <h2 id="how-it-works-title" className="text-2xl md:text-6xl font-black tracking-tighter uppercase italic">GTV Endorsement Engine</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
                 <div className="space-y-4 md:space-y-6">
-                  <div className="w-12 h-12 md:w-14 md:h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg md:text-xl shadow-lg">1</div>
+                  <div className="w-12 h-12 md:w-14 md:h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg md:text-xl shadow-lg" aria-hidden="true">1</div>
                   <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter">Criteria Benchmarking</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Our AI cross-references your professional profile against the latest 2025 UK Home Office and Tech Nation/Arts Council mandates.</p>
+                  <p className="text-zinc-600 text-sm leading-relaxed">Our AI cross-references your professional profile against the latest 2025 UK Home Office and Tech Nation/Arts Council mandates.</p>
                 </div>
                 <div className="space-y-4 md:space-y-6">
-                  <div className="w-12 h-12 md:w-14 md:h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg md:text-xl shadow-lg">2</div>
+                  <div className="w-12 h-12 md:w-14 md:h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg md:text-xl shadow-lg" aria-hidden="true">2</div>
                   <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter">Evidence Gap Mapping</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Identify exactly which mandatory or optional criteria require more documented proof for a successful GTV endorsement.</p>
+                  <p className="text-zinc-600 text-sm leading-relaxed">Identify exactly which mandatory or optional criteria require more documented proof for a successful GTV endorsement.</p>
                 </div>
                 <div className="space-y-4 md:space-y-6">
-                  <div className="w-12 h-12 md:w-14 md:h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg md:text-xl shadow-lg">3</div>
+                  <div className="w-12 h-12 md:w-14 md:h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg md:text-xl shadow-lg" aria-hidden="true">3</div>
                   <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter">Success Roadmap</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Receive a custom tactical plan to strengthen your UK Global Talent Visa application before formal submission.</p>
+                  <p className="text-zinc-600 text-sm leading-relaxed">Receive a custom tactical plan to strengthen your UK Global Talent Visa application before formal submission.</p>
                 </div>
               </div>
             </section>
 
-            <section className="py-16 md:py-24 bg-zinc-50/50 overflow-hidden" id="routes">
+            <section className="py-16 md:py-24 bg-zinc-50/50 overflow-hidden" id="routes" aria-labelledby="routes-title">
               <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12 md:gap-16">
                 <div className="flex-1 space-y-6 md:space-y-8">
-                  <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic leading-[1.1] md:leading-[0.95]">GTV Eligibility <br className="hidden md:block"/> for Leaders</h2>
-                  <p className="text-zinc-500 text-base md:text-lg italic leading-relaxed">The UK Global Talent Visa is for the world's best. Avoid rejection by auditing your profile for:</p>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3 md:gap-4">
+                  <h2 id="routes-title" className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic leading-[1.1] md:leading-[0.95]">GTV Eligibility <br className="hidden md:block"/> for Leaders</h2>
+                  <p className="text-zinc-600 text-base md:text-lg italic leading-relaxed">The UK Global Talent Visa is for the world's best. Avoid rejection by auditing your profile for:</p>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3 md:gap-4" aria-label="Available endorsement routes">
                     {[
                       "TECH NATION ROUTES",
                       "ARTS COUNCIL FASHION",
@@ -214,29 +209,29 @@ const App: React.FC = () => {
                       "RIBA ARCHITECTURE"
                     ].map((item, idx) => (
                       <li key={idx} className="flex items-center gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border border-zinc-100 shadow-sm">
-                        <div className="w-5 h-5 bg-amber-50 rounded-full flex items-center justify-center text-[8px] text-amber-600 shrink-0">
+                        <div className="w-5 h-5 bg-amber-50 rounded-full flex items-center justify-center text-[8px] text-amber-700 shrink-0" aria-hidden="true">
                           <i className="fas fa-check"></i>
                         </div>
-                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-800">{item}</span>
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-900">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="flex-1 w-full max-w-md relative">
-                   <div className="bg-white rounded-3xl md:rounded-[3rem] p-6 md:p-8 shadow-2xl border border-zinc-100 animate-fade-in">
+                   <div className="bg-white rounded-3xl md:rounded-[3rem] p-6 md:p-8 shadow-2xl border border-zinc-100 animate-fade-in" role="img" aria-label="Dashboard visualization example">
                       <div className="space-y-6">
-                        <div className="h-1.5 md:h-2 w-full bg-zinc-50 rounded-full overflow-hidden">
-                          <div className="h-full bg-amber-500 w-[82%]"></div>
+                        <div className="h-1.5 md:h-2 w-full bg-zinc-50 rounded-full overflow-hidden" role="progressbar" aria-valuenow={82} aria-valuemin={0} aria-valuemax={100}>
+                          <div className="h-full bg-amber-600 w-[82%]"></div>
                         </div>
                         <div className="flex justify-between items-end">
-                           <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-400">GTV Readiness</span>
+                           <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-500">GTV Readiness</span>
                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-900">82%</span>
                         </div>
                         <div className="space-y-3 pt-4 md:pt-6 border-t border-zinc-50">
                            {["Leadership: Pass", "Innovation: Pass", "Media: Gap"].map((t, i) => (
                              <div key={i} className="flex items-center gap-2">
-                               <div className={`w-2 h-2 rounded-full ${i < 2 ? 'bg-green-500' : 'bg-amber-500'} opacity-50`}></div>
-                               <span className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest">{t}</span>
+                               <div className={`w-2 h-2 rounded-full ${i < 2 ? 'bg-green-600' : 'bg-amber-600'} opacity-70`} aria-hidden="true"></div>
+                               <span className="text-[8px] md:text-[9px] font-black text-zinc-600 uppercase tracking-widest">{t}</span>
                              </div>
                            ))}
                         </div>
@@ -253,12 +248,13 @@ const App: React.FC = () => {
 
             <section className="py-16 md:py-24 px-4 md:px-6">
               <div className="max-w-6xl mx-auto bg-zinc-900 rounded-3xl md:rounded-[4rem] p-8 md:p-24 text-center text-white space-y-8 md:space-y-12 shadow-2xl border border-zinc-800 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-500/5 to-transparent"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-600/5 to-transparent"></div>
                 <h2 className="text-2xl md:text-7xl font-black uppercase italic tracking-tighter leading-tight relative z-10">Check Your UK Eligibility</h2>
-                <p className="text-zinc-400 text-base md:text-2xl italic font-light max-w-2xl mx-auto relative z-10 opacity-80">Get a definitive expert audit of your probability of success for endorsement.</p>
+                <p className="text-zinc-300 text-base md:text-2xl italic font-light max-w-2xl mx-auto relative z-10 opacity-90">Get a definitive expert audit of your probability of success for endorsement.</p>
                 <button 
                   onClick={() => navigateTo('/eligibility-check')}
                   className="w-full md:w-auto px-10 py-5 md:px-12 md:py-6 bg-white text-zinc-900 font-black rounded-2xl md:rounded-3xl uppercase tracking-widest text-xs md:text-sm hover:bg-zinc-100 transition-all shadow-xl active:scale-95 relative z-10 italic"
+                  aria-label="Start your Global Talent Visa assessment"
                 >
                   Start Assessment
                 </button>
@@ -303,20 +299,28 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-[100dvh] flex flex-col bg-[#FDFDFD] transition-opacity duration-300 ${isPending || isVerifyingPayment ? 'opacity-50' : 'opacity-100'}`}>
-      <SEOManager />
+      <SEOManager currentStep={step} />
       <header className="bg-white/80 backdrop-blur-md border-b border-zinc-100 sticky top-0 z-50 safe-top flex items-center justify-between px-4 md:px-12 h-[calc(70px+var(--sat))]">
         <div 
           className="flex items-center space-x-2 md:space-x-3 cursor-pointer py-2 select-none" 
           onClick={handleLogoClick}
           role="button"
-          aria-label="Home"
+          tabIndex={0}
+          aria-label="GTV Assessor Home"
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleLogoClick(e as any); }}
         >
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black shadow-md">G</div>
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-zinc-900 rounded-full flex items-center justify-center text-white font-black shadow-md" aria-hidden="true">G</div>
           <div className="flex flex-col">
             <span className="text-xs md:text-xl font-light tracking-widest uppercase text-zinc-800 leading-none">GTV <span className="font-black">Assessor</span></span>
           </div>
         </div>
-        <button onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.href = '/'; }} className="text-[7px] md:text-[9px] font-black text-zinc-400 uppercase tracking-widest border border-zinc-100 px-3 py-1.5 md:px-4 md:py-2 rounded-full hover:bg-zinc-50 active:scale-95 transition-all">Reset</button>
+        <button 
+          onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.href = '/'; }} 
+          className="text-[7px] md:text-[9px] font-black text-zinc-600 uppercase tracking-widest border border-zinc-200 px-3 py-1.5 md:px-4 md:py-2 rounded-full hover:bg-zinc-50 active:scale-95 transition-all focus:ring-2 focus:ring-amber-500"
+          aria-label="Reset current assessment session"
+        >
+          Reset
+        </button>
       </header>
       <main className="flex-grow">{renderContent()}</main>
       <footer className="bg-white border-t border-zinc-100 py-12 md:py-24 text-left pb-[calc(24px+var(--sab))]">
@@ -324,32 +328,33 @@ const App: React.FC = () => {
            <div className="space-y-4 md:space-y-6">
               <h4 className="text-[9px] md:text-[10px] font-black text-zinc-900 uppercase tracking-widest">Resources</h4>
               <ul className="space-y-2 md:space-y-3">
-                 <li><button onClick={() => navigateTo('/global-talent-visa')} className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors text-left">GTV Overview</button></li>
-                 <li><button onClick={() => navigateTo('/global-talent-visa-fashion')} className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors text-left">Fashion Guide</button></li>
-                 <li><button onClick={() => navigateTo('/global-talent-visa-tech')} className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors text-left">Tech Nation 2025</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa')} className="text-zinc-600 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors text-left" aria-label="Read Global Talent Visa Overview">GTV Overview</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa-fashion')} className="text-zinc-600 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors text-left" aria-label="Read Fashion Guide">Fashion Guide</button></li>
+                 <li><button onClick={() => navigateTo('/global-talent-visa-tech')} className="text-zinc-600 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors text-left" aria-label="Read Tech Nation 2025 Guide">Tech Nation 2025</button></li>
               </ul>
            </div>
            <div className="space-y-4 md:space-y-6">
               <h4 className="text-[9px] md:text-[10px] font-black text-zinc-900 uppercase tracking-widest">Support</h4>
               <ul className="space-y-2 md:space-y-3">
-                 <li><a href="mailto:support@gtvassessor.com" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors block text-left">Email Support</a></li>
-                 <li><a href="https://chat.whatsapp.com/Io8JuhicgTa1RAF0GgKTFU" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors block text-left">WhatsApp Community</a></li>
+                 <li><a href="mailto:support@gtvassessor.com" className="text-zinc-600 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors block text-left">Email Support</a></li>
+                 <li><a href="https://chat.whatsapp.com/Io8JuhicgTa1RAF0GgKTFU" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-900 text-xs md:text-sm font-black italic transition-colors block text-left">WhatsApp Community</a></li>
               </ul>
            </div>
            <div className="space-y-4 md:space-y-6">
               <h4 className="text-[9px] md:text-[10px] font-black text-zinc-900 uppercase tracking-widest">GTV AI Engine</h4>
-              <p className="text-zinc-400 text-[10px] md:text-xs leading-relaxed italic font-medium">Advanced algorithmic platform for UK Global Talent Visa readiness analysis.</p>
+              <p className="text-zinc-500 text-[10px] md:text-xs leading-relaxed italic font-medium">Advanced algorithmic platform for UK Global Talent Visa readiness analysis.</p>
            </div>
         </div>
         <div className="max-w-6xl mx-auto px-6 border-t border-zinc-50 pt-8 flex flex-col items-center gap-6">
-          <p className="text-[8px] md:text-[9px] text-zinc-400 font-black tracking-widest uppercase">&copy; {new Date().getFullYear()} GTV Assessor.</p>
+          <p className="text-[8px] md:text-[9px] text-zinc-500 font-black tracking-widest uppercase">&copy; {new Date().getFullYear()} GTV Assessor.</p>
           <div className="flex items-center gap-6">
-            <button onClick={() => setShowPrivacy(true)} className="text-[8px] md:text-[9px] font-black text-zinc-300 uppercase tracking-widest hover:text-zinc-900">Privacy Policy</button>
-            <span className="w-px h-3 bg-zinc-100"></span>
-            <button onClick={() => setShowPrivacy(true)} className="text-[8px] md:text-[9px] font-black text-zinc-300 uppercase tracking-widest hover:text-zinc-900">Terms</button>
+            <button onClick={() => setShowPrivacy(true)} className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest hover:text-zinc-900">Privacy Policy</button>
+            <span className="w-px h-3 bg-zinc-100" aria-hidden="true"></span>
+            <button onClick={() => setShowPrivacy(true)} className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest hover:text-zinc-900">Terms</button>
           </div>
         </div>
       </footer>
+      <LiveChatWidget />
       {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
       {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} isDemoMode={isDemoMode} onToggleDemoMode={setIsDemoMode} />}
     </div>

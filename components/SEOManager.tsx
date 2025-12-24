@@ -1,18 +1,47 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { AppStep } from '../types.ts';
 
-const SEOManager: React.FC = () => {
+interface SEOManagerProps {
+  currentStep?: AppStep;
+}
+
+const SEOManager: React.FC<SEOManagerProps> = ({ currentStep }) => {
   const currentUrl = "https://gtvassessor.com" + window.location.pathname;
 
-  const structuredData = {
+  // Dynamic Metadata based on route/step
+  let title = "UK Global Talent Visa (GTV) Eligibility Check 2025 | AI Expert Audit";
+  let description = "Check your UK Global Talent Visa eligibility instantly. Get a professional AI roadmap for Tech Nation, Arts Council, and RIBA endorsement success in 2025.";
+
+  if (currentStep === AppStep.GUIDE_TECH) {
+    title = "Tech Nation Endorsement Guide 2025 | UK Tech Visa AI Audit";
+    description = "Master the Tech Nation Global Talent Visa criteria. Use our AI tool to map your technical evidence and innovation impact for a successful endorsement.";
+  } else if (currentStep === AppStep.GUIDE_FASHION) {
+    title = "Arts Council Fashion Visa Guide | UK Global Talent for Designers";
+    description = "Unlock the UK Global Talent Visa for fashion designers. AI-powered evaluation of your lookbooks, runway press, and international industry impact.";
+  }
+
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "GTV Assessor",
+    "url": "https://gtvassessor.com",
+    "logo": "https://gtvassessor.com/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "support@gtvassessor.com",
+      "contactType": "customer support"
+    }
+  };
+
+  const softwareData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "GTV AI Assessor",
     "url": "https://gtvassessor.com",
     "operatingSystem": "Web, iOS, Android",
     "applicationCategory": "ProductivityApplication",
-    "description": "Professional AI-driven assessment tool for UK Global Talent Visa endorsement readiness. Analyzes Tech Nation and Arts Council criteria across global talent hubs.",
+    "description": description,
     "offers": {
       "@type": "Offer",
       "price": "19.00",
@@ -22,37 +51,6 @@ const SEOManager: React.FC = () => {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
       "ratingCount": "520"
-    }
-  };
-
-  const serviceData = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "UK Global Talent Visa Assessment",
-    "provider": {
-      "@type": "Organization",
-      "name": "GTV Assessor"
-    },
-    "areaServed": [
-      { "@type": "City", "name": "London" },
-      { "@type": "City", "name": "New York" },
-      { "@type": "City", "name": "San Francisco" },
-      { "@type": "City", "name": "Bangalore" },
-      { "@type": "City", "name": "Dubai" },
-      { "@type": "Country", "name": "United Kingdom" }
-    ],
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Visa Assessment Services",
-      "itemListElement": [
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "AI GTV Readiness Audit"
-          }
-        }
-      ]
     }
   };
 
@@ -69,38 +67,20 @@ const SEOManager: React.FC = () => {
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Eligibility Check",
-        "item": "https://gtvassessor.com/eligibility-check"
+        "name": currentStep === AppStep.FORM ? "Eligibility Check" : "Visa Guide",
+        "item": currentUrl
       }
     ]
   };
 
-  const websiteData = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "url": "https://gtvassessor.com/",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://gtvassessor.com/?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  };
-
   return (
     <Helmet>
+      <title>{title}</title>
+      <meta name="description" content={description} />
       <link rel="canonical" href={currentUrl} />
-      <script type="application/ld+json">
-        {JSON.stringify(structuredData)}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(serviceData)}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(breadcrumbData)}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(websiteData)}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(organizationData)}</script>
+      <script type="application/ld+json">{JSON.stringify(softwareData)}</script>
+      <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
     </Helmet>
   );
 };
