@@ -23,12 +23,15 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
   };
 
   const handleRealPaymentClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default anchor behavior to control the transition
     setIsProcessing(true);
+    
+    // Persist pending state
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
     
-    // Safety timeout to reset state if browser doesn't navigate instantly
-    setTimeout(() => setIsProcessing(false), 8000);
+    // Explicitly navigate via location.href to avoid being intercepted by React state unmounting logic
+    window.location.href = checkoutUrl;
   };
 
   return (
@@ -97,7 +100,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                 <button 
                   onClick={handleDemoPayment}
                   className="w-full py-5 md:py-6 bg-green-700 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-green-800 focus:ring-4 focus:ring-green-500"
-                  aria-label="Verify reviewer access for free"
                 >
                   Verify Reviewer Access
                 </button>
@@ -106,7 +108,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                   href={checkoutUrl}
                   onClick={handleRealPaymentClick}
                   className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center focus:ring-4 focus:ring-amber-500"
-                  aria-label="Securely purchase full audit via Stripe"
                 >
                   <i className="fas fa-lock mr-2" aria-hidden="true"></i> Purchase Full Audit
                 </a>
@@ -115,7 +116,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
               <button 
                 onClick={onCancel} 
                 className="w-full text-zinc-500 hover:text-zinc-900 text-[9px] font-black uppercase tracking-widest transition-all py-2 active:scale-95 focus:outline-none focus:underline"
-                aria-label="Go back to the free score report"
               >
                 Back to Score
               </button>

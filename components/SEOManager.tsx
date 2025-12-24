@@ -10,15 +10,15 @@ const SEOManager: React.FC<SEOManagerProps> = ({ currentStep }) => {
   const currentUrl = "https://gtvassessor.com" + window.location.pathname;
 
   // Dynamic Metadata based on route/step
-  let title = "UK Global Talent Visa (GTV) Eligibility Check 2025 | AI Expert Audit";
-  let description = "Check your UK Global Talent Visa eligibility instantly. Get a professional AI roadmap for Tech Nation, Arts Council, and RIBA endorsement success in 2025.";
+  let title = "UK Global Talent Visa (GTV) Eligibility Check 2025 | Dubai & Global AI Audit";
+  let description = "Check your UK Global Talent Visa eligibility instantly. Professional AI roadmap for Tech Nation and Arts Council endorsements. Expert support in London, Dubai, SF, and Singapore.";
 
   if (currentStep === AppStep.GUIDE_TECH) {
-    title = "Tech Nation Endorsement Guide 2025 | UK Tech Visa AI Audit";
-    description = "Master the Tech Nation Global Talent Visa criteria. Use our AI tool to map your technical evidence and innovation impact for a successful endorsement.";
+    title = "Tech Nation Endorsement Guide 2025 | Dubai & London Tech Visa AI Audit";
+    description = "Master the Tech Nation Global Talent Visa criteria. Use our AI tool to map your technical evidence and innovation impact from our Dubai or London hubs.";
   } else if (currentStep === AppStep.GUIDE_FASHION) {
-    title = "Arts Council Fashion Visa Guide | UK Global Talent for Designers";
-    description = "Unlock the UK Global Talent Visa for fashion designers. AI-powered evaluation of your lookbooks, runway press, and international industry impact.";
+    title = "Arts Council Fashion Visa Guide | UK Global Talent for Dubai Designers";
+    description = "Unlock the UK Global Talent Visa for fashion designers. AI-powered evaluation of your lookbooks, runway press, and international impact for UAE-based talent.";
   }
 
   const organizationData = {
@@ -32,6 +32,32 @@ const SEOManager: React.FC<SEOManagerProps> = ({ currentStep }) => {
       "email": "support@gtvassessor.com",
       "contactType": "customer support"
     }
+  };
+
+  // Global Hubs Schema
+  const hubsData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [
+      {
+        "@type": "LocalBusiness",
+        "name": "GTV Assessor London",
+        "address": { "@type": "PostalAddress", "addressLocality": "London", "addressCountry": "UK" },
+        "url": "https://gtvassessor.com/#london"
+      },
+      {
+        "@type": "LocalBusiness",
+        "name": "GTV Assessor Dubai",
+        "address": { "@type": "PostalAddress", "addressLocality": "Dubai", "addressCountry": "UAE" },
+        "url": "https://gtvassessor.com/#dubai"
+      },
+      {
+        "@type": "LocalBusiness",
+        "name": "GTV Assessor Singapore",
+        "address": { "@type": "PostalAddress", "addressLocality": "Singapore", "addressCountry": "Singapore" },
+        "url": "https://gtvassessor.com/#singapore"
+      }
+    ]
   };
 
   const softwareData = {
@@ -54,25 +80,6 @@ const SEOManager: React.FC<SEOManagerProps> = ({ currentStep }) => {
     }
   };
 
-  const breadcrumbData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://gtvassessor.com/"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": currentStep === AppStep.FORM ? "Eligibility Check" : "Visa Guide",
-        "item": currentUrl
-      }
-    ]
-  };
-
   return (
     <Helmet>
       <title>{title}</title>
@@ -80,7 +87,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({ currentStep }) => {
       <link rel="canonical" href={currentUrl} />
       <script type="application/ld+json">{JSON.stringify(organizationData)}</script>
       <script type="application/ld+json">{JSON.stringify(softwareData)}</script>
-      <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
+      <script type="application/ld+json">{JSON.stringify(hubsData)}</script>
     </Helmet>
   );
 };

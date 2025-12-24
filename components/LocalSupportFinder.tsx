@@ -15,11 +15,23 @@ const LocalSupportFinder: React.FC = () => {
   const [suggestedHub, setSuggestedHub] = useState(GLOBAL_HUBS[0]);
 
   useEffect(() => {
-    // Basic heuristic to suggest a hub based on timezone if geo is not yet granted
-    const offset = new Date().getTimezoneOffset();
-    if (offset === -240) setSuggestedHub(GLOBAL_HUBS[1]); // UAE (Dubai)
-    if (offset >= 420 && offset <= 540) setSuggestedHub(GLOBAL_HUBS[2]); // USA PST/PDT (SF)
-    if (offset === -480) setSuggestedHub(GLOBAL_HUBS[3]); // Singapore SGT
+    // Advanced GEO Heuristic: Detection via IANA Timezone string
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz.includes('Dubai') || tz.includes('Asia/Dubai')) {
+        setSuggestedHub(GLOBAL_HUBS[1]);
+      } else if (tz.includes('America/Los_Angeles') || tz.includes('America/San_Francisco')) {
+        setSuggestedHub(GLOBAL_HUBS[2]);
+      } else if (tz.includes('Singapore') || tz.includes('Asia/Singapore')) {
+        setSuggestedHub(GLOBAL_HUBS[3]);
+      }
+    } catch (e) {
+      // Fallback to offset if IANA is unavailable
+      const offset = new Date().getTimezoneOffset();
+      if (offset === -240) setSuggestedHub(GLOBAL_HUBS[1]); 
+      if (offset >= 420 && offset <= 540) setSuggestedHub(GLOBAL_HUBS[2]); 
+      if (offset === -480) setSuggestedHub(GLOBAL_HUBS[3]); 
+    }
   }, []);
 
   const handleFindSupport = () => {
@@ -72,7 +84,6 @@ const LocalSupportFinder: React.FC = () => {
                   onClick={handleFindSupport}
                   disabled={loading}
                   className="w-full sm:w-auto px-10 py-5 bg-white text-zinc-900 font-black rounded-2xl uppercase tracking-widest text-[11px] hover:bg-zinc-100 transition-all flex items-center justify-center gap-4 disabled:opacity-50 shadow-2xl active:scale-95 focus:ring-4 focus:ring-amber-500"
-                  aria-label={loading ? "Searching for local advisors" : "Locate GTV advisors near your current position"}
                 >
                   {loading ? (
                     <>
@@ -92,7 +103,7 @@ const LocalSupportFinder: React.FC = () => {
                     {results.text}
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" role="list" aria-label="Nearby Visa Support Organizations">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {results.grounding.map((chunk: any, i: number) => {
                       if (!chunk.maps) return null;
                       return (
@@ -102,10 +113,8 @@ const LocalSupportFinder: React.FC = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-6 bg-white rounded-2xl flex flex-col gap-3 hover:scale-[1.03] transition-all shadow-xl group border border-zinc-100"
-                          itemScope itemType="https://schema.org/ProfessionalService"
-                          role="listitem"
                         >
-                          <span className="text-zinc-900 font-black text-sm uppercase tracking-tight truncate group-hover:text-amber-700 transition-colors" itemProp="name">
+                          <span className="text-zinc-900 font-black text-sm uppercase tracking-tight truncate group-hover:text-amber-700 transition-colors">
                             {chunk.maps.title || "Visa Advisor"}
                           </span>
                           <div className="flex items-center gap-2">
@@ -134,15 +143,18 @@ const LocalSupportFinder: React.FC = () => {
               {GLOBAL_HUBS.map(hub => (
                 <div 
                   key={hub.name} 
-                  className={`p-6 rounded-3xl border transition-all flex flex-col justify-between h-full ${suggestedHub.name === hub.name ? 'bg-amber-600/10 border-amber-600/30 ring-2 ring-amber-600/20' : 'bg-white/5 border-white/5 hover:border-white/20'}`}
+                  id={hub.name.toLowerCase()}
+                  className={`p-6 rounded-3xl border transition-all flex flex-col justify-between h-full min-h-[150px] ${suggestedHub.name === hub.name ? 'bg-amber-600/10 border-amber-600/30 ring-2 ring-amber-600/20' : 'bg-white/5 border-white/5 hover:border-white/20'}`}
                 >
                   <div className="space-y-1">
-                    <p className="text-amber-500 font-black text-[10px] uppercase tracking-widest flex items-center justify-between">
-                      {hub.name}
-                    </p>
+                    {/* Line 1: City Name */}
+                    <p className="text-amber-500 font-black text-[10px] uppercase tracking-widest">{hub.name}</p>
+                    {/* Line 2: Country / Region */}
                     <p className="text-white font-bold text-xs uppercase tracking-tight">{hub.region}</p>
-                    <p className="text-zinc-500 text-[10px] italic leading-tight">{hub.desc}</p>
+                    {/* Line 3: Brief Hub Description */}
+                    <p className="text-zinc-500 text-[10px] italic leading-tight line-clamp-2 min-h-[2.4em]">{hub.desc}</p>
                   </div>
+                  {/* Line 4: Core Focus Area */}
                   <p className="text-zinc-600 text-[8px] font-black uppercase tracking-[0.2em] mt-4 border-t border-white/5 pt-2">
                     {hub.focus}
                   </p>
