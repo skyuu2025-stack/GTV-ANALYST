@@ -8,60 +8,30 @@
     <meta name="apple-mobile-web-app-title" content="GTV Assessor">
     <meta name="theme-color" content="#000000">
     
+    <!-- Critical Preconnects -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://js.stripe.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
     <!-- SEO & Primary Meta Tags -->
     <title>UK Global Talent Visa (GTV) Eligibility Check 2025 | Dubai & Global AI Audit</title>
     <meta name="title" content="UK Global Talent Visa (GTV) Eligibility Check 2025 | Dubai & Global AI Audit">
     <meta name="description" content="Check your UK Global Talent Visa eligibility instantly. Professional AI roadmap for Tech Nation and Arts Council endorsements. Expert support in London, Dubai, SF, and Singapore." />
-    <meta name="keywords" content="UK Global Talent Visa 2025, Dubai GTV consultant, UAE tech visa UK, Tech Nation endorsement check, Arts Council fashion visa UK, GTV eligibility tool, UK visa assessment AI, Global Talent Visa roadmap, Singapore Tech Visa, Dubai immigration help" />
     
     <!-- Geo-Targeting Metadata -->
     <meta name="geo.region" content="GB;AE;SG;US" />
     <meta name="geo.placename" content="London;Dubai;Singapore;San Francisco" />
-    <meta name="geo.position" content="51.5074;-0.1278" />
-    <meta name="ICBM" content="51.5074, -0.1278" />
 
-    <!-- Geo-Targeting Hreflang Tags -->
-    <link rel="alternate" href="https://gtvassessor.com/" hreflang="x-default" />
-    <link rel="alternate" href="https://gtvassessor.com/" hreflang="en-GB" />
-    <link rel="alternate" href="https://gtvassessor.com/" hreflang="en-US" />
-    <link rel="alternate" href="https://gtvassessor.com/" hreflang="en-AE" />
-    <link rel="alternate" href="https://gtvassessor.com/" hreflang="en-SG" />
-
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="language" content="English">
-    <meta name="author" content="GTV Assessor Team">
     <link rel="canonical" href="https://gtvassessor.com/" />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gtvassessor.com/">
-    <meta property="og:site_name" content="GTV AI Assessor">
-    <meta property="og:title" content="UK Global Talent Visa: Dubai & Global AI Eligibility Audit">
-    <meta property="og:description" content="Benchmark your career against 2025 UK Global Talent Visa criteria. Expert support available in Dubai, London, and Singapore.">
-    <meta property="og:image" content="https://gtvassessor.com/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="en_GB" />
-    <meta property="og:locale:alternate" content="en_AE" />
-    <meta property="og:locale:alternate" content="en_SG" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <!-- Optimized Font Loading -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://gtvassessor.com/">
-    <meta property="twitter:title" content="Dubai & Global UK Global Talent Visa AI Assessment">
-    <meta property="twitter:description" content="Professional AI audit for Tech Nation and Arts Council endorsement. Identify evidence gaps from our Dubai or London hubs.">
-    <meta property="twitter:image" content="https://gtvassessor.com/og-image.jpg">
-    <meta name="twitter:creator" content="@gtvassessor">
-
-    <!-- Favicon / Brand Icon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230A0A0A'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='%23D4AF37' stroke-width='4'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-weight='900' font-size='55' fill='%23FFFFFF'%3EG%3C/text%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230A0A0A'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='%23D4AF37' stroke-width='4'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-weight='900' font-size='55' fill='%23FFFFFF'%3EG%3C/text%3E%3C/svg%3E">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <!-- Deferred Scripts for Performance -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://js.stripe.com/v3/" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     
     <script>
       window.process = window.process || { env: {} };
@@ -73,16 +43,18 @@
           --sab: env(safe-area-inset-bottom);
         }
         body { 
-          font-family: 'Inter', sans-serif; 
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
           -webkit-font-smoothing: antialiased; 
           background-color: #FDFDFD;
           overflow-x: hidden;
+          font-display: swap;
         }
+        /* Critical CSS for above the fold */
+        #root { min-height: 100vh; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 10px; }
     </style>
+
 <script type="importmap">
 {
   "imports": {

@@ -5,15 +5,22 @@ interface HeroProps { onStart: () => void; }
 const Hero: React.FC<HeroProps> = ({ onStart }) => {
   return (
     <section className="bg-white min-h-[100dvh] flex flex-col items-center justify-center px-4 md:px-6 py-10 md:py-20 text-center animate-fade-in relative overflow-hidden">
-      {/* Background Soft Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] aspect-square bg-amber-50/20 rounded-full blur-[80px] md:blur-[120px] -z-10"></div>
+      {/* Background Soft Glow - Optimized for GPU */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] aspect-square bg-amber-50/20 rounded-full blur-[80px] md:blur-[120px] -z-10 will-change-transform"></div>
       
-      {/* Social Proof Avatars */}
+      {/* Social Proof Avatars - Added dimensions for CLS prevention */}
       <div className="flex items-center gap-3 mb-8 md:mb-12">
         <div className="flex -space-x-2 md:-space-x-3" aria-label="Successful applicants verified by our tool">
           {[1,2,3,4].map(i => (
             <div key={i} className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white bg-zinc-100 overflow-hidden shadow-sm">
-              <img src={`https://i.pravatar.cc/100?img=${i+15}`} alt={`Verified User Profile ${i}`} className="w-full h-full object-cover" />
+              <img 
+                src={`https://i.pravatar.cc/100?img=${i+15}`} 
+                alt={`Verified User Profile ${i}`} 
+                width="40"
+                height="40"
+                loading="eager"
+                className="w-full h-full object-cover" 
+              />
             </div>
           ))}
         </div>
@@ -30,14 +37,17 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         <i className="fas fa-bolt-lightning mr-2 text-amber-600 animate-pulse" aria-hidden="true"></i> 2025 UK IMMIGRATION
       </div>
       
-      {/* Headline - Primary SEO H1 */}
-      <h1 className="text-[34px] sm:text-[44px] md:text-[88px] font-black text-[#121212] max-w-6xl leading-[0.9] md:leading-[0.85] mb-8 md:mb-12 tracking-tight md:tracking-tighter uppercase italic px-2">
+      {/* Headline - Added fetchpriority="high" to prioritize LCP */}
+      <h1 
+        fetchpriority="high"
+        className="text-[34px] sm:text-[44px] md:text-[88px] font-black text-[#121212] max-w-6xl leading-[0.9] md:leading-[0.85] mb-8 md:mb-12 tracking-tight md:tracking-tighter uppercase italic px-2"
+      >
         UK GLOBAL TALENT VISA <br/>
         <span className="text-[#A48020] drop-shadow-sm">AI ELIGIBILITY AUDIT</span> <br className="hidden md:block"/>
         & ASSESSMENT
       </h1>
       
-      {/* Subheadline - Contains Secondary Keywords */}
+      {/* Subheadline */}
       <h2 className="text-zinc-600 text-xs sm:text-sm md:text-[22px] max-w-2xl mx-auto leading-relaxed mb-10 md:mb-16 font-medium italic px-6">
         The definitive professional assessment tool for UK Global Talent Visa readiness. Map your evidence for Tech Nation and Arts Council endorsements instantly.
       </h2>

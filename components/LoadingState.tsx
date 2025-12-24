@@ -20,12 +20,12 @@ const LoadingState: React.FC = () => {
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 animate-fade-in">
       <div className="relative w-32 h-32 mb-12">
-        {/* Outer orbital rings */}
+        {/* Outer orbital rings - Using will-change for GPU optimization */}
         <div className="absolute inset-0 border-2 border-zinc-100 rounded-full"></div>
-        <div className="absolute inset-0 border-t-2 border-amber-500 rounded-full animate-spin duration-[3s]"></div>
+        <div className="absolute inset-0 border-t-2 border-amber-500 rounded-full animate-spin duration-[3s] will-change-transform"></div>
         
         {/* Core AI Icon with pulse */}
-        <div className="absolute inset-4 bg-zinc-900 rounded-full flex items-center justify-center text-white shadow-2xl neural-pulse">
+        <div className="absolute inset-4 bg-zinc-900 rounded-full flex items-center justify-center text-white shadow-2xl neural-pulse will-change-transform">
           <i className="fas fa-brain text-3xl"></i>
         </div>
 
@@ -43,7 +43,7 @@ const LoadingState: React.FC = () => {
       
       <div className="mt-16 w-full max-w-xs bg-zinc-50 h-1 rounded-full overflow-hidden border border-zinc-100">
         <div 
-          className="h-full bg-zinc-900 transition-all duration-1000 ease-in-out" 
+          className="h-full bg-zinc-900 transition-all duration-1000 ease-in-out will-change-[width]" 
           style={{ width: `${(messageIndex + 1) * (100 / messages.length)}%` }}
         ></div>
       </div>
