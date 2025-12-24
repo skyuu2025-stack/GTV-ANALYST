@@ -53,11 +53,15 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
     }
   }, [isPremium]);
 
-  const shareUrl = "https://gtvassessor.com";
+  // Use dynamic origin to prevent 404/Page Not Found errors
+  const getShareUrl = () => {
+    return window.location.origin;
+  };
+
   const shareText = `I just received my UK Global Talent Visa eligibility score: ${result.probabilityScore}%! Check your GTV readiness with this AI audit:`;
 
   const copyToClipboard = () => {
-    const finalUrl = window.location.origin.includes('gtvassessor') ? shareUrl : window.location.origin;
+    const finalUrl = getShareUrl();
     navigator.clipboard.writeText(`${shareText} ${finalUrl}`);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 2000);
@@ -65,7 +69,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
 
   const handleShare = (platform: 'wechat' | 'linkedin' | 'facebook') => {
     let url = '';
-    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedUrl = encodeURIComponent(getShareUrl());
     const encodedText = encodeURIComponent(shareText);
 
     switch (platform) {
