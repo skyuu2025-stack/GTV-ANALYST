@@ -31,6 +31,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'leads' | 'assessments' | 'assets'>('leads');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showWebhookWarning, setShowWebhookWarning] = useState(() => {
+    try {
+      return localStorage.getItem('gtv_webhook_resolved') !== 'true';
+    } catch {
+      return true;
+    }
+  });
   
   const BUNDLE_ID = "com.gtvassessor.ai";
   const isConnected = !!supabase;
@@ -102,6 +109,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
     loadData();
   }, [isConnected]);
 
+  const dismissWarning = () => {
+    localStorage.setItem('gtv_webhook_resolved', 'true');
+    setShowWebhookWarning(false);
+  };
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     alert(`${label} copied!`);
@@ -142,20 +154,36 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onToggleDemoMo
         </div>
 
         {/* Technical Health Alert Section */}
-        <div className="bg-red-50 border border-red-200 p-6 rounded-[2rem] space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] animate-pulse">
-              <i className="fas fa-exclamation-circle"></i>
+        {showWebhookWarning && (
+          <div className="bg-red-50 border border-red-200 p-6 rounded-[2rem] space-y-5 relative animate-fade-in">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] animate-pulse">
+                  <i className="fas fa-exclamation-circle"></i>
+                </div>
+                <h3 className="text-red-900 font-black uppercase text-xs tracking-widest">Webhook Health Warning</h3>
+              </div>
+              <button 
+                onClick={dismissWarning}
+                className="text-[9px] font-black text-red-900/50 uppercase tracking-widest hover:text-red-900 transition-colors"
+              >
+                Dismiss
+              </button>
             </div>
-            <h3 className="text-red-900 font-black uppercase text-xs tracking-widest">Webhook Health Warning</h3>
+            <p className="text-red-800 text-[11px] italic leading-relaxed font-medium">
+              Stripe has reported <span className="font-black">800+ failed delivery attempts</span> to your root URL endpoint (https://gtvassessor.com). 
+              As this is a serverless frontend application, <span className="font-black">you must remove the Webhook endpoint</span> from your Stripe Dashboard 
+              (Developers &gt; Webhooks) to prevent account flags and stop delivery failure emails. 
+              The app uses a client-side verification flow and does not require active webhooks.
+            </p>
+            <button 
+              onClick={dismissWarning}
+              className="w-full py-3 bg-red-900/10 hover:bg-red-900/20 text-red-900 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              Mark as Resolved
+            </button>
           </div>
-          <p className="text-red-800 text-[11px] italic leading-relaxed font-medium">
-            Stripe has reported <span className="font-black">800+ failed delivery attempts</span> to your root URL endpoint (https://gtvassessor.com). 
-            As this is a serverless frontend application, <span className="font-black">you must remove the Webhook endpoint</span> from your Stripe Dashboard 
-            (Developers &gt; Webhooks) to prevent account flags and stop delivery failure emails. 
-            The app uses a client-side verification flow and does not require active webhooks.
-          </p>
-        </div>
+        )}
 
         <div className="flex flex-wrap gap-4 p-2 bg-zinc-50 rounded-3xl w-fit">
           <button onClick={() => setActiveTab('leads')} className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'leads' ? 'bg-zinc-900 text-white shadow-xl' : 'text-zinc-400'}`}>Leads ({leads.length})</button>

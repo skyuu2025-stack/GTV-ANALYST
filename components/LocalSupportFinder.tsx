@@ -12,27 +12,6 @@ const LocalSupportFinder: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{text: string, grounding: any[]} | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [suggestedHub, setSuggestedHub] = useState(GLOBAL_HUBS[0]);
-
-  useEffect(() => {
-    // Advanced GEO Heuristic: Detection via IANA Timezone string
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (tz.includes('Dubai') || tz.includes('Asia/Dubai')) {
-        setSuggestedHub(GLOBAL_HUBS[1]);
-      } else if (tz.includes('America/Los_Angeles') || tz.includes('America/San_Francisco')) {
-        setSuggestedHub(GLOBAL_HUBS[2]);
-      } else if (tz.includes('Singapore') || tz.includes('Asia/Singapore')) {
-        setSuggestedHub(GLOBAL_HUBS[3]);
-      }
-    } catch (e) {
-      // Fallback to offset if IANA is unavailable
-      const offset = new Date().getTimezoneOffset();
-      if (offset === -240) setSuggestedHub(GLOBAL_HUBS[1]); 
-      if (offset >= 420 && offset <= 540) setSuggestedHub(GLOBAL_HUBS[2]); 
-      if (offset === -480) setSuggestedHub(GLOBAL_HUBS[3]); 
-    }
-  }, []);
 
   const handleFindSupport = () => {
     setLoading(true);
@@ -144,17 +123,13 @@ const LocalSupportFinder: React.FC = () => {
                 <div 
                   key={hub.name} 
                   id={hub.name.toLowerCase()}
-                  className={`p-6 rounded-3xl border transition-all flex flex-col justify-between h-full min-h-[150px] ${suggestedHub.name === hub.name ? 'bg-amber-600/10 border-amber-600/30 ring-2 ring-amber-600/20' : 'bg-white/5 border-white/5 hover:border-white/20'}`}
+                  className="p-6 rounded-3xl border transition-all flex flex-col justify-between h-full min-h-[150px] bg-white/5 border-white/5 hover:border-white/20"
                 >
                   <div className="space-y-1">
-                    {/* Line 1: City Name */}
                     <p className="text-amber-500 font-black text-[10px] uppercase tracking-widest">{hub.name}</p>
-                    {/* Line 2: Country / Region */}
                     <p className="text-white font-bold text-xs uppercase tracking-tight">{hub.region}</p>
-                    {/* Line 3: Brief Hub Description */}
                     <p className="text-zinc-500 text-[10px] italic leading-tight line-clamp-2 min-h-[2.4em]">{hub.desc}</p>
                   </div>
-                  {/* Line 4: Core Focus Area */}
                   <p className="text-zinc-600 text-[8px] font-black uppercase tracking-[0.2em] mt-4 border-t border-white/5 pt-2">
                     {hub.focus}
                   </p>
