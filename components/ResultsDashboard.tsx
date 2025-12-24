@@ -30,14 +30,14 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
   const [isDone, setIsDone] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [wechatFeedback, setWechatFeedback] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
     if (isPremium) {
       let currentProgress = 0;
-      // Accelerated interval from 300ms to 150ms and larger random jumps
       const interval = setInterval(() => {
-        currentProgress += Math.random() * 25; // Faster increment
+        currentProgress += Math.random() * 25;
         if (currentProgress < 33) setDeliveryStep(1); 
         else if (currentProgress < 66) setDeliveryStep(2); 
         else if (currentProgress < 95) setDeliveryStep(3); 
@@ -56,15 +56,24 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
   const shareUrl = "https://gtvassessor.com";
   const shareText = `I just received my UK Global Talent Visa eligibility score: ${result.probabilityScore}%! Check your GTV readiness with this AI audit:`;
 
-  const handleShare = (platform: 'twitter' | 'linkedin' | 'facebook') => {
+  const copyToClipboard = () => {
+    const finalUrl = window.location.origin.includes('gtvassessor') ? shareUrl : window.location.origin;
+    navigator.clipboard.writeText(`${shareText} ${finalUrl}`);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 2000);
+  };
+
+  const handleShare = (platform: 'wechat' | 'linkedin' | 'facebook') => {
     let url = '';
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
 
     switch (platform) {
-      case 'twitter':
-        url = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
-        break;
+      case 'wechat':
+        copyToClipboard();
+        setWechatFeedback(true);
+        setTimeout(() => setWechatFeedback(false), 2000);
+        return;
       case 'linkedin':
         url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
         break;
@@ -72,14 +81,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
         url = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
         break;
     }
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
-  const copyToClipboard = () => {
-    const finalUrl = window.location.origin.includes('gtvassessor') ? shareUrl : window.location.origin;
-    navigator.clipboard.writeText(`${shareText} ${finalUrl}`);
-    setCopyFeedback(true);
-    setTimeout(() => setCopyFeedback(false), 2000);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   if (!result || !data) return null;
@@ -102,6 +104,10 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
           .print\\:hidden { display: none !important; }
           body { background: white !important; color: #111 !important; margin: 0; padding: 0; }
           .criteria-card { page-break-inside: avoid; margin-bottom: 20px; }
+        }
+        .blur-overlay {
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
         }
       `}</style>
 
@@ -143,14 +149,36 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
                 <span className="text-amber-700 font-black text-[9px] uppercase tracking-[0.4em]">Expert Verdict</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-serif italic text-zinc-900 leading-tight tracking-tight">{data.name}</h1>
-              <p className="text-zinc-500 text-base md:text-xl font-medium italic">{data.endorsementRoute}</p>
+              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2">
+                <p className="text-zinc-500 text-sm md:text-lg font-medium italic">{data.endorsementRoute}</p>
+                <span className="hidden md:block w-1.5 h-1.5 bg-zinc-200 rounded-full"></span>
+                <span className="text-[10px] font-black text-zinc-900 uppercase tracking-widest bg-zinc-50 px-3 py-1 rounded-full border border-zinc-100 inline-block">
+                  Field: {result.fieldAnalysis}
+                </span>
+              </div>
               
               <div className="pt-6 flex flex-col items-center md:items-start gap-3 print:hidden">
                 <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Share Readiness Score</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => handleShare('twitter')} className="w-9 h-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 transition-all"><i className="fa-brands fa-x-twitter"></i></button>
-                  <button onClick={() => handleShare('linkedin')} className="w-9 h-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-[#0077b5] transition-all"><i className="fa-brands fa-linkedin-in"></i></button>
-                  <button onClick={copyToClipboard} className={`h-9 px-4 rounded-full border flex items-center gap-2 transition-all ${copyFeedback ? 'bg-green-50 border-green-300 text-green-800' : 'border-zinc-200 text-zinc-500'}`}>
+                  <button 
+                    onClick={() => handleShare('wechat')} 
+                    className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${wechatFeedback ? 'bg-green-50 border-green-300 text-green-600' : 'border-zinc-200 text-zinc-500 hover:text-[#07C160]'}`}
+                    title="Share on WeChat"
+                  >
+                    <i className={`fa-brands ${wechatFeedback ? 'fa-check' : 'fa-weixin'}`}></i>
+                  </button>
+                  <button 
+                    onClick={() => handleShare('linkedin')} 
+                    className="w-9 h-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-[#0077b5] transition-all"
+                    title="Share on LinkedIn"
+                  >
+                    <i className="fa-brands fa-linkedin-in"></i>
+                  </button>
+                  <button 
+                    onClick={copyToClipboard} 
+                    className={`h-9 px-4 rounded-full border flex items-center gap-2 transition-all ${copyFeedback ? 'bg-green-50 border-green-300 text-green-800' : 'border-zinc-200 text-zinc-500'}`}
+                    title="Copy Link"
+                  >
                     <i className={`fas ${copyFeedback ? 'fa-check' : 'fa-link'} text-[10px]`}></i>
                     <span className="text-[8px] font-black uppercase tracking-widest">{copyFeedback ? 'Copied' : 'Link'}</span>
                   </button>
@@ -177,71 +205,58 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
           </div>
 
           <div className="p-6 md:p-10 bg-zinc-50 rounded-[2rem] border border-zinc-100 mb-10 md:mb-16 shadow-inner">
-            <span className="text-[9px] font-black text-amber-700 uppercase tracking-[0.4em] mb-3 md:mb-4 block">Summary</span>
+            <span className="text-[9px] font-black text-amber-700 uppercase tracking-[0.4em] mb-3 md:mb-4 block">Summary Verdict</span>
             <p className="text-base md:text-2xl text-zinc-900 leading-relaxed font-serif italic">"{result.summary}"</p>
           </div>
 
-          {!isPremium ? (
-            <div className="space-y-10">
-              <div className="bg-zinc-900 p-8 md:p-16 rounded-[2.5rem] text-center text-white space-y-6 md:space-y-8 shadow-2xl print:hidden border border-zinc-800">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-600/10 border border-amber-600/30 rounded-full flex items-center justify-center text-amber-600 text-xl mx-auto animate-pulse">
-                  <i className="fas fa-lock"></i>
-                </div>
-                <div className="space-y-3">
-                  <h3 className="text-xl md:text-4xl font-black uppercase italic tracking-tighter">Full Audit Locked</h3>
-                  <p className="text-zinc-300 text-xs md:text-lg max-w-xl mx-auto font-light italic leading-relaxed opacity-90">Evidence mapping and tactical success roadmap available in premium.</p>
-                </div>
-                <button 
-                  onClick={onUpgrade} 
-                  className="w-full md:w-auto px-10 py-4 bg-amber-600 text-white font-black rounded-xl uppercase tracking-widest text-[10px] hover:bg-amber-500 transition-all shadow-xl active:scale-95"
-                >
-                  Unlock Premium Report ($19)
-                </button>
+          <div className="space-y-12 md:space-y-16 mb-16">
+            <section>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-1.5 h-8 bg-amber-600 rounded-full"></div>
+                <h2 className="text-xl md:text-3xl font-black text-zinc-900 uppercase tracking-tight italic">Criteria Benchmark Audit</h2>
               </div>
-
-              <div className="pt-10 print:hidden">
-                <div className="text-center mb-8">
-                   <h3 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em]">Success Stories</h3>
+              
+              {!isPremium && (
+                <div className="mb-6 p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-center gap-3 animate-fade-in">
+                  <i className="fas fa-info-circle text-amber-600"></i>
+                  <p className="text-[10px] font-bold text-amber-900 uppercase tracking-tight italic leading-snug">
+                    Displaying partial audit. Upgrade to unlock full evidence mapping and tactical reasoning for each criterion.
+                  </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {currentTestimonials.map((t, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm">
-                      <p className="text-zinc-600 italic font-medium leading-relaxed mb-4 text-xs md:text-sm">"{t.text}"</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-400 font-black text-[10px] uppercase">{t.name.charAt(0)}</div>
-                        <div>
-                           <h4 className="text-[9px] font-black text-zinc-900 uppercase tracking-widest">{t.name}</h4>
-                           <p className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest">{t.location}</p>
+              )}
+
+              <div className="grid gap-5">
+                {[...result.mandatoryCriteria, ...result.optionalCriteria].map((c, i) => (
+                  <div key={i} className={`criteria-card p-6 md:p-8 bg-[#FCFCFC] rounded-[2rem] border transition-all ${isPremium ? 'border-zinc-100' : 'border-zinc-50 hover:border-zinc-200'}`}>
+                    <div className="flex justify-between items-center mb-6">
+                      <div className="space-y-1">
+                        <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">{i < result.mandatoryCriteria.length ? 'Mandatory Requirement' : 'Optional Requirement'}</span>
+                        <h4 className="text-[11px] md:text-sm font-black text-zinc-900 uppercase tracking-tight italic">{c.title}</h4>
+                      </div>
+                      <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm ${c.met ? 'bg-green-50 text-green-800 border-green-300' : 'bg-amber-50 text-amber-800 border-amber-300'}`}>
+                        {c.met ? 'Potential Met' : 'Evidence Gap'}
+                      </span>
+                    </div>
+                    
+                    <div className="relative">
+                      {!isPremium && (
+                        <div className="absolute inset-0 blur-overlay flex items-center justify-center z-10 rounded-xl">
+                          <button onClick={onUpgrade} className="bg-zinc-900 text-white px-5 py-2 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl active:scale-95">
+                            Unlock Reasoning
+                          </button>
                         </div>
-                      </div>
+                      )}
+                      <p className={`text-zinc-600 italic font-medium leading-relaxed text-xs md:text-lg border-t border-zinc-50 pt-6 transition-all ${!isPremium ? 'opacity-20 blur-[1px] select-none' : ''}`}>
+                        {c.reasoning}
+                      </p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ) : (
-            <div className="space-y-16 md:space-y-24">
-               <section>
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-1.5 h-8 bg-amber-600 rounded-full"></div>
-                  <h2 className="text-xl md:text-3xl font-black text-zinc-900 uppercase tracking-tight italic">Criteria Mapping</h2>
-                </div>
-                <div className="grid gap-5">
-                  {[...result.mandatoryCriteria, ...result.optionalCriteria].map((c, i) => (
-                    <div key={i} className="criteria-card p-6 md:p-8 bg-[#FCFCFC] rounded-[2rem] border border-zinc-100">
-                      <div className="flex justify-between items-center mb-6">
-                        <span className="text-[9px] font-black text-zinc-900 uppercase tracking-tight italic">{c.title}</span>
-                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${c.met ? 'bg-green-50 text-green-800 border-green-300' : 'bg-amber-50 text-amber-800 border-amber-300'}`}>
-                          {c.met ? 'Met' : 'Gap'}
-                        </span>
-                      </div>
-                      <p className="text-zinc-600 italic font-medium leading-relaxed text-xs md:text-lg border-t border-zinc-50 pt-6">"{c.reasoning}"</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
+            </section>
 
-              <section className="bg-zinc-900 p-8 md:p-16 rounded-[3rem] text-white border border-zinc-800">
+            {isPremium ? (
+              <section className="bg-zinc-900 p-8 md:p-16 rounded-[3rem] text-white border border-zinc-800 shadow-2xl animate-fade-in">
                 <h2 className="text-xl md:text-3xl font-black mb-10 md:mb-16 uppercase tracking-tight italic text-amber-500">Tactical Roadmap</h2>
                 <div className="space-y-8 md:space-y-12">
                   {result.recommendations?.map((rec, i) => (
@@ -252,6 +267,57 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ result, data, isPre
                   ))}
                 </div>
               </section>
+            ) : (
+              <div className="bg-zinc-900 p-8 md:p-16 rounded-[2.5rem] text-center text-white space-y-6 md:space-y-8 shadow-2xl print:hidden border border-zinc-800">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-600/10 border border-amber-600/30 rounded-full flex items-center justify-center text-amber-600 text-xl mx-auto animate-pulse">
+                  <i className="fas fa-lock"></i>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl md:text-4xl font-black uppercase italic tracking-tighter">Full Evidence Audit Locked</h3>
+                  <p className="text-zinc-300 text-xs md:text-lg max-w-xl mx-auto font-light italic leading-relaxed opacity-90">
+                    Get your detailed evidence gap mapping, criteria-by-criteria reasoning, and the 5-step tactical success roadmap.
+                  </p>
+                </div>
+                
+                {result.evidenceGap && result.evidenceGap.length > 0 && (
+                  <div className="max-w-md mx-auto bg-white/5 p-6 rounded-2xl border border-white/10 text-left">
+                    <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest block mb-2">Priority Evidence Gap Preview</span>
+                    <p className="text-zinc-200 text-xs italic font-medium leading-relaxed">
+                      "1. {result.evidenceGap[0]}"
+                    </p>
+                    <p className="text-zinc-500 text-[8px] mt-4 uppercase font-black tracking-widest text-center">Plus {result.evidenceGap.length - 1} more identified gaps in premium report.</p>
+                  </div>
+                )}
+
+                <button 
+                  onClick={onUpgrade} 
+                  className="w-full md:w-auto px-10 py-4 bg-amber-600 text-white font-black rounded-xl uppercase tracking-widest text-[10px] hover:bg-amber-500 transition-all shadow-xl active:scale-95"
+                >
+                  Unlock Premium Report ($19)
+                </button>
+              </div>
+            )}
+          </div>
+
+          {!isPremium && (
+            <div className="pt-10 print:hidden border-t border-zinc-100">
+              <div className="text-center mb-8">
+                 <h3 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em]">Route Success Stories</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentTestimonials.map((t, idx) => (
+                  <div key={idx} className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm">
+                    <p className="text-zinc-600 italic font-medium leading-relaxed mb-4 text-xs md:text-sm">"{t.text}"</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-400 font-black text-[10px] uppercase">{t.name.charAt(0)}</div>
+                      <div>
+                         <h4 className="text-[9px] font-black text-zinc-900 uppercase tracking-widest">{t.name}</h4>
+                         <p className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest">{t.location}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
