@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
@@ -6,24 +5,22 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: string[]): Promise<AnalysisResult> => {
   const prompt = `
-    ROLE: Senior UK Immigration Analyst.
-    TASK: Critical assessment of Global Talent Visa (GTV) eligibility for ${data.endorsementRoute}.
+    TASK: UK GTV Eligibility Assessment for ${data.endorsementRoute}.
     
-    CANDIDATE PROFILE:
+    CANDIDATE:
     - Name: ${data.name}
     - Level: ${data.yearsOfExperience}
     - Role: ${data.jobTitle}
-    - Professional Summary: ${data.personalStatement}
-    - Attached Evidence Pieces: ${fileNames.length} (${fileNames.join(', ')})
+    - Bio: ${data.personalStatement}
+    - Files: ${fileNames.join(', ')}
 
-    REQUIREMENTS:
-    1. Benchmark against official 2025 Home Office / Endorsing Body (Tech Nation/Arts Council) criteria.
-    2. Provide a probability score (0-100).
-    3. Map Mandatory and Optional criteria.
-    4. Identify specific evidence gaps.
-    5. Generate a tactical 3-step roadmap.
+    INSTRUCTIONS:
+    1. Evaluate against 2025 Home Office/Endorsement criteria.
+    2. Score probability (0-100).
+    3. Map Mandatory/Optional criteria status.
+    4. Highlight evidence gaps and 3 specific steps.
 
-    OUTPUT: Strictly valid JSON.
+    JSON ONLY.
   `;
 
   try {
@@ -31,7 +28,7 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
       model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
-        systemInstruction: "You are a specialized GTV Endorsement AI. Provide objective, high-accuracy analysis. Output ONLY strictly valid JSON matching the schema.",
+        systemInstruction: "You are a professional GTV Endorsement AI. Output ONLY strictly valid JSON matching the defined schema. Be concise and precise.",
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -86,15 +83,10 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
 
 export const generateAILogo = async (style: string): Promise<string> => {
   const prompt = `
-    Create a professional, modern app icon and logo for "GTV Assessor".
-    The logo should feature a prominent white letter "G" inside a sophisticated golden circular border.
-    Theme: ${style === 'tech' ? 'Digital Technology & AI analysis' : 'Global reach and Visa precision'}.
-    Visual Elements: 
-    - Incorporate subtle neural network pathways (thin golden lines) in the background.
-    - A faint silhouette of a globe or travel pathways.
-    - Style: Luxury tech, minimalist, high contrast. 
-    - Palette: Deep Onyx black background, 24K Gold, and Pure White.
-    - Composition: Centered, symmetrical, suitable for a 1024x1024 app icon.
+    Create a professional app icon for "GTV Assessor".
+    White letter "G" inside a golden circular border. Onyx background.
+    Theme: ${style === 'tech' ? 'Neural pathways' : 'Global travel paths'}.
+    Palette: Gold, White, Onyx. Minimalist, luxury tech.
   `;
 
   try {
@@ -128,29 +120,18 @@ export const chatWithConcierge = async (message: string, history: { role: 'user'
       model: "gemini-3-flash-preview",
       contents: history.concat([{ role: 'user', parts: [{ text: message }] }]),
       config: {
-        systemInstruction: `You are the GTV Assessor Concierge. You are a professional, polite, and highly knowledgeable assistant specialized in the UK Global Talent Visa (GTV). 
-        Help users with:
-        1. Explaining the Tech Nation, Arts Council, and RIBA routes.
-        2. Clarifying endorsement criteria (Mandatory/Optional).
-        3. Answering questions about visa costs, duration, and ILR (Indefinite Leave to Remain) timelines.
-        4. Guiding them on how to use this tool.
-        
-        RULES:
-        - Keep answers concise and strictly related to GTV.
-        - Use a professional, encouraging tone.
-        - Mention that for formal legal advice, they should consult a qualified solicitor.
-        - If the user asks about something unrelated, politely bring them back to GTV topics.`,
+        systemInstruction: "GTV Concierge: professional, concise, focused on UK Global Talent Visa. Provide guidance, not legal advice.",
       }
     });
     return response.text || "I'm sorry, I couldn't process that request.";
   } catch (err) {
     console.error("Concierge Chat Error:", err);
-    return "The GTV Concierge is currently offline. Please try again later.";
+    return "The GTV Concierge is currently offline.";
   }
 };
 
 export const searchLocalVisaSupport = async (lat: number, lng: number) => {
-  const prompt = "List 3 professional immigration consultants or law firms near this location specializing in UK Global Talent Visa (GTV) or Tech Nation endorsements.";
+  const prompt = "List 3 professional immigration consultants specializing in UK GTV near this location.";
   
   try {
     const response = await ai.models.generateContent({
@@ -175,6 +156,6 @@ export const searchLocalVisaSupport = async (lat: number, lng: number) => {
     };
   } catch (err) {
     console.error("Maps Grounding Error:", err);
-    throw new Error("Local search unavailable. Please check location permissions.");
+    throw new Error("Local search unavailable.");
   }
 };

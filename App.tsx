@@ -172,46 +172,46 @@ const App: React.FC = () => {
           <>
             <Hero onStart={() => navigateTo('/eligibility-check')} />
             
-            <section className="py-16 md:py-24 px-6 max-w-6xl mx-auto" id="how-it-works">
-              <div className="text-center mb-12">
-                <h3 className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mb-4">Framework</h3>
-                <h2 className="text-2xl md:text-6xl font-black tracking-tighter uppercase italic">GTV Endorsement Engine</h2>
+            <section className="py-12 md:py-16 px-6 max-w-6xl mx-auto" id="how-it-works">
+              <div className="text-center mb-8">
+                <h3 className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mb-3">Framework</h3>
+                <h2 className="text-2xl md:text-5xl font-black tracking-tighter uppercase italic">GTV Endorsement Engine</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div className="space-y-4">
-                  <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg">1</div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tighter">Criteria Benchmarking</h3>
-                  <p className="text-zinc-600 text-sm leading-relaxed">AI cross-references your profile against 2025 UK Home Office mandates.</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="space-y-3">
+                  <div className="w-10 h-10 bg-zinc-900 text-white rounded-xl flex items-center justify-center font-black text-base shadow-lg">1</div>
+                  <h3 className="text-lg font-black italic uppercase tracking-tighter">Criteria Benchmarking</h3>
+                  <p className="text-zinc-600 text-xs leading-relaxed">AI cross-references your profile against 2025 UK Home Office mandates.</p>
                 </div>
-                <div className="space-y-4">
-                  <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg">2</div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tighter">Evidence Gap Mapping</h3>
-                  <p className="text-zinc-600 text-sm leading-relaxed">Identify exactly which criteria require more documented proof.</p>
+                <div className="space-y-3">
+                  <div className="w-10 h-10 bg-zinc-900 text-white rounded-xl flex items-center justify-center font-black text-base shadow-lg">2</div>
+                  <h3 className="text-lg font-black italic uppercase tracking-tighter">Evidence Gap Mapping</h3>
+                  <p className="text-zinc-600 text-xs leading-relaxed">Identify exactly which criteria require more documented proof.</p>
                 </div>
-                <div className="space-y-4">
-                  <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg">3</div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tighter">Success Roadmap</h3>
-                  <p className="text-zinc-600 text-sm leading-relaxed">Receive a custom tactical plan before formal submission.</p>
+                <div className="space-y-3">
+                  <div className="w-10 h-10 bg-zinc-900 text-white rounded-xl flex items-center justify-center font-black text-base shadow-lg">3</div>
+                  <h3 className="text-lg font-black italic uppercase tracking-tighter">Success Roadmap</h3>
+                  <p className="text-zinc-600 text-xs leading-relaxed">Receive a custom tactical plan before formal submission.</p>
                 </div>
               </div>
             </section>
 
-            <section className="py-16 md:py-24 bg-zinc-50/50" id="routes">
-              <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
-                <div className="flex-1 space-y-6">
-                  <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic leading-[1.1]">GTV Eligibility <br/> for Leaders</h2>
-                  <ul className="grid grid-cols-1 gap-3">
+            <section className="py-12 md:py-16 bg-zinc-50/50" id="routes">
+              <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-10">
+                <div className="flex-1 space-y-5">
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic leading-[1.1]">GTV Eligibility <br/> for Leaders</h2>
+                  <ul className="grid grid-cols-1 gap-2.5">
                     {["TECH NATION", "ARTS COUNCIL", "RIBA ARCHITECTURE"].map((item, idx) => (
-                      <li key={idx} className="flex items-center gap-3 bg-white p-3 rounded-xl border border-zinc-100">
+                      <li key={idx} className="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border border-zinc-100">
                         <i className="fas fa-check text-amber-700 text-[8px]"></i>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-zinc-900">{item}</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-zinc-900">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="flex-1 w-full max-w-md">
                    <div className="bg-white rounded-3xl p-6 shadow-xl border border-zinc-100">
-                      <div className="space-y-6">
+                      <div className="space-y-5">
                         <div className="h-1.5 w-full bg-zinc-50 rounded-full overflow-hidden">
                           <div className="h-full bg-amber-600 w-[82%]"></div>
                         </div>
@@ -230,12 +230,12 @@ const App: React.FC = () => {
             <FAQ />
             <LeadCapture />
 
-            <section className="py-16 md:py-24 px-4">
-              <div className="max-w-6xl mx-auto bg-zinc-900 rounded-[3rem] p-12 text-center text-white space-y-8 shadow-2xl">
-                <h2 className="text-3xl md:text-7xl font-black uppercase italic tracking-tighter leading-tight">Check Eligibility</h2>
+            <section className="py-12 md:py-16 px-4">
+              <div className="max-w-6xl mx-auto bg-zinc-900 rounded-[2.5rem] p-10 text-center text-white space-y-6 shadow-2xl">
+                <h2 className="text-3xl md:text-6xl font-black uppercase italic tracking-tighter leading-tight">Check Eligibility</h2>
                 <button 
                   onClick={() => navigateTo('/eligibility-check')}
-                  className="px-12 py-5 bg-white text-zinc-900 font-black rounded-2xl uppercase tracking-widest text-xs shadow-xl active:scale-95 italic"
+                  className="px-10 py-4 bg-white text-zinc-900 font-black rounded-xl uppercase tracking-widest text-xs shadow-xl active:scale-95 italic"
                 >
                   Start Assessment
                 </button>
@@ -285,24 +285,24 @@ const App: React.FC = () => {
         </button>
       </header>
       <main className="flex-grow">{renderContent()}</main>
-      <footer className="bg-white border-t border-zinc-100 py-16 text-center">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-           <div className="space-y-4 text-center md:text-left">
+      <footer className="bg-white border-t border-zinc-100 py-12 text-center">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+           <div className="space-y-3 text-center md:text-left">
               <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-widest">Resources</h4>
-              <ul className="space-y-2 text-zinc-600 text-xs font-black italic">
+              <ul className="space-y-1.5 text-zinc-600 text-xs font-black italic">
                  <li><button onClick={() => navigateTo('/global-talent-visa')}>GTV Overview</button></li>
                  <li><button onClick={() => navigateTo('/global-talent-visa-fashion')}>Fashion Guide</button></li>
                  <li><button onClick={() => navigateTo('/global-talent-visa-tech')}>Tech Nation 2025</button></li>
               </ul>
            </div>
-           <div className="space-y-4 text-center md:text-left">
+           <div className="space-y-3 text-center md:text-left">
               <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-widest">Support</h4>
-              <ul className="space-y-2 text-zinc-600 text-xs font-black italic">
+              <ul className="space-y-1.5 text-zinc-600 text-xs font-black italic">
                  <li><a href="mailto:skyuu2025@gmail.com" className="hover:text-zinc-900 transition-colors">Email Support</a></li>
                  <li><a href="https://chat.whatsapp.com/Io8JuhicgTa1RAF0GgKTFU" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors">WhatsApp Community</a></li>
               </ul>
            </div>
-           <div className="space-y-4 text-center md:text-left">
+           <div className="space-y-3 text-center md:text-left">
               <h4 className="text-[9px] font-black text-zinc-900 uppercase tracking-widest">GTV AI</h4>
               <p className="text-zinc-500 text-[10px] italic">Professional evaluation engine for UK endorsement routes.</p>
            </div>
