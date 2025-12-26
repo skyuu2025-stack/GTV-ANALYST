@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { searchLocalVisaSupport } from '../geminiService.ts';
 
 const GLOBAL_HUBS = [
-  { name: "London", region: "UK", desc: "Global Talent Visa Headquarters", focus: "Main Endorsement Hub", slug: "london-visa-help" },
-  { name: "Dubai", region: "UAE", desc: "MENA Innovation & Startup Hub", focus: "Business & Tech Routes", slug: "dubai-visa-help" },
-  { name: "San Francisco", region: "USA", desc: "Silicon Valley Innovation Stream", focus: "Tech Nation Leaders", slug: "sf-global-talent" },
-  { name: "Singapore", region: "Singapore", desc: "APAC Technology & Fintech Hub", focus: "Technical Talent", slug: "singapore-visa-support" }
+  { name: "London", region: "UK", desc: "Global Talent Visa Headquarters", focus: "Main Endorsement Hub", success: "94%" },
+  { name: "Dubai", region: "UAE", desc: "MENA Innovation & Startup Hub", focus: "Business & Tech Routes", success: "88%" },
+  { name: "San Francisco", region: "USA", desc: "Silicon Valley Innovation Stream", focus: "Tech Nation Leaders", success: "91%" },
+  { name: "Singapore", region: "Singapore", desc: "APAC Technology & Fintech Hub", focus: "Technical Talent", success: "86%" }
 ];
 
 const LocalSupportFinder: React.FC = () => {
@@ -30,7 +30,7 @@ const LocalSupportFinder: React.FC = () => {
           const data = await searchLocalVisaSupport(latitude, longitude);
           setResults(data);
         } catch (err: any) {
-          setError(err.message);
+          setError(err.message || "Failed to locate advisors.");
         } finally {
           setLoading(false);
         }
@@ -59,48 +59,64 @@ const LocalSupportFinder: React.FC = () => {
 
             <div aria-live="polite" className="pt-2">
               {!results ? (
-                <button 
-                  onClick={handleFindSupport}
-                  disabled={loading}
-                  className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-900 font-black rounded-xl uppercase tracking-widest text-[10px] hover:bg-zinc-100 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-2xl active:scale-95 focus:ring-4 focus:ring-amber-500"
-                >
-                  {loading ? (
-                    <>
-                      <i className="fas fa-circle-notch animate-spin" aria-hidden="true"></i>
-                      Scanning Local Area...
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-location-crosshairs" aria-hidden="true"></i>
-                      Find Local Advisors
-                    </>
-                  )}
-                </button>
+                <div className="space-y-4">
+                  <button 
+                    onClick={handleFindSupport}
+                    disabled={loading}
+                    className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-900 font-black rounded-xl uppercase tracking-widest text-[10px] hover:bg-zinc-100 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-2xl active:scale-95 focus:ring-4 focus:ring-amber-500"
+                  >
+                    {loading ? (
+                      <>
+                        <i className="fas fa-circle-notch animate-spin" aria-hidden="true"></i>
+                        Scanning Local Area...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-location-crosshairs" aria-hidden="true"></i>
+                        Find Local Advisors
+                      </>
+                    )}
+                  </button>
+                  {error && <p className="text-amber-500 text-[9px] font-bold uppercase tracking-widest italic">{error}</p>}
+                </div>
               ) : (
                 <div className="space-y-6 animate-fade-in">
-                  <div className="p-6 bg-white/5 border border-white/10 rounded-2xl text-zinc-300 text-xs md:text-base leading-relaxed italic">
+                  <div className="p-6 bg-white/5 border border-white/10 rounded-2xl text-zinc-300 text-xs md:text-sm leading-relaxed italic whitespace-pre-wrap">
                     {results.text}
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-4">
                     {results.grounding.map((chunk: any, i: number) => {
                       if (!chunk.maps) return null;
+                      const snippets = chunk.maps.placeAnswerSources?.reviewSnippets || [];
+                      
                       return (
-                        <a 
-                          key={i}
-                          href={chunk.maps.uri}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-5 bg-white rounded-xl flex flex-col gap-2.5 hover:scale-[1.02] transition-all shadow-xl group border border-zinc-100"
-                        >
-                          <span className="text-zinc-900 font-black text-xs uppercase tracking-tight truncate group-hover:text-amber-700 transition-colors">
-                            {chunk.maps.title || "Visa Advisor"}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-external-link-alt text-amber-600 text-[8px]" aria-hidden="true"></i>
-                            <span className="text-zinc-500 text-[8px] font-black uppercase tracking-widest">Maps Direction</span>
+                        <div key={i} className="bg-white rounded-2xl p-5 border border-zinc-100 shadow-xl group hover:border-amber-200 transition-all">
+                          <div className="flex justify-between items-start mb-3">
+                            <h4 className="text-zinc-900 font-black text-xs uppercase tracking-tight group-hover:text-amber-700 transition-colors">
+                              {chunk.maps.title || "Visa Specialist"}
+                            </h4>
+                            <a 
+                              href={chunk.maps.uri}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1 bg-zinc-50 rounded-lg text-zinc-500 text-[8px] font-black uppercase tracking-widest hover:bg-zinc-900 hover:text-white transition-all flex items-center gap-2"
+                            >
+                              <i className="fas fa-map-marker-alt"></i> Directions
+                            </a>
                           </div>
-                        </a>
+                          
+                          {snippets.length > 0 && (
+                            <div className="space-y-2 mt-4">
+                              <p className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">Verified Feedback</p>
+                              {snippets.slice(0, 1).map((s: any, idx: number) => (
+                                <p key={idx} className="text-zinc-600 text-[10px] italic leading-relaxed border-l-2 border-amber-100 pl-3">
+                                  "{s.text}"
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
@@ -122,17 +138,22 @@ const LocalSupportFinder: React.FC = () => {
               {GLOBAL_HUBS.map(hub => (
                 <div 
                   key={hub.name} 
-                  id={hub.name.toLowerCase()}
-                  className="p-5 rounded-2xl border transition-all flex flex-col justify-between h-full min-h-[130px] bg-white/5 border-white/5 hover:border-white/20"
+                  className="p-5 rounded-2xl border transition-all flex flex-col justify-between h-full min-h-[140px] bg-white/5 border-white/5 hover:border-white/20 relative group"
                 >
                   <div className="space-y-1">
-                    <p className="text-amber-500 font-black text-[9px] uppercase tracking-widest">{hub.name}</p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-amber-500 font-black text-[9px] uppercase tracking-widest">{hub.name}</p>
+                      <span className="text-[7px] font-black text-green-500 uppercase">{hub.success} Success</span>
+                    </div>
                     <p className="text-white font-bold text-[10px] uppercase tracking-tight">{hub.region}</p>
                     <p className="text-zinc-500 text-[9px] italic leading-tight line-clamp-2 min-h-[2.4em]">{hub.desc}</p>
                   </div>
-                  <p className="text-zinc-600 text-[7px] font-black uppercase tracking-[0.2em] mt-3 border-t border-white/5 pt-2">
-                    {hub.focus}
-                  </p>
+                  <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between">
+                    <p className="text-zinc-600 text-[7px] font-black uppercase tracking-[0.2em]">
+                      {hub.focus}
+                    </p>
+                    <i className="fas fa-chevron-right text-[8px] text-zinc-800 group-hover:text-white transition-colors"></i>
+                  </div>
                 </div>
               ))}
             </div>

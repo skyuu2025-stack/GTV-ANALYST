@@ -8,23 +8,11 @@ interface PaymentModalProps {
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showFailsafe, setShowFailsafe] = useState(false);
   
   const isDemo = localStorage.getItem('gtv_demo_mode') === 'true' || sessionStorage.getItem('gtv_demo_active') === 'true';
 
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
   const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(email)}`;
-  
-  // Failsafe timer: if redirect hasn't happened in 4 seconds, show a direct link
-  useEffect(() => {
-    let timer: number;
-    if (isProcessing) {
-      timer = window.setTimeout(() => {
-        setShowFailsafe(true);
-      }, 4000);
-    }
-    return () => clearTimeout(timer);
-  }, [isProcessing]);
 
   const handleDemoPayment = () => {
     setIsProcessing(true);
@@ -34,15 +22,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
     }, 1200);
   };
 
-  const handleRealPayment = () => {
-    setIsProcessing(true);
-    
+  const handleRealPaymentClick = () => {
     // Persist pending state for return journey
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
-    
-    // Direct browser navigation is most reliable for Stripe redirects
-    window.location.assign(checkoutUrl);
+    // Visual feedback before navigation
+    setIsProcessing(true);
   };
 
   return (
@@ -78,17 +63,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
               <p className="text-zinc-900 font-black text-[10px] md:text-xs uppercase tracking-widest animate-pulse">
                 Redirecting to Stripe...
               </p>
-              {showFailsafe && (
-                <div className="animate-fade-in pt-4">
-                  <p className="text-[9px] text-zinc-400 mb-2 uppercase font-bold">Taking too long?</p>
-                  <a 
-                    href={checkoutUrl} 
-                    className="text-[10px] text-amber-600 font-black uppercase underline tracking-widest decoration-2 underline-offset-4"
-                  >
-                    Click here to open payment directly
-                  </a>
-                </div>
-              )}
+              <p className="text-[9px] text-zinc-400 mb-2 uppercase font-bold">Secure Payment Gateway</p>
             </div>
           </div>
         ) : (
@@ -128,12 +103,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                   Verify Reviewer Access
                 </button>
               ) : (
-                <button 
-                  onClick={handleRealPayment}
-                  className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center focus:ring-4 focus:ring-amber-500"
+                <a 
+                  href={checkoutUrl}
+                  onClick={handleRealPaymentClick}
+                  className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center focus:ring-4 focus:ring-amber-500 no-underline decoration-transparent"
                 >
                   <i className="fas fa-lock mr-2" aria-hidden="true"></i> Purchase Full Audit
-                </button>
+                </a>
               )}
               
               <button 

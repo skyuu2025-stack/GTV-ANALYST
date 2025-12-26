@@ -4,72 +4,46 @@ interface HeroProps { onStart: () => void; }
 
 const Hero: React.FC<HeroProps> = ({ onStart }) => {
   return (
-    <section className="hero-critical bg-white relative overflow-hidden">
-      {/* Background Glow - GPU Accelerated */}
-      <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] aspect-square bg-amber-50/30 rounded-full blur-[80px] -z-10 will-change-transform"
-        aria-hidden="true"
-      ></div>
+    <div className="px-6 py-12 flex flex-col items-center text-center space-y-10 animate-fade-in">
+      <div className="badge-critical ring-2 ring-amber-50/50 bg-amber-50">
+        <i className="fas fa-bolt-lightning mr-2 text-amber-600"></i> 2025 AI ENGINE
+      </div>
       
-      {/* Social Proof */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="flex -space-x-2" aria-label="Successful applicants">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-zinc-200 overflow-hidden">
-              <img 
-                src={`https://i.pravatar.cc/64?img=${i+20}`} 
-                alt="" 
-                width="32" 
-                height="32"
-                fetchpriority={i === 1 ? "high" : "low"}
-                loading="eager"
-                className="w-full h-full object-cover" 
-              />
-            </div>
-          ))}
+      <div className="space-y-4">
+        <h1 className="text-5xl font-black uppercase italic tracking-tighter leading-[0.8] text-zinc-900">
+          GLOBAL <br/> TALENT <br/> <span className="text-amber-600">VISA</span>
+        </h1>
+        <p className="text-zinc-500 font-medium italic text-sm tracking-tight px-8">
+          Professional UK endorsement roadmap powered by expert AI models.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+        <div className="bg-zinc-50 p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-2">
+           <i className="fas fa-shield-halved text-amber-600"></i>
+           <span className="text-[9px] font-black uppercase tracking-widest text-zinc-900">Endorsed</span>
         </div>
-        <div className="flex flex-col items-start">
-          <div className="flex text-amber-500 text-[8px] gap-0.5">
-            {[1,2,3,4,5].map(s => <i key={s} className="fas fa-star" aria-hidden="true"></i>)}
-          </div>
-          <span className="text-[7px] font-black uppercase tracking-widest text-zinc-500">4.9/5 RATING</span>
+        <div className="bg-zinc-50 p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-2">
+           <i className="fas fa-clock text-amber-600"></i>
+           <span className="text-[9px] font-black uppercase tracking-widest text-zinc-900">Fast-Track</span>
         </div>
       </div>
 
-      {/* Badge */}
-      <div className="badge-critical italic ring-2 ring-amber-50/50">
-        <i className="fas fa-bolt-lightning mr-2 text-amber-600" aria-hidden="true"></i> 2025 UK IMMIGRATION
-      </div>
-      
-      {/* Main LCP Headline */}
-      <h1 
-        fetchpriority="high"
-        className="h1-critical text-[#121212] px-2"
+      <button
+        onClick={onStart}
+        className="w-full max-w-sm py-6 bg-zinc-900 text-white font-black rounded-3xl uppercase tracking-widest text-sm italic shadow-[0_20px_40px_rgba(0,0,0,0.2)] active:scale-95 transition-all"
       >
-        UK GLOBAL TALENT VISA <br/>
-        <span className="text-[#A48020]">AI ELIGIBILITY AUDIT</span>
-      </h1>
-      
-      <h2 className="text-zinc-600 text-sm md:text-lg max-w-xl mx-auto leading-relaxed mb-6 font-medium italic px-6">
-        Definitive professional assessment tool for UK GTV readiness. Map your evidence for Tech Nation and Arts Council instantly.
-      </h2>
-      
-      <div className="w-full px-4 flex flex-col items-center">
-        <button
-          onClick={onStart}
-          className="btn-critical transition-transform hover:scale-[1.02] active:scale-95 shadow-xl italic"
-        >
-          START PROFESSIONAL AUDIT
-        </button>
+        Start Audit Flow
+      </button>
 
-        <nav className="flex gap-4 mt-6 opacity-40 text-[7px] font-black uppercase tracking-widest" aria-label="GTV Categories">
-           <span>Digital Tech</span>
-           <span>Arts & Culture</span>
-           <span>Fashion</span>
-           <span>Architecture</span>
-        </nav>
+      <div className="pt-4 flex flex-col items-center gap-2">
+        <p className="text-[8px] font-black text-zinc-300 uppercase tracking-[0.5em]">Aligned Frameworks</p>
+        <div className="flex gap-4 opacity-20">
+          <span className="text-[10px] font-black uppercase">Tech Nation</span>
+          <span className="text-[10px] font-black uppercase">Arts Council</span>
+        </div>
       </div>
-    </section>
+    </div>
   );
 };
 

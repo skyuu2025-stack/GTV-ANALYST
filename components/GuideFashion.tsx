@@ -1,13 +1,13 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import FAQSchema from './FAQSchema.tsx';
 
 interface GuideProps {
   onStart: () => void;
+  onBack?: () => void;
 }
 
-const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
+const GuideFashion: React.FC<GuideProps> = ({ onStart, onBack }) => {
   const fashionFaqs = [
     {
       question: "Can fashion designers apply for the UK Global Talent Visa?",
@@ -24,7 +24,7 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
   ];
 
   return (
-    <article className="max-w-4xl mx-auto py-20 px-6 animate-fade-in" id="fashion-guide">
+    <article className="max-w-4xl mx-auto py-12 md:py-20 px-6 animate-fade-in" id="fashion-guide">
       <Helmet>
         <title>{`Arts Council Fashion Visa: UK Global Talent Endorsement Guide for Designers`}</title>
         <meta name="description" content="Ultimate guide to the Arts Council fashion visa endorsement for designers. Check your UK Global Talent Visa eligibility with AI-powered criteria mapping." />
@@ -33,8 +33,18 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
 
       <FAQSchema items={fashionFaqs} />
 
+      {onBack && (
+        <button 
+          onClick={onBack}
+          className="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-900 transition-colors"
+        >
+          <i className="fas fa-chevron-left"></i> Back to Wiki Hub
+        </button>
+      )}
+
       <div className="prose prose-zinc max-w-none">
         <header className="mb-12">
+          <div className="inline-block px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-[9px] font-black uppercase tracking-widest mb-4">Field: Fashion</div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic text-zinc-900 mb-6">Arts Council Fashion Visa & Endorsement</h1>
           <p className="text-lg md:text-xl text-zinc-600 leading-relaxed italic font-medium">
             The UK Global Talent Visa for fashion designers is a prestigious route for world-class creatives. 
@@ -62,7 +72,7 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
           </div>
         </section>
 
-        <section className="mb-16 bg-zinc-900 text-white p-12 rounded-[3rem] text-center">
+        <section className="mb-16 bg-zinc-900 text-white p-12 rounded-[3rem] text-center shadow-2xl">
           <h2 className="text-2xl md:text-3xl font-black uppercase italic mb-6 text-amber-500">AI Fashion Visa Eligibility Audit</h2>
           <p className="text-zinc-400 mb-10 italic">
             GTV Assessor evaluates your fashion career against official Arts Council criteria,
@@ -70,7 +80,7 @@ const GuideFashion: React.FC<GuideProps> = ({ onStart }) => {
           </p>
           <button 
             onClick={onStart}
-            className="w-full md:w-auto px-12 py-5 bg-amber-600 text-white font-black rounded-2xl uppercase tracking-widest text-xs hover:bg-amber-500 transition-all shadow-xl"
+            className="w-full md:w-auto px-12 py-5 bg-amber-600 text-white font-black rounded-2xl uppercase tracking-widest text-xs hover:bg-amber-500 transition-all shadow-xl active:scale-95"
           >
             Start Fashion Assessment
           </button>

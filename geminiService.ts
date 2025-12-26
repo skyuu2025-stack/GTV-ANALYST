@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentData, AnalysisResult } from "./types.ts";
 
@@ -24,8 +25,9 @@ export const analyzeVisaEligibility = async (data: AssessmentData, fileNames: st
   `;
 
   try {
+    // Fix: Upgraded to gemini-3-pro-preview for complex reasoning task as per coding guidelines
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         systemInstruction: "You are a professional GTV Endorsement AI. Output ONLY strictly valid JSON matching the defined schema. Be concise and precise.",
@@ -90,6 +92,7 @@ export const generateAILogo = async (style: string): Promise<string> => {
   `;
 
   try {
+    // Fix: Using gemini-2.5-flash-image for general image generation task
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
@@ -116,8 +119,9 @@ export const generateAILogo = async (style: string): Promise<string> => {
 
 export const chatWithConcierge = async (message: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) => {
   try {
+    // Fix: Using gemini-3-flash-preview for basic Q&A chat task
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: 'gemini-3-flash-preview',
       contents: history.concat([{ role: 'user', parts: [{ text: message }] }]),
       config: {
         systemInstruction: "GTV Concierge: professional, concise, focused on UK Global Talent Visa. Provide guidance, not legal advice.",
@@ -134,6 +138,7 @@ export const searchLocalVisaSupport = async (lat: number, lng: number) => {
   const prompt = "List 3 professional immigration consultants specializing in UK GTV near this location.";
   
   try {
+    // Fix: Using gemini-2.5-flash which is mandatory for Google Maps grounding tools
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
