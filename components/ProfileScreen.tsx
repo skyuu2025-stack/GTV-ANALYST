@@ -11,19 +11,24 @@ interface ProfileScreenProps {
 }
 
 type SubView = 'main' | 'privacy' | 'notifications' | 'help' | 'edit_profile';
+type AuthMethod = 'none' | 'apple' | 'google' | 'email' | 'phone';
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, onHome, onChat, onNavigate }) => {
   const [activeSubView, setActiveSubView] = useState<SubView>('main');
-  const [isEditingSignature, setIsEditingSignature] = useState(false);
-  const [tempSignature, setTempSignature] = useState(user.signature);
   const [isAuthenticating, setIsAuthenticating] = useState<string | null>(null);
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('none');
   const [isSimulatingBiometric, setIsSimulatingBiometric] = useState(false);
   const [isLocked, setIsLocked] = useState(user.faceIdEnabled && activeSubView === 'main');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch local assessment for "Own Information" display
+  // Form State
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+
   const [lastAssessment, setLastAssessment] = useState<{data: AssessmentData, result: AnalysisResult} | null>(null);
 
   useEffect(() => {
@@ -44,7 +49,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     }
   }, [user.incognitoMode]);
 
-  // Handle Biometric Unlock Simulation
   useEffect(() => {
     if (isLocked) {
       const timer = setTimeout(() => {
@@ -53,11 +57,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       return () => clearTimeout(timer);
     }
   }, [isLocked]);
-
-  const handleSaveSignature = () => {
-    onUpdate({ signature: tempSignature });
-    setIsEditingSignature(false);
-  };
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -75,20 +74,35 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
   };
 
   const handleLoginTrigger = (method: string) => {
-    setIsAuthenticating(method);
-    setTimeout(() => {
-      onLogin(method);
-      setIsAuthenticating(null);
-    }, 1200);
+    // If Face ID is enabled, simulate a check before proceeding
+    if (user.faceIdEnabled) {
+      setIsSimulatingBiometric(true);
+      setTimeout(() => {
+        setIsSimulatingBiometric(false);
+        setIsAuthenticating(method);
+        setTimeout(() => {
+          onLogin(method);
+          setIsAuthenticating(null);
+          setAuthMethod('none');
+        }, 1200);
+      }, 1000);
+    } else {
+      setIsAuthenticating(method);
+      setTimeout(() => {
+        onLogin(method);
+        setIsAuthenticating(null);
+        setAuthMethod('none');
+      }, 1200);
+    }
   };
 
   const handleToggleFaceId = () => {
     setIsSimulatingBiometric(true);
-    // Simulate biometric check before toggling security settings
+    // Simulate biometric confirmation for the toggle itself
     setTimeout(() => {
       onUpdate({ faceIdEnabled: !user.faceIdEnabled });
       setIsSimulatingBiometric(false);
-    }, 1200);
+    }, 800);
   };
 
   const handleDataDeletion = () => {
@@ -102,16 +116,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
 
   if (isLocked) {
     return (
-      <div className="flex flex-col items-center justify-center h-[70vh] animate-fade-in space-y-6">
+      <div className="flex flex-col items-center justify-center h-[70vh] animate-fade-in space-y-8">
         <div className="relative">
-          <div className="w-24 h-24 border-4 border-amber-600/20 rounded-full flex items-center justify-center animate-pulse">
-            <i className="fas fa-face-viewfinder text-4xl text-amber-600"></i>
+          <div className="w-28 h-28 border-[0.5px] border-zinc-100 rounded-full flex items-center justify-center shadow-2xl bg-white">
+            <i className="fas fa-face-viewfinder text-4xl text-amber-600 animate-pulse"></i>
           </div>
-          <div className="absolute inset-0 border-t-4 border-amber-600 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 border-t-2 border-amber-600 rounded-full animate-spin"></div>
         </div>
         <div className="text-center space-y-2">
-          <h3 className="text-lg font-black uppercase italic tracking-tighter text-zinc-900">Identity Verification</h3>
-          <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Verifying Biometrics...</p>
+          <h3 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900">Encrypted Access</h3>
+          <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Verifying Biometrics...</p>
         </div>
       </div>
     );
@@ -174,29 +188,33 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       {renderHeader('Privacy & Security')}
       <div className="space-y-4">
         <div className="bg-white border border-zinc-100 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
+          {/* Biometric Toggle Section */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-900 italic">Face ID / Touch ID</h3>
+              <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest italic leading-tight">Strict verification for all logins</p>
+            </div>
+            <button 
+              onClick={handleToggleFaceId}
+              disabled={isSimulatingBiometric}
+              className={`w-14 h-7 rounded-full relative transition-all duration-500 ${user.faceIdEnabled ? 'bg-[#e67e00]' : 'bg-zinc-200'} ${isSimulatingBiometric ? 'opacity-50' : ''}`}
+            >
+              <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-500 shadow-sm ${user.faceIdEnabled ? 'left-8' : 'left-1'}`}>
+                {isSimulatingBiometric && <i className="fas fa-circle-notch animate-spin text-[8px] flex items-center justify-center h-full text-amber-600"></i>}
+              </div>
+            </button>
+          </div>
+
           <button 
             onClick={() => onUpdate({ incognitoMode: !user.incognitoMode })}
             className="w-full flex justify-between items-center outline-none group"
           >
-            <span className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-800">Incognito Audit</span>
-            <div className={`w-12 h-6 rounded-full relative transition-all duration-300 ${user.incognitoMode ? 'bg-[#e67e00]' : 'bg-zinc-900'}`}>
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${user.incognitoMode ? 'left-7' : 'left-1'}`}></div>
+            <div className="space-y-1 text-left">
+              <span className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-900 italic">Incognito Audit</span>
+              <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest italic leading-tight">No data persistence in local engine</p>
             </div>
-          </button>
-          
-          <button 
-            onClick={handleToggleFaceId}
-            disabled={isSimulatingBiometric}
-            className="w-full flex justify-between items-center outline-none group"
-          >
-            <div className="flex flex-col items-start">
-              <span className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-800">
-                {isSimulatingBiometric ? 'Verifying Identity...' : 'Face ID / Touch ID'}
-              </span>
-              <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest mt-1 italic">Impacts Login & Profile Security</span>
-            </div>
-            <div className={`w-12 h-6 rounded-full relative transition-all duration-300 ${user.faceIdEnabled ? 'bg-[#e67e00]' : 'bg-zinc-900'} ${isSimulatingBiometric ? 'opacity-50' : ''}`}>
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${user.faceIdEnabled ? 'left-7' : 'left-1'}`}></div>
+            <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${user.incognitoMode ? 'bg-[#e67e00]' : 'bg-zinc-200'}`}>
+              <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-sm ${user.incognitoMode ? 'left-8' : 'left-1'}`}></div>
             </div>
           </button>
         </div>
@@ -257,11 +275,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
                 className="w-full flex items-center justify-between p-8 bg-white border border-zinc-100 rounded-[2.5rem] active:scale-[0.98] transition-all shadow-sm"
               >
                 <div className="space-y-1.5 text-left">
-                  <h4 className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-900">{item.label}</h4>
+                  <h4 className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-900 italic">{item.label}</h4>
                   <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-tight">{item.desc}</p>
                 </div>
                 <div className={`w-14 h-7 rounded-full relative transition-colors duration-300 ${isEnabled ? 'bg-[#e67e00]' : 'bg-zinc-200'}`}>
-                  <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 ${isEnabled ? 'left-8' : 'left-1'}`}></div>
+                  <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-sm ${isEnabled ? 'left-8' : 'left-1'}`}></div>
                 </div>
               </button>
             );
@@ -371,86 +389,177 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         </div>
       )}
 
-      {/* Branded Quick Login Options - Enhanced for Specification */}
+      {/* SPEC-MATCHED Login Section */}
       {!user.isLoggedIn && (
-        <div className="space-y-6 max-w-sm mx-auto w-full">
-          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] block text-center mb-2">Connect Professional Identity</span>
-          <div className="flex flex-col gap-3">
-            {/* Apple Login - Black Pill, White Text, Italic Caps */}
-            <button 
-              onClick={() => handleLoginTrigger('apple')}
-              disabled={!!isAuthenticating}
-              className="w-full flex items-center justify-between px-8 py-5 bg-[#121212] text-white rounded-full shadow-lg active:scale-[0.98] transition-all disabled:opacity-50"
-            >
-              <div className="flex items-center gap-5">
-                {isAuthenticating === 'apple' ? (
-                  <i className="fas fa-circle-notch animate-spin text-lg"></i>
-                ) : (
-                  <i className="fa-brands fa-apple text-xl"></i>
-                )}
-                <span className="text-[11px] font-black uppercase italic tracking-widest">
-                  {isAuthenticating === 'apple' ? 'CONNECTING...' : 'CONTINUE WITH APPLE'}
-                </span>
+        <div className="space-y-6 max-w-sm mx-auto w-full px-2 min-h-[260px] flex flex-col justify-center">
+          {isAuthenticating || isSimulatingBiometric ? (
+            <div className="flex flex-col items-center justify-center space-y-6 animate-fade-in py-10">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-zinc-50 border-t-amber-600 rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <i className={`fas ${isSimulatingBiometric ? 'fa-face-viewfinder text-amber-600 animate-pulse' : 'fa-shield-halved text-zinc-200'} text-lg`}></i>
+                </div>
               </div>
-              <i className="fas fa-chevron-right text-[10px] text-white/40"></i>
-            </button>
+              <div className="text-center space-y-1.5">
+                <p className="text-[13px] font-black text-zinc-900 uppercase tracking-[0.2em] italic">
+                  {isSimulatingBiometric ? 'BIOMETRIC SCAN' : 'SECURELY CONNECTING'}
+                </p>
+                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">
+                  {isSimulatingBiometric ? 'CONFIRMING IDENTITY...' : 'VERIFYING PROFESSIONAL IDENTITY...'}
+                </p>
+              </div>
+            </div>
+          ) : authMethod !== 'none' ? (
+            /* Credential Entry Mode */
+            <div className="space-y-6 animate-fade-in">
+              <button 
+                onClick={() => setAuthMethod('none')}
+                className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2"
+              >
+                <i className="fas fa-chevron-left"></i> Change Method
+              </button>
+              
+              <div className="space-y-4">
+                <h3 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900">
+                  {authMethod === 'email' ? 'Email Login' : 'Phone Verification'}
+                </h3>
+                
+                {authMethod === 'email' ? (
+                  <div className="space-y-3">
+                    <input 
+                      type="email" 
+                      placeholder="ENTER EMAIL"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-6 py-4 font-black italic text-zinc-800 text-[13px] outline-none"
+                    />
+                    <input 
+                      type="password" 
+                      placeholder="ENTER PASSWORD"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-6 py-4 font-black italic text-zinc-800 text-[13px] outline-none"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <input 
+                      type="tel" 
+                      placeholder="PHONE NUMBER"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-6 py-4 font-black italic text-zinc-800 text-[13px] outline-none"
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="6-DIGIT CODE"
+                      maxLength={6}
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-6 py-4 font-black italic text-zinc-800 text-[13px] outline-none text-center tracking-[0.5em]"
+                    />
+                  </div>
+                )}
+                
+                <button 
+                  onClick={() => handleLoginTrigger(authMethod)}
+                  className="w-full py-5 bg-zinc-900 text-white rounded-full font-black uppercase italic tracking-widest text-[13px] shadow-xl active:scale-95 transition-all"
+                >
+                  {authMethod === 'email' ? 'CONNECT ACCOUNT' : 'VERIFY & SIGN IN'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Selection Mode */
+            <>
+              <span className="text-[11px] font-black text-zinc-400/80 uppercase tracking-[0.25em] block text-center mb-1">CONNECT PROFESSIONAL IDENTITY</span>
+              <div className="flex flex-col gap-3.5">
+                {/* Apple Login */}
+                <button 
+                  onClick={() => handleLoginTrigger('apple')}
+                  className="w-full flex items-center justify-between px-10 py-5.5 bg-[#0a0a0a] text-white rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.12)] active:scale-[0.97] transition-all group border border-black"
+                >
+                  <div className="flex items-center gap-6">
+                    <i className="fa-brands fa-apple text-2xl"></i>
+                    <span className="text-[13px] font-black uppercase italic tracking-[0.05em] pt-0.5">CONTINUE WITH APPLE</span>
+                  </div>
+                  <i className="fas fa-chevron-right text-[11px] text-zinc-700 group-hover:text-white transition-colors"></i>
+                </button>
 
-            {/* Google Login - White Pill, Black Text, Italic Caps */}
-            <button 
-              onClick={() => handleLoginTrigger('google')}
-              disabled={!!isAuthenticating}
-              className="w-full flex items-center justify-between px-8 py-5 bg-white border border-zinc-100 text-zinc-900 rounded-full shadow-md active:scale-[0.98] transition-all disabled:opacity-50"
-            >
-              <div className="flex items-center gap-5">
-                {isAuthenticating === 'google' ? (
-                  <i className="fas fa-circle-notch animate-spin text-[#EA4335] text-lg"></i>
-                ) : (
-                  <i className="fa-brands fa-google text-xl text-[#EA4335]"></i>
-                )}
-                <span className="text-[11px] font-black uppercase italic tracking-widest">
-                  {isAuthenticating === 'google' ? 'SYNCING...' : 'CONTINUE WITH GOOGLE'}
-                </span>
-              </div>
-              <i className="fas fa-chevron-right text-[10px] text-zinc-200"></i>
-            </button>
+                {/* Google Login */}
+                <button 
+                  onClick={() => handleLoginTrigger('google')}
+                  className="w-full flex items-center justify-between px-10 py-5.5 bg-white border border-zinc-100 text-[#0a0a0a] rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.06)] active:scale-[0.97] transition-all group"
+                >
+                  <div className="flex items-center gap-6">
+                    <i className="fa-brands fa-google text-2xl text-[#EA4335]"></i>
+                    <span className="text-[13px] font-black uppercase italic tracking-[0.05em] pt-0.5">CONTINUE WITH GOOGLE</span>
+                  </div>
+                  <i className="fas fa-chevron-right text-[11px] text-zinc-100 group-hover:text-zinc-300 transition-colors"></i>
+                </button>
 
-            {/* Phone/Email Login - White Pill, Black Text, Italic Caps, Bolt Icon */}
-            <button 
-              onClick={() => handleLoginTrigger('phone')}
-              disabled={!!isAuthenticating}
-              className="w-full flex items-center justify-between px-8 py-5 bg-white border border-zinc-100 text-zinc-900 rounded-full shadow-md active:scale-[0.98] transition-all disabled:opacity-50"
-            >
-              <div className="flex items-center gap-5">
-                {isAuthenticating === 'phone' ? (
-                   <i className="fas fa-circle-notch animate-spin text-amber-500 text-lg"></i>
-                ) : (
-                  <i className="fas fa-phone-alt text-lg text-zinc-400"></i>
-                )}
-                <span className="text-[11px] font-black uppercase italic tracking-widest">
-                  {isAuthenticating === 'phone' ? 'VERIFYING...' : 'ONE-CLICK PHONE/EMAIL'}
-                </span>
+                {/* Phone/Email Login */}
+                <div className="grid grid-cols-2 gap-3.5">
+                   <button 
+                    onClick={() => setAuthMethod('email')}
+                    className="flex flex-col items-center justify-center p-5 bg-white border border-zinc-100 text-[#0a0a0a] rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] active:scale-[0.97] transition-all group"
+                  >
+                    <i className="fas fa-envelope text-lg text-zinc-300 mb-2 group-hover:text-zinc-900"></i>
+                    <span className="text-[10px] font-black uppercase italic tracking-[0.05em]">EMAIL</span>
+                  </button>
+                  <button 
+                    onClick={() => setAuthMethod('phone')}
+                    className="flex flex-col items-center justify-center p-5 bg-white border border-zinc-100 text-[#0a0a0a] rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] active:scale-[0.97] transition-all group"
+                  >
+                    <i className="fas fa-phone-alt text-lg text-zinc-300 mb-2 group-hover:text-zinc-900"></i>
+                    <span className="text-[10px] font-black uppercase italic tracking-[0.05em]">PHONE</span>
+                    <i className="fas fa-bolt text-[10px] text-[#e67e00] absolute top-3 right-4"></i>
+                  </button>
+                </div>
               </div>
-              <i className="fas fa-bolt text-[11px] text-[#e67e00]"></i>
-            </button>
-          </div>
+            </>
+          )}
         </div>
       )}
+
+      {/* Security Quick Access Toggle */}
+      <div className="bg-white border border-zinc-50 p-6 rounded-[2.5rem] shadow-sm flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center">
+            <i className={`fas ${user.faceIdEnabled ? 'fa-face-viewfinder text-amber-600 animate-pulse' : 'fa-face-viewfinder text-zinc-300'}`}></i>
+          </div>
+          <div className="space-y-0.5">
+            <h4 className="text-[11px] font-black uppercase tracking-tight text-zinc-900 italic">Biometric Access</h4>
+            <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest italic">{user.faceIdEnabled ? 'ENFORCED' : 'OFF'}</p>
+          </div>
+        </div>
+        <button 
+          onClick={handleToggleFaceId}
+          disabled={isSimulatingBiometric}
+          className={`w-14 h-7 rounded-full relative transition-all duration-500 ${user.faceIdEnabled ? 'bg-[#e67e00]' : 'bg-zinc-200'}`}
+        >
+          <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-500 shadow-sm ${user.faceIdEnabled ? 'left-8' : 'left-1'}`}>
+            {isSimulatingBiometric && <i className="fas fa-circle-notch animate-spin text-[8px] flex items-center justify-center h-full text-amber-600"></i>}
+          </div>
+        </button>
+      </div>
 
       {/* Profile Settings List */}
       <div className="space-y-3 pt-6">
         {[
-          { id: 'edit_profile', icon: 'fa-user-pen', label: 'Identity & Information' },
-          { id: 'privacy', icon: 'fa-shield-halved', label: 'Privacy & Security' },
-          { id: 'notifications', icon: 'fa-bell', label: 'Notification Settings' },
-          { id: 'help', icon: 'fa-circle-question', label: 'Help & Support' }
+          { id: 'edit_profile', icon: 'fa-user-pen', label: 'Identity & Information', iconColor: 'text-amber-600' },
+          { id: 'privacy', icon: 'fa-shield-halved', label: 'Privacy & Security', iconColor: 'text-zinc-400' },
+          { id: 'notifications', icon: 'fa-bell', label: 'Notification Settings', iconColor: 'text-amber-500' },
+          { id: 'help', icon: 'fa-circle-question', label: 'Help & Support', iconColor: 'text-zinc-400' }
         ].map((item) => (
           <button 
             key={item.id} 
             onClick={() => setActiveSubView(item.id as SubView)}
-            className="w-full flex items-center justify-between px-8 py-6 bg-white border border-zinc-50 rounded-[2rem] hover:bg-zinc-50 transition-colors active:scale-[0.98] transition-all shadow-sm group"
+            disabled={!!isAuthenticating || isSimulatingBiometric}
+            className={`w-full flex items-center justify-between px-8 py-6 bg-white border border-zinc-50 rounded-[2.2rem] hover:bg-zinc-50 active:scale-[0.98] shadow-sm group transition-all ${isAuthenticating || isSimulatingBiometric ? 'opacity-40 grayscale pointer-events-none' : ''}`}
           >
             <div className="flex items-center gap-5">
-              <i className={`fas ${item.icon} text-zinc-300 group-hover:text-amber-600 transition-colors`}></i>
+              <i className={`fas ${item.icon} ${item.iconColor} transition-colors`}></i>
               <span className="text-[11px] font-black uppercase tracking-widest text-zinc-800 italic">{item.label}</span>
             </div>
             <i className="fas fa-chevron-right text-[9px] text-zinc-200"></i>

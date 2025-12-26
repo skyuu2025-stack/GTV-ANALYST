@@ -22,12 +22,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
     }, 1200);
   };
 
-  const handleRealPaymentClick = () => {
+  const handleRealPaymentClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    
     // Persist pending state for return journey
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
-    // Visual feedback before navigation
-    setIsProcessing(true);
+    
+    // Direct redirection is more robust than <a> tags in some WebViews
+    window.location.href = checkoutUrl;
   };
 
   return (
@@ -103,13 +107,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
                   Verify Reviewer Access
                 </button>
               ) : (
-                <a 
-                  href={checkoutUrl}
+                <button 
                   onClick={handleRealPaymentClick}
-                  className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center focus:ring-4 focus:ring-amber-500 no-underline decoration-transparent"
+                  className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center focus:ring-4 focus:ring-amber-500"
                 >
                   <i className="fas fa-lock mr-2" aria-hidden="true"></i> Purchase Full Audit
-                </a>
+                </button>
               )}
               
               <button 
