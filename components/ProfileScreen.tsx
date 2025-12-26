@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { UserProfile, AppStep } from '../types.ts';
-import { supabase, signInWithGoogle, signInWithApple, getEnvStatus } from '../supabaseService.ts';
+import { supabase, getEnvStatus } from '../supabaseService.ts';
 
 interface ProfileScreenProps {
   user: UserProfile;
@@ -19,17 +19,38 @@ const COUNTRY_CODES = [
   { code: '+44', name: 'UK' },
   { code: '+1', name: 'US/CA' },
   { code: '+86', name: 'CN' },
-  { code: '+66', name: 'TH' },
-  { code: '+971', name: 'UAE' },
-  { code: '+65', name: 'SG' },
-  { code: '+91', name: 'IN' },
-  { code: '+84', name: 'VN' },
-  { code: '+62', name: 'ID' },
-  { code: '+60', name: 'MY' },
-  { code: '+63', name: 'PH' },
-  { code: '+82', name: 'KR' },
-  { code: '+81', name: 'JP' },
   { code: '+852', name: 'HK' },
+  { code: '+853', name: 'MO' },
+  { code: '+886', name: 'TW' },
+  { code: '+65', name: 'SG' },
+  { code: '+60', name: 'MY' },
+  { code: '+66', name: 'TH' },
+  { code: '+81', name: 'JP' },
+  { code: '+82', name: 'KR' },
+  { code: '+84', name: 'VN' },
+  { code: '+63', name: 'PH' },
+  { code: '+62', name: 'ID' },
+  { code: '+91', name: 'IN' },
+  { code: '+61', name: 'AU' },
+  { code: '+64', name: 'NZ' },
+  { code: '+33', name: 'FR' },
+  { code: '+49', name: 'DE' },
+  { code: '+39', name: 'IT' },
+  { code: '+34', name: 'ES' },
+  { code: '+31', name: 'NL' },
+  { code: '+41', name: 'CH' },
+  { code: '+46', name: 'SE' },
+  { code: '+7', name: 'RU' },
+  { code: '+971', name: 'UAE' },
+  { code: '+966', name: 'SA' },
+  { code: '+972', name: 'IL' },
+  { code: '+27', name: 'ZA' },
+  { code: '+55', name: 'BR' },
+  { code: '+52', name: 'MX' },
+  { code: '+20', name: 'EG' },
+  { code: '+92', name: 'PK' },
+  { code: '+880', name: 'BD' },
+  { code: '+234', name: 'NG' },
 ].sort((a, b) => a.name.localeCompare(b.name));
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, onHome, onChat, onNavigate }) => {
@@ -45,6 +66,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const envStatus = getEnvStatus();
+
+  useEffect(() => {
+    if (user.isLoggedIn) {
+      setActiveSubView('main');
+      setAuthState('idle');
+      setErrorMsg(null);
+    }
+  }, [user.isLoggedIn]);
 
   useEffect(() => {
     let interval: any;
@@ -108,9 +137,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     setAuthState('sending');
     
     try {
+      const currentOrigin = window.location.origin;
       const payload = type === 'sms' 
         ? { phone: `${countryCode}${phone.trim().replace(/\D/g, '')}` }
-        : { email: emailInput.trim(), options: { emailRedirectTo: window.location.origin } };
+        : { email: emailInput.trim(), options: { emailRedirectTo: currentOrigin } };
 
       const { error } = await supabase.auth.signInWithOtp(payload);
       if (error) throw error;
@@ -153,31 +183,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         setAuthState('success');
         setTimeout(() => {
           setActiveSubView('main');
+          setAuthState('idle');
         }, 800);
       }
     } catch (err: any) {
       setErrorMsg("Invalid code or session expired.");
       setAuthState('pending');
       setCodeDigits(['', '', '', '', '', '']);
-    }
-  };
-
-  const handleOAuthLogin = async (provider: 'google' | 'apple') => {
-    setErrorMsg(null);
-    try {
-      const response = provider === 'google' 
-        ? await signInWithGoogle() 
-        : await signInWithApple();
-      
-      if (!response) throw new Error("Service initialization failed.");
-      if (response.error) throw response.error;
-    } catch (err: any) {
-      console.error(`OAuth ${provider} Error:`, err);
-      if (err.message && err.message.includes("VITE_")) {
-        setErrorMsg("⚠️ 配置错误：代码未读到 SUPABASE 变量。\n修复：请在 Netlify 设置变量后，重新部署并选择 'Clear cache and deploy site'。");
-      } else {
-        setErrorMsg(err.message || `Login failed. Check ${provider} configuration.`);
-      }
     }
   };
 
@@ -245,24 +257,110 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
           <span className="text-zinc-900 font-black">{email}</span>
         </p>
       </div>
-      <div className="p-6 bg-zinc-50 rounded-2xl border border-zinc-100 text-left space-y-3">
-        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Troubleshooting:</p>
-        <p className="text-zinc-600 text-[10px] italic leading-relaxed">
-          1. 请点击邮件中的确认链接（Confirm link）即可自动登录本系统。<br/>
-          2. 如果您更倾向使用“6位数字验证码”，请在 Supabase 后台 Auth -> Providers -> Email 中启用 "Enable Email OTP" 并关闭 "Confirm Email"。
-        </p>
+      
+      <div className="pt-10">
+        <button 
+          onClick={() => setAuthState('idle')} 
+          className="text-[10px] font-black text-amber-600 uppercase tracking-widest border-b border-amber-600 pb-1"
+        >
+          Try another email
+        </button>
       </div>
-      <button 
-        onClick={() => setAuthState('idle')} 
-        className="text-[10px] font-black text-amber-600 uppercase tracking-widest border-b border-amber-600 pb-1"
-      >
-        Try another email
-      </button>
     </div>
   );
 
-  if (activeSubView === 'auth_phone') return <div className="min-h-screen bg-white">{renderHeader('PHONE LOGIN')}{renderOtpInput(`${countryCode}${phone}`, 'sms')}</div>;
-  if (activeSubView === 'auth_email') return <div className="min-h-screen bg-white">{renderHeader('EMAIL LOGIN')}{authState === 'link_sent' ? renderMagicLinkSent(emailInput) : renderEmailAuth()}</div>;
+  function renderPhoneAuth() {
+    return (
+      <div className="space-y-8 animate-fade-in px-4 mt-8">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Secure Phone Number</label>
+          <div className="flex gap-2">
+             <select 
+               value={countryCode} 
+               onChange={(e) => setCountryCode(e.target.value)}
+               className="bg-zinc-50 border border-zinc-100 rounded-2xl px-4 py-5 font-black text-zinc-900 text-sm outline-none shadow-sm appearance-none max-w-[120px]"
+             >
+               {COUNTRY_CODES.map(c => (
+                 <option key={`${c.name}-${c.code}`} value={c.code}>{c.name} {c.code}</option>
+               ))}
+             </select>
+             <input 
+              type="tel" 
+              placeholder="Mobile Number" 
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="flex-1 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 py-5 font-bold text-zinc-900 text-base outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
+            />
+          </div>
+        </div>
+        
+        {errorMsg && <p className="text-red-500 text-[10px] font-black text-center animate-shake whitespace-pre-wrap">{errorMsg}</p>}
+
+        <button 
+          onClick={() => handleRequestOtp('sms')}
+          disabled={authState === 'sending' || phone.length < 5}
+          className={`w-full py-8 bg-zinc-900 text-white rounded-[2.5rem] text-[12px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-4 transition-all ${authState === 'sending' || phone.length < 5 ? 'opacity-30' : 'active:scale-[0.97]'}`}
+        >
+          {authState === 'sending' ? (
+            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+          ) : (
+            'Get Verification Code'
+          )}
+        </button>
+      </div>
+    );
+  }
+
+  function renderEmailAuth() {
+    return (
+      <div className="space-y-8 animate-fade-in px-4 mt-8">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Secure Email Address</label>
+          <input 
+            type="email" 
+            placeholder="name@company.com" 
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-8 py-5 font-bold text-zinc-900 text-base outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
+          />
+        </div>
+        
+        {errorMsg && <p className="text-red-500 text-[10px] font-black text-center animate-shake whitespace-pre-wrap">{errorMsg}</p>}
+
+        <button 
+          onClick={() => handleRequestOtp('email')}
+          disabled={authState === 'sending' || !emailInput.includes('@')}
+          className={`w-full py-8 bg-zinc-900 text-white rounded-[2.5rem] text-[12px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-4 transition-all ${authState === 'sending' || !emailInput.includes('@') ? 'opacity-30' : 'active:scale-[0.97]'}`}
+        >
+          {authState === 'sending' ? (
+            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+          ) : (
+            'Get Login Link / Code'
+          )}
+        </button>
+      </div>
+    );
+  }
+
+  if (activeSubView === 'auth_phone') {
+    return (
+      <div className="min-h-screen bg-white">
+        {renderHeader('PHONE LOGIN')}
+        {authState === 'pending' || authState === 'verifying' 
+          ? renderOtpInput(`${countryCode} ${phone}`, 'sms') 
+          : renderPhoneAuth()}
+      </div>
+    );
+  }
+
+  if (activeSubView === 'auth_email') {
+    return (
+      <div className="min-h-screen bg-white">
+        {renderHeader('EMAIL LOGIN')}
+        {authState === 'link_sent' ? renderMagicLinkSent(emailInput) : renderEmailAuth()}
+      </div>
+    );
+  }
 
   return (
     <div className="px-6 py-8 animate-fade-in space-y-10 pb-32">
@@ -305,27 +403,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
           <div className="space-y-4">
             <h3 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4 mb-2">Connect Identity</h3>
             
-            <div className="grid grid-cols-2 gap-3">
-              <button 
-                onClick={() => handleOAuthLogin('apple')}
-                className="flex flex-col items-center justify-center gap-2 px-6 py-5 bg-zinc-900 text-white rounded-[2rem] shadow-lg active:scale-95 transition-all"
-              >
-                <i className="fa-brands fa-apple text-lg"></i>
-                <span className="text-[9px] font-black uppercase tracking-widest">Apple</span>
-              </button>
-
-              <button 
-                onClick={() => handleOAuthLogin('google')}
-                className="flex flex-col items-center justify-center gap-2 px-6 py-5 bg-white border border-zinc-100 text-zinc-900 rounded-[2rem] shadow-sm active:scale-95 transition-all"
-              >
-                <i className="fa-brands fa-google text-base"></i>
-                <span className="text-[9px] font-black uppercase tracking-widest">Google</span>
-              </button>
-            </div>
-
             <button 
               onClick={() => setActiveSubView('auth_email')}
-              className="w-full flex items-center justify-between px-10 py-5 bg-white border border-zinc-100 text-zinc-500 rounded-[2rem] active:scale-95 transition-all group hover:bg-zinc-100"
+              className="w-full flex items-center justify-between px-10 py-5 bg-white border border-zinc-100 text-zinc-500 rounded-[2rem] active:scale-95 transition-all group hover:bg-zinc-100 shadow-sm"
             >
               <div className="flex flex-col items-start text-left">
                 <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1 text-zinc-900">Email Login</span>
@@ -351,14 +431,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
               </div>
             )}
             
-            {!envStatus.initialized && (
-               <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-2">
-                 <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest">环境自检 (Diagnosis):</p>
-                 <p className="text-[8px] text-amber-600 italic leading-relaxed">
-                   Supabase 配置未就绪。请确认变量名为 VITE_SUPABASE_URL，并在 Netlify 部署时选择 'Clear cache'。
-                 </p>
-               </div>
-            )}
+            <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-2">
+              <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest">环境与配置诊断 (Diagnostic):</p>
+              <p className="text-[8px] text-amber-600 italic leading-relaxed">
+                {envStatus.initialized 
+                  ? "✅ 身份认证服务已就绪。当前由于配置优化，暂时仅支持 Email 与手机号验证码登录。" 
+                  : "❌ Supabase 未配置。请在 Netlify 环境变量中设置 VITE_SUPABASE_URL 后重试。"}
+              </p>
+            </div>
           </div>
         )}
 
@@ -366,19 +446,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         <div className="space-y-4">
           <h3 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4 mb-2">Security & Privacy</h3>
           <div className="bg-white border border-zinc-100 rounded-[2rem] overflow-hidden shadow-sm">
-            <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-50">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Face ID / Biometric</span>
-                <span className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Verify identity on launch</span>
-              </div>
-              <button 
-                onClick={() => onUpdate({ faceIdEnabled: !user.faceIdEnabled })}
-                className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${user.faceIdEnabled ? 'bg-amber-500' : 'bg-zinc-200'}`}
-              >
-                <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-300 shadow-sm ${user.faceIdEnabled ? 'translate-x-6' : 'translate-x-0'}`}></div>
-              </button>
-            </div>
-            
             <div className="flex items-center justify-between px-8 py-6">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Incognito Mode</span>
@@ -429,37 +496,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       </div>
     </div>
   );
-
-  function renderEmailAuth() {
-    return (
-      <div className="space-y-8 animate-fade-in px-4 mt-8">
-        <div className="space-y-2">
-          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Secure Email Address</label>
-          <input 
-            type="email" 
-            placeholder="name@company.com" 
-            value={emailInput}
-            onChange={(e) => setEmailInput(e.target.value)}
-            className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-8 py-5 font-bold text-zinc-900 text-base outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
-          />
-        </div>
-        
-        {errorMsg && <p className="text-red-500 text-[10px] font-black text-center animate-shake whitespace-pre-wrap">{errorMsg}</p>}
-
-        <button 
-          onClick={() => handleRequestOtp('email')}
-          disabled={authState === 'sending' || !emailInput.includes('@')}
-          className={`w-full py-8 bg-zinc-900 text-white rounded-[2.5rem] text-[12px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-4 transition-all ${authState === 'sending' || !emailInput.includes('@') ? 'opacity-30' : 'active:scale-[0.97]'}`}
-        >
-          {authState === 'sending' ? (
-            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-          ) : (
-            'Get Login Link / Code'
-          )}
-        </button>
-      </div>
-    );
-  }
 };
 
 export default ProfileScreen;

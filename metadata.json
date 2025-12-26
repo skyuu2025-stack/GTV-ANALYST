@@ -3,7 +3,6 @@
   "short_name": "GTV AI",
   "description": "Professional data analytics tool for UK Global Talent Visa (GTV) eligibility. Features AI-driven evidence mapping, gap analysis, and tactical roadmap generation for Tech Nation and Arts Council routes. This is an informational assessment tool for educational purposes.",
   "requestFramePermissions": [
-    "camera",
     "geolocation"
   ],
   "apple_app_id": "com.gtvassessor.ai",

@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   name: string;
   email: string;
@@ -5,7 +6,6 @@ export interface UserProfile {
   profileImage?: string;
   isLoggedIn: boolean;
   incognitoMode?: boolean;
-  faceIdEnabled?: boolean;
   notifVisaDeadline?: boolean;
   notifAuditProgress?: boolean;
   notifPolicyChanges?: boolean;

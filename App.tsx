@@ -30,7 +30,6 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'home' | 'geo' | 'chat' | 'profile'>('home');
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
   
-  // Fully Persistent State Initialization
   const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(() => {
     const saved = localStorage.getItem('gtv_assessment_data');
     return saved ? JSON.parse(saved) : null;
@@ -55,7 +54,6 @@ const App: React.FC = () => {
       signature: '',
       isLoggedIn: false,
       incognitoMode: false,
-      faceIdEnabled: false,
       notifVisaDeadline: true,
       notifAuditProgress: true,
       notifPolicyChanges: true,
@@ -63,24 +61,20 @@ const App: React.FC = () => {
     };
   });
 
-  const [isLocked, setIsLocked] = useState(user.faceIdEnabled);
   const [error, setError] = useState<string | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const logoClicks = useRef(0);
   const lastClickTime = useRef(0);
 
-  // 1. Initial Session Check & Global Listener
   useEffect(() => {
     if (!supabase) return;
 
-    // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         handleSupabaseSession(session);
       }
     });
 
-    // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         handleSupabaseSession(session);
@@ -111,14 +105,16 @@ const App: React.FC = () => {
     };
     
     setUser(updatedUser);
+
+    if (window.location.hash || window.location.search.includes('access_token')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   };
 
-  // Sync state to LocalStorage
   useEffect(() => {
     localStorage.setItem('gtv_user_profile', JSON.stringify(user));
   }, [user]);
 
-  // Payment Recovery Logic: Detect return from Stripe
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const isPaymentSuccess = urlParams.get('success') === 'true' || localStorage.getItem('gtv_pending_payment') === 'true';
@@ -137,14 +133,6 @@ const App: React.FC = () => {
       }
     }
   }, [assessmentData, analysisResult]);
-
-  const handleVerifyBiometrics = () => {
-    const overlay = document.getElementById('biometric-overlay');
-    if (overlay) {
-      overlay.classList.add('animate-scale-down');
-      setTimeout(() => setIsLocked(false), 300);
-    }
-  };
 
   const handleFormSubmit = async (data: AssessmentData, fileNames: string[]) => {
     setError(null);
@@ -183,7 +171,6 @@ const App: React.FC = () => {
     if (logoClicks.current >= 5) setShowAdmin(true);
   };
 
-  // Method kept for legacy logic but real auth is handled by Supabase listener now
   const handleLogin = (method: string) => {
     console.debug("Manual login trigger for:", method);
   };
@@ -289,25 +276,6 @@ const App: React.FC = () => {
     <div className="flex flex-col h-full bg-[#FDFDFD]">
       <SEOManager currentStep={step} />
       
-      {isLocked && (
-        <div id="biometric-overlay" className="fixed inset-0 z-[1000] bg-white flex flex-col items-center justify-center p-8 space-y-12">
-           <div className="space-y-4 text-center">
-             <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-white text-xl mx-auto mb-6 shadow-2xl">
-               <i className="fas fa-face-viewfinder"></i>
-             </div>
-             <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900">App Locked</h2>
-             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Verify identity to access professional data</p>
-           </div>
-           
-           <button 
-             onClick={handleVerifyBiometrics}
-             className="w-full max-w-xs py-6 bg-zinc-900 text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all"
-           >
-             Unlock with Biometrics
-           </button>
-        </div>
-      )}
-
       <header className="app-header">
         <div className="flex items-center gap-2 cursor-pointer" onClick={handleLogoClick}>
           <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-white text-[10px] font-black">G</div>
