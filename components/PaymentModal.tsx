@@ -12,7 +12,6 @@ interface PaymentModalProps {
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ email, user, onSuccess, onCancel, onRegister }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showIdentityPrompt, setShowIdentityPrompt] = useState(!user.isLoggedIn);
   
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
   const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(email)}`;
@@ -54,32 +53,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, user, onSuccess, onC
               </p>
               <p className="text-[9px] text-zinc-400 mb-2 uppercase font-bold">Secure Payment Gateway</p>
             </div>
-          </div>
-        ) : showIdentityPrompt ? (
-          <div className="text-center space-y-8 py-4 animate-fade-in">
-             <div className="space-y-3">
-               <h3 className="text-lg font-black uppercase italic tracking-tighter text-zinc-900">Step 1: Identity Connection</h3>
-               <p className="text-xs text-zinc-500 font-medium italic leading-relaxed">
-                 To ensure your premium roadmap is securely tied to your professional identity, please register or connect your account before completing the purchase.
-               </p>
-             </div>
-             
-             <div className="p-6 bg-zinc-50 rounded-3xl border border-zinc-100 flex flex-col items-center gap-4">
-                <i className="fas fa-user-shield text-zinc-300 text-3xl"></i>
-                <button 
-                  onClick={onRegister}
-                  className="w-full py-5 bg-zinc-900 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-[10px] transition-all active:scale-95"
-                >
-                  Register / Connect Account
-                </button>
-             </div>
-
-             <button 
-                onClick={() => setShowIdentityPrompt(false)}
-                className="text-[9px] font-black text-zinc-300 uppercase tracking-widest hover:text-zinc-500 transition-colors"
-             >
-               Skip to Payment (Guest Mode)
-             </button>
           </div>
         ) : (
           <>
@@ -124,6 +97,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, user, onSuccess, onC
                 Back to Score
               </button>
             </div>
+            
+            {!user.isLoggedIn && (
+              <div className="mt-8 pt-8 border-t border-zinc-100 text-center">
+                 <p className="text-[10px] text-zinc-400 font-medium italic mb-4">Want to save this audit to your profile?</p>
+                 <button 
+                   onClick={onRegister}
+                   className="text-[9px] font-black text-amber-600 uppercase tracking-widest border border-amber-200 px-6 py-2 rounded-full hover:bg-amber-50 transition-all"
+                 >
+                   Register / Connect Account
+                 </button>
+              </div>
+            )}
           </>
         )}
       </div>

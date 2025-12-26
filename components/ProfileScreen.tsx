@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { UserProfile, AppStep } from '../types.ts';
-import { supabase, getEnvStatus } from '../supabaseService.ts';
+import { supabase } from '../supabaseService.ts';
 
 interface ProfileScreenProps {
   user: UserProfile;
@@ -64,8 +64,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
   const [resendTimer, setResendTimer] = useState(0);
   const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const envStatus = getEnvStatus();
 
   useEffect(() => {
     if (user.isLoggedIn) {
@@ -130,7 +128,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     }
     
     if (!supabase) {
-      setErrorMsg(envStatus.configError);
+      setErrorMsg("Security service temporarily unavailable. Please try again later.");
       return;
     }
 
@@ -430,15 +428,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
                 <i className="fas fa-exclamation-triangle mr-2"></i> {errorMsg}
               </div>
             )}
-            
-            <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-2">
-              <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest">环境与配置诊断 (Diagnostic):</p>
-              <p className="text-[8px] text-amber-600 italic leading-relaxed">
-                {envStatus.initialized 
-                  ? "✅ 身份认证服务已就绪。当前由于配置优化，暂时仅支持 Email 与手机号验证码登录。" 
-                  : "❌ Supabase 未配置。请在 Netlify 环境变量中设置 VITE_SUPABASE_URL 后重试。"}
-              </p>
-            </div>
           </div>
         )}
 

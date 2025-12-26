@@ -29,6 +29,7 @@ const App: React.FC = () => {
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<'home' | 'geo' | 'chat' | 'profile'>('home');
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   
   const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(() => {
     const saved = localStorage.getItem('gtv_assessment_data');
@@ -49,7 +50,7 @@ const App: React.FC = () => {
     if (saved) return JSON.parse(saved);
     
     return {
-      name: 'Guest User',
+      name: '',
       email: '',
       signature: '',
       isLoggedIn: false,
@@ -66,50 +67,62 @@ const App: React.FC = () => {
   const logoClicks = useRef(0);
   const lastClickTime = useRef(0);
 
-  useEffect(() => {
-    if (!supabase) return;
+  const handleSupabaseSession = useCallback((session: any) => {
+    if (!session) return;
+    const { user: sbUser } = session;
+    const metadata = sbUser.user_metadata || {};
+    
+    setUser(prev => ({
+      ...prev,
+      name: metadata.full_name || metadata.name || sbUser.email?.split('@')[0] || 'GTV User',
+      email: sbUser.email || '',
+      profileImage: metadata.avatar_url || metadata.picture,
+      isLoggedIn: true
+    }));
 
+    // Only clean URL if we are in a redirect state
+    if (window.location.hash || window.location.search.includes('access_token')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) {
+      setIsAuthChecking(false);
+      return;
+    }
+
+    // Capture potential access_token from Magic Link immediately
+    const hasToken = window.location.hash.includes('access_token') || window.location.search.includes('access_token');
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         handleSupabaseSession(session);
       }
+      // If we had a token in URL, give the listener a moment to fire
+      if (!hasToken) setIsAuthChecking(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         handleSupabaseSession(session);
+        setIsAuthChecking(false);
       } else if (event === 'SIGNED_OUT') {
         setUser(prev => ({
           ...prev,
-          name: 'Guest User',
+          name: '',
           email: '',
           isLoggedIn: false,
           profileImage: undefined
         }));
+        setIsAuthChecking(false);
+      } else {
+        setIsAuthChecking(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  const handleSupabaseSession = (session: any) => {
-    const { user: sbUser } = session;
-    const metadata = sbUser.user_metadata || {};
-    
-    const updatedUser = {
-      ...user,
-      name: metadata.full_name || metadata.name || sbUser.email?.split('@')[0] || 'GTV User',
-      email: sbUser.email || '',
-      profileImage: metadata.avatar_url || metadata.picture,
-      isLoggedIn: true
-    };
-    
-    setUser(updatedUser);
-
-    if (window.location.hash || window.location.search.includes('access_token')) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  };
+  }, [handleSupabaseSession]);
 
   useEffect(() => {
     localStorage.setItem('gtv_user_profile', JSON.stringify(user));
@@ -198,6 +211,13 @@ const App: React.FC = () => {
   };
 
   const renderActiveScreen = () => {
+    if (isAuthChecking) return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8">
+        <div className="w-10 h-10 border-4 border-zinc-900 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-[9px] font-black text-zinc-300 uppercase tracking-widest italic">Syncing Session...</p>
+      </div>
+    );
+
     if (activeTab === 'geo') return <LocalSupportFinder />;
     if (activeTab === 'chat') return <div className="p-6"><LiveChatWidget inline /></div>;
     
@@ -290,7 +310,7 @@ const App: React.FC = () => {
       </header>
 
       <main className="app-content">
-        <div className={`transition-opacity duration-300 ${isPending ? 'opacity-40' : 'opacity-100'}`}>
+        <div className={`transition-opacity duration-300 ${isPending || isAuthChecking ? 'opacity-40' : 'opacity-100'}`}>
           {renderActiveScreen()}
         </div>
       </main>
