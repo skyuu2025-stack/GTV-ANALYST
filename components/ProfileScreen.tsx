@@ -118,6 +118,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
 
   const handleRequestOtp = async (type: 'email' | 'sms') => {
     setErrorMsg(null);
+    
+    if (!supabase) {
+      setErrorMsg("Identity service unavailable. Please contact administrator to check server configuration.");
+      return;
+    }
+
     if (type === 'sms' && !phone.trim()) {
       setErrorMsg("Please enter your mobile number");
       return;
@@ -126,25 +132,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       setErrorMsg("Please enter a valid email address");
       return;
     }
-    
-    if (!supabase) {
-      setErrorMsg("Identity service is offline. Please check your internet connection.");
-      return;
-    }
 
     setAuthState('sending');
     
     try {
-      const currentOrigin = window.location.origin;
+      // Robustly determine the current origin to prevent localhost redirects
+      const currentOrigin = window.location.origin.replace(/\/$/, '');
       const payload = type === 'sms' 
         ? { phone: `${countryCode}${phone.trim().replace(/\D/g, '')}` }
-        : { email: emailInput.trim(), options: { emailRedirectTo: currentOrigin } };
+        : { email: emailInput.trim(), options: { emailRedirectTo: `${currentOrigin}/` } };
 
       const { error } = await supabase.auth.signInWithOtp(payload);
       
       if (error) {
         if (error.message.includes('SMS provider')) {
-          throw new Error("SMS Provider not configured on backend. Please use Email Login.");
+          throw new Error("SMS delivery is restricted by provider. Please use Email Login.");
         }
         throw error;
       }
@@ -158,7 +160,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       }
     } catch (err: any) {
       console.error("Auth Request Error:", err);
-      setErrorMsg(err.message || "Failed to send verification. Please try Email login instead.");
+      setErrorMsg(err.message || "Failed to initiate secure login. Please try again.");
       setAuthState('idle');
     }
   };
@@ -191,7 +193,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         }, 800);
       }
     } catch (err: any) {
-      setErrorMsg("Incorrect code. Please check and try again.");
+      setErrorMsg("Security code invalid or expired.");
       setAuthState('pending');
       setCodeDigits(['', '', '', '', '', '']);
     }
@@ -260,7 +262,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
           We've sent a secure login link to<br/>
           <span className="text-zinc-900 font-black">{email}</span>
         </p>
-        <p className="text-[9px] text-zinc-300 mt-4 italic">Please check your Spam folder if it doesn't arrive in 2 minutes.</p>
+        <p className="text-[9px] text-zinc-300 mt-4 italic leading-relaxed">If the link in your email redirects to "localhost", the system administrator needs to update the Supabase Redirect Allowlist.</p>
       </div>
       
       <div className="pt-10">

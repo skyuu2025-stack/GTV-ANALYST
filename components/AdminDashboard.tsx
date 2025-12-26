@@ -55,7 +55,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setAssessments((aRes.data || []).map(a => ({ ...a, source: 'cloud' as const })));
       } else {
         setLeads(localLeads);
-        setErrorMsg("Supabase Offline: 正在使用本地存储数据。");
+        setErrorMsg("Supabase Offline: System configuration is incomplete.");
       }
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -81,7 +81,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         <div className="grid gap-4">
           <div className="p-5 bg-white/5 rounded-2xl border border-white/10 flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <span className="text-[10px] text-zinc-500 font-black uppercase">VITE_SUPABASE_URL</span>
+              <span className="text-[10px] text-zinc-500 font-black uppercase">SUPABASE_URL</span>
               <span className={`text-[10px] font-black uppercase ${envStatus.hasUrl ? 'text-green-400' : 'text-red-400'}`}>
                 {envStatus.hasUrl ? 'Found' : 'Missing'}
               </span>
@@ -91,7 +91,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           
           <div className="p-5 bg-white/5 rounded-2xl border border-white/10 flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <span className="text-[10px] text-zinc-500 font-black uppercase">VITE_SUPABASE_ANON_KEY</span>
+              <span className="text-[10px] text-zinc-500 font-black uppercase">SUPABASE_ANON_KEY</span>
               <span className={`text-[10px] font-black uppercase ${envStatus.hasKey ? 'text-green-400' : 'text-red-400'}`}>
                 {envStatus.hasKey ? 'Found' : 'Missing'}
               </span>
@@ -99,24 +99,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         </div>
         
+        <div className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-2xl space-y-4">
+           <h4 className="text-amber-400 font-black text-xs uppercase italic tracking-tight">Fixing Redirect Issues (Localhost Error)</h4>
+           <ol className="text-zinc-400 text-[10px] italic leading-relaxed space-y-3 list-decimal pl-4 font-medium">
+             <li>Go to Supabase Dashboard -> Authentication -> URL Configuration</li>
+             <li>Add <span className="text-white">{window.location.origin}/</span> to the <span className="text-white">Redirect Allow List</span>.</li>
+             <li>Ensure <span className="text-white">Site URL</span> is set to your production domain, not localhost.</li>
+           </ol>
+        </div>
+
         {!envStatus.initialized && (
           <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl space-y-4">
-            <h4 className="text-red-400 font-black text-xs uppercase italic tracking-tight">修复指引 (Action Required)</h4>
+            <h4 className="text-red-400 font-black text-xs uppercase italic tracking-tight">Configuration Guide</h4>
             <ol className="text-zinc-400 text-[10px] italic leading-relaxed space-y-3 list-decimal pl-4 font-medium">
-              <li>前往 Netlify 后台 -> Site Configuration -> Environment variables</li>
-              <li>添加变量：<span className="text-white">VITE_SUPABASE_URL</span></li>
-              <li>添加变量：<span className="text-white">VITE_SUPABASE_ANON_KEY</span></li>
-              <li>**关键一步**：前往 Deploys -> Trigger Deploy -> <span className="text-white">Clear Cache and Deploy Site</span>。环境变量必须重新构建才能注入前端。</li>
+              <li>Add <span className="text-white">SUPABASE_URL</span> and <span className="text-white">SUPABASE_ANON_KEY</span> to your deployment environment variables.</li>
+              <li>Re-deploy the application to ensure variables are injected into the runtime.</li>
             </ol>
           </div>
         )}
-      </div>
-
-      <div className="bg-white border border-zinc-100 p-8 rounded-[2.5rem] space-y-4 shadow-sm">
-        <h3 className="text-zinc-900 font-black uppercase italic tracking-tighter">Auth Provider Status</h3>
-        <p className="text-zinc-500 text-[10px] font-bold italic leading-relaxed">
-          OAuth (Apple/Google) 依赖于您在 Supabase Dashboard 的 Auth -> Providers 选项卡中的配置。如果您已配置环境变量但点击仍报错，请确认回调域名 (Redirect URI) 已设置为当前网站地址。
-        </p>
       </div>
     </div>
   );

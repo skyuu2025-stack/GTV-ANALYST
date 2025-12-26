@@ -80,11 +80,13 @@ const App: React.FC = () => {
       isLoggedIn: true
     }));
 
-    // If we have access_token in hash, clean it up only after state is updated
+    // If we have an access token in the hash, clean it up only after the user state is set
     if (window.location.hash.includes('access_token')) {
       setTimeout(() => {
         window.history.replaceState({}, document.title, window.location.pathname);
-      }, 500);
+        // Switch to profile tab to show the user they are logged in
+        setActiveTab('profile');
+      }, 1000);
     }
   }, []);
 
@@ -94,25 +96,28 @@ const App: React.FC = () => {
       return;
     }
 
-    // Check for existing session immediately
-    const checkInitialSession = async () => {
+    // Immediate check for hash-based tokens (Magic Link)
+    const isAuthRedirect = window.location.hash.includes('access_token') || 
+                           window.location.hash.includes('recovery_token') ||
+                           window.location.search.includes('code=');
+
+    const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           handleSupabaseSession(session);
         }
       } catch (err) {
-        console.error("Session check error:", err);
+        console.error("Auth init error:", err);
       } finally {
-        // Delay finishing auth check slightly if we are processing a redirect
-        const isRedirect = window.location.hash.includes('access_token');
-        if (!isRedirect) {
+        // Only stop loading if we aren't waiting for a redirect event
+        if (!isAuthRedirect) {
           setIsAuthChecking(false);
         }
       }
     };
 
-    checkInitialSession();
+    initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
@@ -128,13 +133,18 @@ const App: React.FC = () => {
         }));
         setIsAuthChecking(false);
       } else {
-        // Ensure loader finishes even if no session
-        const isRedirect = window.location.hash.includes('access_token');
-        if (!isRedirect) setIsAuthChecking(false);
+        // Handle cases where auth might fail or be cancelled
+        if (!isAuthRedirect) setIsAuthChecking(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Safety timeout: stop showing loader after 5 seconds regardless
+    const timer = setTimeout(() => setIsAuthChecking(false), 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, [handleSupabaseSession]);
 
   useEffect(() => {
@@ -227,7 +237,7 @@ const App: React.FC = () => {
     if (isAuthChecking) return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-8">
         <div className="w-10 h-10 border-4 border-zinc-900 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-[9px] font-black text-zinc-300 uppercase tracking-widest italic">Verifying Identity...</p>
+        <p className="mt-4 text-[9px] font-black text-zinc-300 uppercase tracking-widest italic animate-pulse">Establishing Secure Session...</p>
       </div>
     );
 
