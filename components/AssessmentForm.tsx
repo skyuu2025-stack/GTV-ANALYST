@@ -1,19 +1,19 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AssessmentData } from '../types.ts';
 
 interface AssessmentFormProps {
   onSubmit: (data: AssessmentData, fileNames: string[]) => void;
   error: string | null;
+  initialData?: { name: string; email: string };
 }
 
-const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
+const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error, initialData }) => {
   const [formStep, setFormStep] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<AssessmentData>({
-    name: '',
-    email: '',
+    name: initialData?.name || '',
+    email: initialData?.email || '',
     endorsementRoute: 'Digital Technology (Technical)',
     jobTitle: '',
     yearsOfExperience: '3-10 years (Professional)',
@@ -21,6 +21,16 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
     hasEvidence: false
   });
   const [fileList, setFileList] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({
+        ...prev,
+        name: prev.name || initialData.name,
+        email: prev.email || initialData.email
+      }));
+    }
+  }, [initialData]);
 
   const handleNext = () => setFormStep(prev => prev + 1);
   const handleBack = () => setFormStep(prev => prev - 1);
@@ -101,7 +111,6 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit, error }) => {
                 <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Upload Portfolios (PDF/JPG)</p>
                 <button type="button" onClick={() => fileInputRef.current?.click()} className="mt-4 px-6 py-2 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase">Browse</button>
                 <input type="file" multiple ref={fileInputRef} className="hidden" onChange={e => {
-                  // Fix: Explicitly casting items to File to resolve 'unknown' type error in map
                   const names = Array.from(e.target.files || []).map((f: File) => f.name);
                   setFileList(names);
                   setFormData(p => ({...p, hasEvidence: true}));

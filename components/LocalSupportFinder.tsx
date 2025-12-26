@@ -91,39 +91,52 @@ const LocalSupportFinder: React.FC = () => {
                       const snippets = chunk.maps.placeAnswerSources?.reviewSnippets || [];
                       
                       return (
-                        <div key={i} className="bg-white rounded-2xl p-5 border border-zinc-100 shadow-xl group hover:border-amber-200 transition-all">
-                          <div className="flex justify-between items-start mb-3">
-                            <h4 className="text-zinc-900 font-black text-xs uppercase tracking-tight group-hover:text-amber-700 transition-colors">
-                              {chunk.maps.title || "Visa Specialist"}
-                            </h4>
-                            <a 
-                              href={chunk.maps.uri}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3 py-1 bg-zinc-50 rounded-lg text-zinc-500 text-[8px] font-black uppercase tracking-widest hover:bg-zinc-900 hover:text-white transition-all flex items-center gap-2"
-                            >
+                        <a 
+                          key={i} 
+                          href={chunk.maps.uri}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-xl group hover:border-amber-400 hover:shadow-2xl transition-all block no-underline decoration-transparent"
+                          aria-label={`View ${chunk.maps.title || "Visa Specialist"} on Google Maps`}
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="space-y-1 pr-4">
+                              <h4 className="text-zinc-900 font-black text-sm uppercase tracking-tight group-hover:text-amber-700 transition-colors">
+                                {chunk.maps.title || "Visa Specialist"}
+                              </h4>
+                              <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">GTV Legal Partner</p>
+                            </div>
+                            <div className="px-4 py-2 bg-zinc-50 rounded-xl text-zinc-500 text-[9px] font-black uppercase tracking-widest group-hover:bg-zinc-900 group-hover:text-white transition-all flex items-center gap-2 shrink-0">
                               <i className="fas fa-map-marker-alt"></i> Directions
-                            </a>
+                            </div>
                           </div>
                           
-                          {snippets.length > 0 && (
-                            <div className="space-y-2 mt-4">
-                              <p className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">Verified Feedback</p>
+                          {snippets.length > 0 ? (
+                            <div className="space-y-3 mt-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[8px] font-black text-zinc-300 uppercase tracking-[0.2em]">Verified Feedback</span>
+                                <div className="h-px flex-1 bg-zinc-50"></div>
+                              </div>
                               {snippets.slice(0, 1).map((s: any, idx: number) => (
-                                <p key={idx} className="text-zinc-600 text-[10px] italic leading-relaxed border-l-2 border-amber-100 pl-3">
+                                <p key={idx} className="text-zinc-600 text-[11px] italic leading-relaxed border-l-2 border-amber-200 pl-3">
                                   "{s.text}"
                                 </p>
                               ))}
                             </div>
+                          ) : (
+                            <p className="text-zinc-400 text-[10px] italic font-medium mt-4">Highly rated immigration consultancy in your area.</p>
                           )}
-                        </div>
+                          <div className="mt-4 flex items-center gap-2 text-[9px] font-black text-amber-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                            Open in Maps <i className="fas fa-arrow-right text-[8px]"></i>
+                          </div>
+                        </a>
                       );
                     })}
                   </div>
                   
                   <button 
                     onClick={() => setResults(null)} 
-                    className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.3em] hover:text-white transition-colors"
+                    className="w-full text-center py-4 text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em] hover:text-white transition-colors border border-white/10 rounded-2xl"
                   >
                     Reset Location Search
                   </button>

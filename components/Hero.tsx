@@ -4,9 +4,9 @@ interface HeroProps { onStart: () => void; }
 
 const Hero: React.FC<HeroProps> = ({ onStart }) => {
   return (
-    <div className="px-6 py-12 flex flex-col items-center text-center space-y-10 animate-fade-in">
-      <div className="badge-critical ring-2 ring-amber-50/50 bg-amber-50">
-        <i className="fas fa-bolt-lightning mr-2 text-amber-600"></i> 2025 AI ENGINE
+    <div className="px-6 pt-16 pb-12 flex flex-col items-center text-center space-y-10 animate-fade-in">
+      <div className="badge-critical ring-2 ring-amber-50/50 bg-amber-50 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-amber-600">
+        <i className="fas fa-bolt-lightning mr-2"></i> 2025 AI ENGINE
       </div>
       
       <div className="space-y-4">

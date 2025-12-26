@@ -33,10 +33,12 @@ const App: React.FC = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [isPremium, setIsPremium] = useState(() => sessionStorage.getItem('gtv_is_premium') === 'true');
   
-  // User Profile State
+  // Fully Persistent User Profile
   const [user, setUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('gtv_user_profile');
-    return saved ? JSON.parse(saved) : {
+    if (saved) return JSON.parse(saved);
+    
+    return {
       name: 'Guest User',
       email: '',
       signature: '',
@@ -53,19 +55,12 @@ const App: React.FC = () => {
   const logoClicks = useRef(0);
   const lastClickTime = useRef(0);
 
-  // Persist User Profile
+  // Sync state to LocalStorage
   useEffect(() => {
     localStorage.setItem('gtv_user_profile', JSON.stringify(user));
   }, [user]);
 
-  // Sync Tab with Step
-  useEffect(() => {
-    if (step === AppStep.LANDING) setActiveTab('home');
-    if (step === AppStep.FORM || step === AppStep.RESULTS_FREE || step === AppStep.RESULTS_PREMIUM) {
-       if (activeTab === 'home') setActiveTab('profile');
-    }
-  }, [step]);
-
+  // Handle Assessment Submission with Incognito Support
   const handleFormSubmit = async (data: AssessmentData, fileNames: string[]) => {
     setError(null);
     setAssessmentData(data);
@@ -73,9 +68,23 @@ const App: React.FC = () => {
 
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
-      localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
-      localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
+      
+      // Persist locally ONLY if not in incognito mode
+      if (!user.incognitoMode) {
+        localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
+        localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
+      } else {
+        localStorage.removeItem('gtv_assessment_data');
+        localStorage.removeItem('gtv_analysis_result');
+      }
+
       saveAssessment(data, result).catch(() => {});
+      
+      // Auto-update profile info for seamless UX
+      if (!user.isLoggedIn) {
+        setUser(prev => ({ ...prev, name: data.name, email: data.email }));
+      }
+
       startTransition(() => {
         setAnalysisResult(result);
         setStep(AppStep.RESULTS_FREE);
@@ -96,12 +105,18 @@ const App: React.FC = () => {
 
   const handleLogin = (method: string) => {
     startTransition(() => {
+      // Functional mock authentication mapping
+      const loginPayload = {
+        apple: { name: 'Apple ID User', email: 'verified_apple@icloud.com' },
+        google: { name: 'Google Cloud Talent', email: 'verified_google@gmail.com' },
+        phone: { name: 'Mobile User', email: user.email || 'user@mobile.gtv.ai' }
+      }[method as 'apple' | 'google' | 'phone'] || { name: 'Verified User', email: 'user@gtv.ai' };
+
       setUser(prev => ({
         ...prev,
+        ...loginPayload,
         isLoggedIn: true,
-        name: method === 'apple' ? 'Apple User' : method === 'google' ? 'Google User' : 'Mobile User',
-        email: method === 'apple' ? 'user@icloud.com' : 'user@gmail.com',
-        profileImage: `https://i.pravatar.cc/150?u=${method}`
+        profileImage: `https://i.pravatar.cc/150?u=${method}_${Date.now()}`
       }));
     });
   };
@@ -142,7 +157,7 @@ const App: React.FC = () => {
       case AppStep.LANDING:
         return <Hero onStart={() => setStep(AppStep.FORM)} />;
       case AppStep.FORM:
-        return <AssessmentForm onSubmit={handleFormSubmit} error={error} />;
+        return <AssessmentForm onSubmit={handleFormSubmit} error={error} initialData={user} />;
       case AppStep.ANALYZING:
         return <LoadingState />;
       case AppStep.RESULTS_FREE:
@@ -220,23 +235,7 @@ const App: React.FC = () => {
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id as any);
-              if (tab.id === 'home' && step !== AppStep.LANDING && step !== AppStep.FORM) {
-                 if (
-                   step === AppStep.GUIDE_GENERAL || 
-                   step === AppStep.GUIDE_FASHION || 
-                   step === AppStep.GUIDE_TECH ||
-                   step === AppStep.GUIDE_ARTS ||
-                   step === AppStep.GUIDE_ARCH ||
-                   step === AppStep.GUIDE_FILM ||
-                   step === AppStep.GUIDE_SCIENCE
-                 ) {
-                 } else {
-                   setStep(AppStep.LANDING);
-                 }
-              }
-            }}
+            onClick={() => setActiveTab(tab.id as any)}
             className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 ${activeTab === tab.id ? 'text-zinc-900' : 'text-zinc-300'}`}
           >
             <i className={`fas ${tab.icon} text-lg`}></i>
