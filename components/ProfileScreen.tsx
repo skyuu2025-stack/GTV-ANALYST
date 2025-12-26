@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { UserProfile, AppStep } from '../types.ts';
-import { supabase, signInWithGoogle, signInWithApple } from '../supabaseService.ts';
+import { supabase, signInWithGoogle, signInWithApple, getEnvStatus } from '../supabaseService.ts';
 
 interface ProfileScreenProps {
   user: UserProfile;
@@ -13,7 +13,7 @@ interface ProfileScreenProps {
 }
 
 type SubView = 'main' | 'privacy' | 'notifications' | 'help' | 'edit_profile' | 'auth_email' | 'auth_phone' | 'verify_email';
-type AuthState = 'idle' | 'sending' | 'pending' | 'verifying' | 'success';
+type AuthState = 'idle' | 'sending' | 'pending' | 'verifying' | 'success' | 'link_sent';
 
 const COUNTRY_CODES = [
   { code: '+44', name: 'UK' },
@@ -42,6 +42,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
   const [authState, setAuthState] = useState<AuthState>('idle');
   const [resendTimer, setResendTimer] = useState(0);
   const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const envStatus = getEnvStatus();
 
   useEffect(() => {
     let interval: any;
@@ -50,6 +53,25 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     }
     return () => clearInterval(interval);
   }, [resendTimer]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setErrorMsg("Image too large. Please select a file under 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdate({ profileImage: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleDigitChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -79,7 +101,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     }
     
     if (!supabase) {
-      setErrorMsg("SYSTEM OFFLINE: RE-DEPLOY ON NETLIFY AFTER SETTING VITE_ KEY PREFIX.");
+      setErrorMsg(envStatus.configError);
       return;
     }
 
@@ -88,16 +110,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     try {
       const payload = type === 'sms' 
         ? { phone: `${countryCode}${phone.trim().replace(/\D/g, '')}` }
-        : { email: emailInput.trim() };
+        : { email: emailInput.trim(), options: { emailRedirectTo: window.location.origin } };
 
       const { error } = await supabase.auth.signInWithOtp(payload);
       if (error) throw error;
       
-      setAuthState('pending');
-      setResendTimer(60);
-      setTimeout(() => digitRefs.current[0]?.focus(), 100);
+      if (type === 'email') {
+        setAuthState('link_sent');
+      } else {
+        setAuthState('pending');
+        setResendTimer(60);
+        setTimeout(() => digitRefs.current[0]?.focus(), 100);
+      }
     } catch (err: any) {
-      setErrorMsg(err.message || "Request failed. Check configuration.");
+      console.error("Auth Request Error:", err);
+      setErrorMsg(err.message || "Request failed. Please try again later.");
       setAuthState('idle');
     }
   };
@@ -124,7 +151,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       
       if (data.user) {
         setAuthState('success');
-        // Success handled by onAuthStateChange in App.tsx
         setTimeout(() => {
           setActiveSubView('main');
         }, 800);
@@ -139,14 +165,19 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
   const handleOAuthLogin = async (provider: 'google' | 'apple') => {
     setErrorMsg(null);
     try {
-      const { error } = provider === 'google' 
+      const response = provider === 'google' 
         ? await signInWithGoogle() 
         : await signInWithApple();
       
-      if (error) throw error;
-      // This will trigger a redirect. onAuthStateChange in App.tsx will catch the return.
+      if (!response) throw new Error("Service initialization failed.");
+      if (response.error) throw response.error;
     } catch (err: any) {
-      setErrorMsg(err.message || "Login failed. Check Supabase Provider settings.");
+      console.error(`OAuth ${provider} Error:`, err);
+      if (err.message && err.message.includes("VITE_")) {
+        setErrorMsg("⚠️ 配置错误：代码未读到 SUPABASE 变量。\n修复：请在 Netlify 设置变量后，重新部署并选择 'Clear cache and deploy site'。");
+      } else {
+        setErrorMsg(err.message || `Login failed. Check ${provider} configuration.`);
+      }
     }
   };
 
@@ -184,7 +215,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         ))}
       </div>
       
-      {errorMsg && <p className="text-red-500 text-[10px] font-black text-center bg-red-50 py-3 rounded-xl animate-shake">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-500 text-[10px] font-black text-center bg-red-50 py-3 rounded-xl animate-shake whitespace-pre-wrap">{errorMsg}</p>}
       
       <div className="flex flex-col items-center gap-4">
         <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">
@@ -202,121 +233,74 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     </div>
   );
 
-  const renderPhoneAuth = () => (
-    <div className="animate-fade-in space-y-10 px-4">
-      {renderHeader('IDENTITY LOGIN')}
-      <div className="space-y-8 max-w-md mx-auto">
-        {(authState === 'idle' || authState === 'sending') ? (
-          <div className="space-y-8">
-            <div className="flex gap-3">
-              <div className="w-28 h-[68px] relative bg-zinc-50 border border-zinc-100 rounded-2xl flex items-center justify-center shadow-sm">
-                <select 
-                  value={countryCode} 
-                  onChange={(e) => setCountryCode(e.target.value)} 
-                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
-                >
-                  {COUNTRY_CODES.map(c => <option key={c.code} value={c.code}>{c.name} {c.code}</option>)}
-                </select>
-                <span className="font-black text-xs text-zinc-900 tracking-tight">{countryCode}</span>
-                <i className="fas fa-chevron-down text-[8px] ml-2 text-zinc-300"></i>
-              </div>
-              <input 
-                type="tel" 
-                placeholder="Mobile Number" 
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="flex-1 bg-zinc-50 border border-zinc-100 rounded-2xl px-8 py-5 font-bold text-zinc-900 text-base outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm placeholder:text-zinc-300"
-              />
-            </div>
-
-            {errorMsg && (
-              <div className="text-red-600 text-[10px] font-black uppercase tracking-widest text-center bg-red-50 p-5 rounded-2xl border border-red-100 animate-shake">
-                {errorMsg}
-              </div>
-            )}
-
-            <button 
-              onClick={() => handleRequestOtp('sms')}
-              disabled={authState === 'sending' || !phone}
-              className={`w-full py-8 bg-zinc-900 text-white rounded-[2.5rem] text-[12px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-4 transition-all ${authState === 'sending' || !phone ? 'opacity-30' : 'active:scale-[0.97] hover:bg-black'}`}
-            >
-              {authState === 'sending' ? (
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                'Request Secure Code'
-              )}
-            </button>
-          </div>
-        ) : renderOtpInput(`${countryCode} ${phone}`, 'sms')}
+  const renderMagicLinkSent = (email: string) => (
+    <div className="space-y-12 animate-fade-in text-center py-10">
+      <div className="w-20 h-20 bg-zinc-900 rounded-3xl flex items-center justify-center text-white text-3xl mx-auto shadow-2xl mb-8">
+        <i className="fas fa-paper-plane animate-pulse"></i>
       </div>
+      <div className="space-y-3">
+        <h3 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900">Check Your Email</h3>
+        <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-[240px] mx-auto">
+          We've sent a magic login link to<br/>
+          <span className="text-zinc-900 font-black">{email}</span>
+        </p>
+      </div>
+      <div className="p-6 bg-zinc-50 rounded-2xl border border-zinc-100 text-left space-y-3">
+        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Troubleshooting:</p>
+        <p className="text-zinc-600 text-[10px] italic leading-relaxed">
+          1. 请点击邮件中的确认链接（Confirm link）即可自动登录本系统。<br/>
+          2. 如果您更倾向使用“6位数字验证码”，请在 Supabase 后台 Auth -> Providers -> Email 中启用 "Enable Email OTP" 并关闭 "Confirm Email"。
+        </p>
+      </div>
+      <button 
+        onClick={() => setAuthState('idle')} 
+        className="text-[10px] font-black text-amber-600 uppercase tracking-widest border-b border-amber-600 pb-1"
+      >
+        Try another email
+      </button>
     </div>
   );
 
-  const renderEmailAuth = () => (
-    <div className="animate-fade-in space-y-10 px-4">
-      {renderHeader('EMAIL ACCESS')}
-      <div className="space-y-8 max-w-md mx-auto">
-        {(authState === 'idle' || authState === 'sending') ? (
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] ml-2">Professional Email</label>
-              <input 
-                type="email" 
-                placeholder="name@company.com" 
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-8 py-5 font-bold text-zinc-900 text-base outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm placeholder:text-zinc-300"
-              />
-            </div>
-
-            {errorMsg && (
-              <div className="text-red-600 text-[10px] font-black uppercase tracking-widest text-center bg-red-50 p-5 rounded-2xl border border-red-100 animate-shake">
-                {errorMsg}
-              </div>
-            )}
-
-            <button 
-              onClick={() => handleRequestOtp('email')}
-              disabled={authState === 'sending' || !emailInput.includes('@')}
-              className={`w-full py-8 bg-zinc-900 text-white rounded-[2.5rem] text-[12px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-4 transition-all ${authState === 'sending' || !emailInput.includes('@') ? 'opacity-30' : 'active:scale-[0.97] hover:bg-black'}`}
-            >
-              {authState === 'sending' ? (
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                'Send Verification Link'
-              )}
-            </button>
-          </div>
-        ) : renderOtpInput(emailInput, 'email')}
-      </div>
-    </div>
-  );
-
-  if (activeSubView === 'auth_phone') return <div className="min-h-screen bg-white">{renderPhoneAuth()}</div>;
-  if (activeSubView === 'auth_email') return <div className="min-h-screen bg-white">{renderEmailAuth()}</div>;
+  if (activeSubView === 'auth_phone') return <div className="min-h-screen bg-white">{renderHeader('PHONE LOGIN')}{renderOtpInput(`${countryCode}${phone}`, 'sms')}</div>;
+  if (activeSubView === 'auth_email') return <div className="min-h-screen bg-white">{renderHeader('EMAIL LOGIN')}{authState === 'link_sent' ? renderMagicLinkSent(emailInput) : renderEmailAuth()}</div>;
 
   return (
     <div className="px-6 py-8 animate-fade-in space-y-10 pb-32">
       <div className="flex flex-col items-center text-center space-y-6">
-        <div className="w-28 h-28 bg-zinc-50 rounded-full flex items-center justify-center border-[6px] border-white shadow-2xl overflow-hidden relative">
+        <div 
+          onClick={handleAvatarClick}
+          className="group w-28 h-28 bg-zinc-50 rounded-full flex items-center justify-center border-[6px] border-white shadow-2xl overflow-hidden relative cursor-pointer active:scale-95 transition-transform ring-2 ring-zinc-50 hover:ring-amber-200"
+        >
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="image/*" 
+            onChange={handleFileChange} 
+          />
            {user.profileImage ? (
-             <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+             <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover animate-fade-in" />
            ) : (
              <i className="fas fa-user text-zinc-100 text-4xl"></i>
            )}
+           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+              <i className="fas fa-camera text-white text-xl"></i>
+           </div>
+           <div className="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full border-2 border-zinc-50 shadow-lg flex items-center justify-center">
+              <i className="fas fa-plus text-zinc-900 text-[10px]"></i>
+           </div>
         </div>
         <div className="space-y-1">
           <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 leading-none">
             {user.isLoggedIn ? user.name : 'Guest User'}
           </h2>
           <p className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em]">
-            {user.isLoggedIn ? 'Identity Connected' : 'Not Connected'}
+            {user.isLoggedIn ? 'Identity Connected' : 'Click Avatar to Activate'}
           </p>
         </div>
       </div>
 
       <div className="space-y-8 max-w-sm mx-auto w-full">
-        {/* Authentication Section */}
         {!user.isLoggedIn && (
           <div className="space-y-4">
             <h3 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4 mb-2">Connect Identity</h3>
@@ -343,28 +327,37 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
               onClick={() => setActiveSubView('auth_email')}
               className="w-full flex items-center justify-between px-10 py-5 bg-white border border-zinc-100 text-zinc-500 rounded-[2rem] active:scale-95 transition-all group hover:bg-zinc-100"
             >
-              <div className="flex flex-col items-start">
+              <div className="flex flex-col items-start text-left">
                 <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1 text-zinc-900">Email Login</span>
                 <span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">Magic Link or OTP</span>
               </div>
-              <i className="fas fa-envelope text-zinc-200 group-hover:text-zinc-400 transition-colors"></i>
+              <i className="fas fa-envelope text-zinc-200 group-hover:text-zinc-400"></i>
             </button>
             
             <button 
               onClick={() => setActiveSubView('auth_phone')}
               className="w-full flex items-center justify-between px-10 py-5 bg-zinc-50 text-zinc-500 border border-zinc-100 rounded-[2rem] active:scale-95 transition-all group hover:bg-zinc-100"
             >
-              <div className="flex flex-col items-start">
+              <div className="flex flex-col items-start text-left">
                 <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1 text-zinc-900">Mobile Login</span>
                 <span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">SMS Verification</span>
               </div>
-              <i className="fas fa-shield-halved text-zinc-200 group-hover:text-zinc-400 transition-colors"></i>
+              <i className="fas fa-shield-halved text-zinc-200 group-hover:text-zinc-400"></i>
             </button>
 
             {errorMsg && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-[9px] font-bold uppercase tracking-tight text-center border border-red-100">
-                {errorMsg}
+              <div className="p-5 bg-red-50 text-red-600 rounded-2xl text-[9px] font-black uppercase tracking-widest leading-relaxed border border-red-100 animate-shake whitespace-pre-wrap">
+                <i className="fas fa-exclamation-triangle mr-2"></i> {errorMsg}
               </div>
+            )}
+            
+            {!envStatus.initialized && (
+               <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-2">
+                 <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest">环境自检 (Diagnosis):</p>
+                 <p className="text-[8px] text-amber-600 italic leading-relaxed">
+                   Supabase 配置未就绪。请确认变量名为 VITE_SUPABASE_URL，并在 Netlify 部署时选择 'Clear cache'。
+                 </p>
+               </div>
             )}
           </div>
         )}
@@ -436,6 +429,37 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       </div>
     </div>
   );
+
+  function renderEmailAuth() {
+    return (
+      <div className="space-y-8 animate-fade-in px-4 mt-8">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Secure Email Address</label>
+          <input 
+            type="email" 
+            placeholder="name@company.com" 
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl px-8 py-5 font-bold text-zinc-900 text-base outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
+          />
+        </div>
+        
+        {errorMsg && <p className="text-red-500 text-[10px] font-black text-center animate-shake whitespace-pre-wrap">{errorMsg}</p>}
+
+        <button 
+          onClick={() => handleRequestOtp('email')}
+          disabled={authState === 'sending' || !emailInput.includes('@')}
+          className={`w-full py-8 bg-zinc-900 text-white rounded-[2.5rem] text-[12px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-4 transition-all ${authState === 'sending' || !emailInput.includes('@') ? 'opacity-30' : 'active:scale-[0.97]'}`}
+        >
+          {authState === 'sending' ? (
+            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+          ) : (
+            'Get Login Link / Code'
+          )}
+        </button>
+      </div>
+    );
+  }
 };
 
 export default ProfileScreen;

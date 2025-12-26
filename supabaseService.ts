@@ -3,27 +3,37 @@ import { createClient } from '@supabase/supabase-js';
 import { AssessmentData, AnalysisResult } from './types.ts';
 
 /**
- * Enhanced environment variable retrieval.
- * Tries VITE_ prefix first (standard for Vite), then fallbacks to raw keys.
+ * 强化版环境变量读取函数
+ * 兼容 Netlify, Vercel, Vite, Create-React-App 等多种环境
  */
 const safeGetEnv = (key: string): string => {
-  const viteKey = `VITE_${key}`;
+  const prefixes = ['VITE_', 'REACT_APP_', ''];
   
   try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
+    for (const prefix of prefixes) {
+      const fullKey = `${prefix}${key}`;
+      
+      // 1. 尝试 Vite 标准的 import.meta.env
       // @ts-ignore
-      if (import.meta.env[viteKey]) return import.meta.env[viteKey];
-      // @ts-ignore
-      if (import.meta.env[key]) return import.meta.env[key];
-    }
+      if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[fullKey]) {
+        // @ts-ignore
+        return import.meta.env[fullKey];
+      }
 
-    if (typeof process !== 'undefined' && process.env) {
-      if (process.env[viteKey]) return process.env[viteKey];
-      if (process.env[key]) return process.env[key];
+      // 2. 尝试 Node 风格的 process.env
+      if (typeof process !== 'undefined' && process.env && process.env[fullKey]) {
+        return process.env[fullKey];
+      }
+
+      // 3. 尝试全局 window 对象 (某些沙盒环境注入)
+      // @ts-ignore
+      if (typeof window !== 'undefined' && window[fullKey]) {
+        // @ts-ignore
+        return window[fullKey];
+      }
     }
   } catch (e) {
-    console.warn(`Environment lookup for ${key} failed.`);
+    console.warn(`[Supabase] Error looking up key: ${key}`, e);
   }
   return "";
 };
@@ -31,39 +41,41 @@ const safeGetEnv = (key: string): string => {
 const SUPABASE_URL = safeGetEnv('SUPABASE_URL');
 const SUPABASE_ANON_KEY = safeGetEnv('SUPABASE_ANON_KEY');
 
-// Initialize client
+// 只有当 URL 合法时才初始化客户端
 export const supabase = (SUPABASE_URL && SUPABASE_URL.startsWith('http')) 
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
   : null;
 
+/**
+ * 获取当前环境的配置状态，用于 UI 诊断
+ */
+export const getEnvStatus = () => {
+  return {
+    initialized: !!supabase,
+    hasUrl: !!SUPABASE_URL,
+    hasKey: !!SUPABASE_ANON_KEY,
+    urlValue: SUPABASE_URL ? `${SUPABASE_URL.substring(0, 15)}...` : "NONE",
+    configError: (!SUPABASE_URL || !SUPABASE_ANON_KEY) 
+      ? "缺失配置：请确保在 Netlify 后台设置了 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY 变量，并执行 Clear Cache and Deploy。" 
+      : null
+  };
+};
+
 // OAuth Login Helpers
 export const signInWithGoogle = async () => {
-  if (!supabase) return;
+  if (!supabase) return { error: new Error(getEnvStatus().configError || "Supabase 客户端未就绪") };
   return await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: {
-      redirectTo: window.location.origin
-    }
+    options: { redirectTo: window.location.origin }
   });
 };
 
 export const signInWithApple = async () => {
-  if (!supabase) return;
+  if (!supabase) return { error: new Error(getEnvStatus().configError || "Supabase 客户端未就绪") };
   return await supabase.auth.signInWithOAuth({
     provider: 'apple',
-    options: {
-      redirectTo: window.location.origin
-    }
+    options: { redirectTo: window.location.origin }
   });
-};
-
-export const getEnvStatus = () => {
-  return {
-    hasUrl: !!SUPABASE_URL && SUPABASE_URL.length > 10,
-    hasKey: !!SUPABASE_ANON_KEY && SUPABASE_ANON_KEY.length > 10,
-    urlValue: SUPABASE_URL ? `${SUPABASE_URL.substring(0, 10)}...` : "NONE",
-    isVitePrefixed: SUPABASE_URL === safeGetEnv('VITE_SUPABASE_URL')
-  };
 };
 
 export const saveLead = async (email: string) => {
@@ -123,4 +135,4 @@ export const fetchAllAssessments = async () => {
   } catch (err: any) {
     return { data: [], error: err.message };
   }
-};
+}
