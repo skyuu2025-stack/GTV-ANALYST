@@ -80,9 +80,11 @@ const App: React.FC = () => {
       isLoggedIn: true
     }));
 
-    // Only clean URL if we are in a redirect state
-    if (window.location.hash || window.location.search.includes('access_token')) {
-      window.history.replaceState({}, document.title, window.location.pathname);
+    // If we have access_token in hash, clean it up only after state is updated
+    if (window.location.hash.includes('access_token')) {
+      setTimeout(() => {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }, 500);
     }
   }, []);
 
@@ -92,16 +94,25 @@ const App: React.FC = () => {
       return;
     }
 
-    // Capture potential access_token from Magic Link immediately
-    const hasToken = window.location.hash.includes('access_token') || window.location.search.includes('access_token');
-    
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        handleSupabaseSession(session);
+    // Check for existing session immediately
+    const checkInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          handleSupabaseSession(session);
+        }
+      } catch (err) {
+        console.error("Session check error:", err);
+      } finally {
+        // Delay finishing auth check slightly if we are processing a redirect
+        const isRedirect = window.location.hash.includes('access_token');
+        if (!isRedirect) {
+          setIsAuthChecking(false);
+        }
       }
-      // If we had a token in URL, give the listener a moment to fire
-      if (!hasToken) setIsAuthChecking(false);
-    });
+    };
+
+    checkInitialSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
@@ -117,7 +128,9 @@ const App: React.FC = () => {
         }));
         setIsAuthChecking(false);
       } else {
-        setIsAuthChecking(false);
+        // Ensure loader finishes even if no session
+        const isRedirect = window.location.hash.includes('access_token');
+        if (!isRedirect) setIsAuthChecking(false);
       }
     });
 
@@ -214,7 +227,7 @@ const App: React.FC = () => {
     if (isAuthChecking) return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-8">
         <div className="w-10 h-10 border-4 border-zinc-900 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-[9px] font-black text-zinc-300 uppercase tracking-widest italic">Syncing Session...</p>
+        <p className="mt-4 text-[9px] font-black text-zinc-300 uppercase tracking-widest italic">Verifying Identity...</p>
       </div>
     );
 

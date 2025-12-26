@@ -128,7 +128,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
     }
     
     if (!supabase) {
-      setErrorMsg("Security service temporarily unavailable. Please try again later.");
+      setErrorMsg("Identity service is offline. Please check your internet connection.");
       return;
     }
 
@@ -141,7 +141,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         : { email: emailInput.trim(), options: { emailRedirectTo: currentOrigin } };
 
       const { error } = await supabase.auth.signInWithOtp(payload);
-      if (error) throw error;
+      
+      if (error) {
+        if (error.message.includes('SMS provider')) {
+          throw new Error("SMS Provider not configured on backend. Please use Email Login.");
+        }
+        throw error;
+      }
       
       if (type === 'email') {
         setAuthState('link_sent');
@@ -152,7 +158,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       }
     } catch (err: any) {
       console.error("Auth Request Error:", err);
-      setErrorMsg(err.message || "Request failed. Please try again later.");
+      setErrorMsg(err.message || "Failed to send verification. Please try Email login instead.");
       setAuthState('idle');
     }
   };
@@ -185,7 +191,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         }, 800);
       }
     } catch (err: any) {
-      setErrorMsg("Invalid code or session expired.");
+      setErrorMsg("Incorrect code. Please check and try again.");
       setAuthState('pending');
       setCodeDigits(['', '', '', '', '', '']);
     }
@@ -225,7 +231,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
         ))}
       </div>
       
-      {errorMsg && <p className="text-red-500 text-[10px] font-black text-center bg-red-50 py-3 rounded-xl animate-shake whitespace-pre-wrap">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-500 text-[10px] font-black text-center bg-red-50 py-3 rounded-xl animate-shake whitespace-pre-wrap mx-6">{errorMsg}</p>}
       
       <div className="flex flex-col items-center gap-4">
         <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">
@@ -248,12 +254,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onUpdate, onLogin, 
       <div className="w-20 h-20 bg-zinc-900 rounded-3xl flex items-center justify-center text-white text-3xl mx-auto shadow-2xl mb-8">
         <i className="fas fa-paper-plane animate-pulse"></i>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 px-6">
         <h3 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900">Check Your Email</h3>
         <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-[240px] mx-auto">
-          We've sent a magic login link to<br/>
+          We've sent a secure login link to<br/>
           <span className="text-zinc-900 font-black">{email}</span>
         </p>
+        <p className="text-[9px] text-zinc-300 mt-4 italic">Please check your Spam folder if it doesn't arrive in 2 minutes.</p>
       </div>
       
       <div className="pt-10">
