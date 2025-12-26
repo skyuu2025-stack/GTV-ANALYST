@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useTransition, useCallback, useRef } from 'react';
 import { AppStep, AssessmentData, AnalysisResult, UserProfile } from './types.ts';
 import { analyzeVisaEligibility } from './geminiService.ts';
-import { saveAssessment } from './supabaseService.ts';
+import { saveAssessment, supabase } from './supabaseService.ts';
 import Hero from './components/Hero.tsx';
 import AssessmentForm from './components/AssessmentForm.tsx';
 import LoadingState from './components/LoadingState.tsx';
@@ -22,18 +23,28 @@ import ProfileScreen from './components/ProfileScreen.tsx';
 import PrivacyPolicy from './components/PrivacyPolicy.tsx';
 import CriteriaMapping from './components/CriteriaMapping.tsx';
 import ApiDocs from './components/ApiDocs.tsx';
+import AboutUs from './components/AboutUs.tsx';
 
 const App: React.FC = () => {
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<'home' | 'geo' | 'chat' | 'profile'>('home');
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
-  const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [isPremium, setIsPremium] = useState(() => sessionStorage.getItem('gtv_is_premium') === 'true');
   
-  // Fully Persistent User Profile
+  // Fully Persistent State Initialization
+  const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(() => {
+    const saved = localStorage.getItem('gtv_assessment_data');
+    return saved ? JSON.parse(saved) : null;
+  });
+  
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(() => {
+    const saved = localStorage.getItem('gtv_analysis_result');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [isPremium, setIsPremium] = useState(() => {
+    return localStorage.getItem('gtv_is_premium') === 'true' || sessionStorage.getItem('gtv_is_premium') === 'true';
+  });
+
   const [user, setUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('gtv_user_profile');
     if (saved) return JSON.parse(saved);
@@ -44,7 +55,7 @@ const App: React.FC = () => {
       signature: '',
       isLoggedIn: false,
       incognitoMode: false,
-      faceIdEnabled: true,
+      faceIdEnabled: false,
       notifVisaDeadline: true,
       notifAuditProgress: true,
       notifPolicyChanges: true,
@@ -52,35 +63,104 @@ const App: React.FC = () => {
     };
   });
 
+  const [isLocked, setIsLocked] = useState(user.faceIdEnabled);
+  const [error, setError] = useState<string | null>(null);
+  const [showAdmin, setShowAdmin] = useState(false);
   const logoClicks = useRef(0);
   const lastClickTime = useRef(0);
+
+  // 1. Initial Session Check & Global Listener
+  useEffect(() => {
+    if (!supabase) return;
+
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        handleSupabaseSession(session);
+      }
+    });
+
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        handleSupabaseSession(session);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(prev => ({
+          ...prev,
+          name: 'Guest User',
+          email: '',
+          isLoggedIn: false,
+          profileImage: undefined
+        }));
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSupabaseSession = (session: any) => {
+    const { user: sbUser } = session;
+    const metadata = sbUser.user_metadata || {};
+    
+    const updatedUser = {
+      ...user,
+      name: metadata.full_name || metadata.name || sbUser.email?.split('@')[0] || 'GTV User',
+      email: sbUser.email || '',
+      profileImage: metadata.avatar_url || metadata.picture,
+      isLoggedIn: true
+    };
+    
+    setUser(updatedUser);
+  };
 
   // Sync state to LocalStorage
   useEffect(() => {
     localStorage.setItem('gtv_user_profile', JSON.stringify(user));
   }, [user]);
 
-  // Handle Assessment Submission with Incognito Support
+  // Payment Recovery Logic: Detect return from Stripe
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPaymentSuccess = urlParams.get('success') === 'true' || localStorage.getItem('gtv_pending_payment') === 'true';
+    
+    if (isPaymentSuccess && assessmentData && analysisResult) {
+      setIsPremium(true);
+      localStorage.setItem('gtv_is_premium', 'true');
+      localStorage.removeItem('gtv_pending_payment');
+      
+      startTransition(() => {
+        setStep(AppStep.RESULTS_PREMIUM);
+      });
+
+      if (urlParams.get('success')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, [assessmentData, analysisResult]);
+
+  const handleVerifyBiometrics = () => {
+    const overlay = document.getElementById('biometric-overlay');
+    if (overlay) {
+      overlay.classList.add('animate-scale-down');
+      setTimeout(() => setIsLocked(false), 300);
+    }
+  };
+
   const handleFormSubmit = async (data: AssessmentData, fileNames: string[]) => {
     setError(null);
     setAssessmentData(data);
+    localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
     startTransition(() => setStep(AppStep.ANALYZING));
 
     try {
       const result = await analyzeVisaEligibility(data, fileNames);
       
-      // Persist locally ONLY if not in incognito mode
       if (!user.incognitoMode) {
-        localStorage.setItem('gtv_assessment_data', JSON.stringify(data));
         localStorage.setItem('gtv_analysis_result', JSON.stringify(result));
-      } else {
-        localStorage.removeItem('gtv_assessment_data');
-        localStorage.removeItem('gtv_analysis_result');
       }
 
       saveAssessment(data, result).catch(() => {});
       
-      // Auto-update profile info for seamless UX
       if (!user.isLoggedIn) {
         setUser(prev => ({ ...prev, name: data.name, email: data.email }));
       }
@@ -103,22 +183,9 @@ const App: React.FC = () => {
     if (logoClicks.current >= 5) setShowAdmin(true);
   };
 
+  // Method kept for legacy logic but real auth is handled by Supabase listener now
   const handleLogin = (method: string) => {
-    startTransition(() => {
-      // Functional mock authentication mapping
-      const loginPayload = {
-        apple: { name: 'Apple ID User', email: 'verified_apple@icloud.com' },
-        google: { name: 'Google Cloud Talent', email: 'verified_google@gmail.com' },
-        phone: { name: 'Mobile User', email: user.email || 'user@mobile.gtv.ai' }
-      }[method as 'apple' | 'google' | 'phone'] || { name: 'Verified User', email: 'user@gtv.ai' };
-
-      setUser(prev => ({
-        ...prev,
-        ...loginPayload,
-        isLoggedIn: true,
-        profileImage: `https://i.pravatar.cc/150?u=${method}_${Date.now()}`
-      }));
-    });
+    console.debug("Manual login trigger for:", method);
   };
 
   const handleNavigate = (newStep: AppStep) => {
@@ -130,6 +197,13 @@ const App: React.FC = () => {
 
   const handleReset = () => {
     startTransition(() => {
+      localStorage.removeItem('gtv_assessment_data');
+      localStorage.removeItem('gtv_analysis_result');
+      localStorage.removeItem('gtv_is_premium');
+      localStorage.removeItem('gtv_pending_payment');
+      setAssessmentData(null);
+      setAnalysisResult(null);
+      setIsPremium(false);
       setActiveTab('home');
       setStep(AppStep.LANDING);
       setError(null);
@@ -169,15 +243,21 @@ const App: React.FC = () => {
             isPremium={step === AppStep.RESULTS_PREMIUM || isPremium} 
             onUpgrade={() => setStep(AppStep.PAYMENT)} 
           />
-        ) : null;
+        ) : <Hero onStart={() => setStep(AppStep.FORM)} />;
       case AppStep.PAYMENT:
         return assessmentData ? (
           <PaymentModal 
             email={assessmentData.email} 
-            onSuccess={() => { setIsPremium(true); sessionStorage.setItem('gtv_is_premium', 'true'); setStep(AppStep.RESULTS_PREMIUM); }} 
-            onCancel={() => setStep(AppStep.RESULTS_FREE)} 
+            user={user}
+            onSuccess={() => { 
+              setIsPremium(true); 
+              localStorage.setItem('gtv_is_premium', 'true'); 
+              setStep(AppStep.RESULTS_PREMIUM); 
+            }} 
+            onCancel={() => setStep(AppStep.RESULTS_FREE)}
+            onRegister={() => setActiveTab('profile')}
           />
-        ) : null;
+        ) : <Hero onStart={() => setStep(AppStep.FORM)} />;
       case AppStep.GUIDE_GENERAL:
         return <GuideGeneral onStart={() => setStep(AppStep.FORM)} onNavigate={handleNavigate} />;
       case AppStep.GUIDE_FASHION:
@@ -198,6 +278,8 @@ const App: React.FC = () => {
         return <CriteriaMapping onBack={() => setStep(AppStep.GUIDE_GENERAL)} />;
       case AppStep.API_DOCS:
         return <ApiDocs onBack={() => setStep(AppStep.GUIDE_GENERAL)} />;
+      case AppStep.ABOUT_US:
+        return <AboutUs onBack={() => { setActiveTab('profile'); setStep(AppStep.LANDING); }} />;
       default:
         return <Hero onStart={() => setStep(AppStep.FORM)} />;
     }
@@ -207,8 +289,27 @@ const App: React.FC = () => {
     <div className="flex flex-col h-full bg-[#FDFDFD]">
       <SEOManager currentStep={step} />
       
+      {isLocked && (
+        <div id="biometric-overlay" className="fixed inset-0 z-[1000] bg-white flex flex-col items-center justify-center p-8 space-y-12">
+           <div className="space-y-4 text-center">
+             <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-white text-xl mx-auto mb-6 shadow-2xl">
+               <i className="fas fa-face-viewfinder"></i>
+             </div>
+             <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900">App Locked</h2>
+             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Verify identity to access professional data</p>
+           </div>
+           
+           <button 
+             onClick={handleVerifyBiometrics}
+             className="w-full max-w-xs py-6 bg-zinc-900 text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all"
+           >
+             Unlock with Biometrics
+           </button>
+        </div>
+      )}
+
       <header className="app-header">
-        <div className="flex items-center gap-2" onClick={handleLogoClick}>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={handleLogoClick}>
           <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-white text-[10px] font-black">G</div>
           <span className="text-[11px] font-black uppercase tracking-widest text-zinc-800">GTV Assessor</span>
         </div>
@@ -244,7 +345,7 @@ const App: React.FC = () => {
         ))}
       </nav>
 
-      {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} isDemoMode={false} onToggleDemoMode={() => {}} />}
+      {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} />}
     </div>
   );
 };

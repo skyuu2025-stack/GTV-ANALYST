@@ -1,51 +1,68 @@
+
 import { createClient } from '@supabase/supabase-js';
 import { AssessmentData, AnalysisResult } from './types.ts';
 
 /**
- * Robust environment variable retrieval for browser environments.
- * Uses multiple fallback methods to prevent ReferenceErrors.
+ * Enhanced environment variable retrieval.
+ * Tries VITE_ prefix first (standard for Vite), then fallbacks to raw keys.
  */
 const safeGetEnv = (key: string): string => {
+  const viteKey = `VITE_${key}`;
+  
   try {
-    // 1. Try process.env with existence check
-    if (typeof process !== 'undefined' && process && process.env) {
-      if (Object.prototype.hasOwnProperty.call(process.env, key)) {
-        return (process.env as any)[key] as string;
-      }
-    }
-    
-    // 2. Try window.process.env
-    if (typeof window !== 'undefined' && (window as any).process?.env?.[key]) {
-      return (window as any).process.env[key];
+    // @ts-ignore
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // @ts-ignore
+      if (import.meta.env[viteKey]) return import.meta.env[viteKey];
+      // @ts-ignore
+      if (import.meta.env[key]) return import.meta.env[key];
     }
 
-    // 3. Fallback for common build tools
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-      // @ts-ignore
-      return import.meta.env[key];
+    if (typeof process !== 'undefined' && process.env) {
+      if (process.env[viteKey]) return process.env[viteKey];
+      if (process.env[key]) return process.env[key];
     }
   } catch (e) {
-    // Silently fail to prevent white screen
-    console.warn(`Environment retrieval for ${key} failed safely.`);
+    console.warn(`Environment lookup for ${key} failed.`);
   }
   return "";
 };
 
-const SUPABASE_URL = safeGetEnv('VITE_SUPABASE_URL');
-const SUPABASE_ANON_KEY = safeGetEnv('VITE_SUPABASE_ANON_KEY');
+const SUPABASE_URL = safeGetEnv('SUPABASE_URL');
+const SUPABASE_ANON_KEY = safeGetEnv('SUPABASE_ANON_KEY');
 
-// Initialize client only if valid parameters are present
+// Initialize client
 export const supabase = (SUPABASE_URL && SUPABASE_URL.startsWith('http')) 
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
   : null;
+
+// OAuth Login Helpers
+export const signInWithGoogle = async () => {
+  if (!supabase) return;
+  return await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
+};
+
+export const signInWithApple = async () => {
+  if (!supabase) return;
+  return await supabase.auth.signInWithOAuth({
+    provider: 'apple',
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
+};
 
 export const getEnvStatus = () => {
   return {
     hasUrl: !!SUPABASE_URL && SUPABASE_URL.length > 10,
     hasKey: !!SUPABASE_ANON_KEY && SUPABASE_ANON_KEY.length > 10,
-    urlValue: SUPABASE_URL ? `${SUPABASE_URL.substring(0, 15)}...` : "NONE",
-    debugInfo: "Ultra-Safe Browser Engine"
+    urlValue: SUPABASE_URL ? `${SUPABASE_URL.substring(0, 10)}...` : "NONE",
+    isVitePrefixed: SUPABASE_URL === safeGetEnv('VITE_SUPABASE_URL')
   };
 };
 

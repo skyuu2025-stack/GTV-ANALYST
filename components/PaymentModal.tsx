@@ -1,37 +1,27 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
+import { UserProfile } from '../types.ts';
 
 interface PaymentModalProps {
   email: string;
+  user: UserProfile;
   onSuccess: () => void;
   onCancel: () => void;
+  onRegister: () => void;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ email, user, onSuccess, onCancel, onRegister }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showIdentityPrompt, setShowIdentityPrompt] = useState(!user.isLoggedIn);
   
-  const isDemo = localStorage.getItem('gtv_demo_mode') === 'true' || sessionStorage.getItem('gtv_demo_active') === 'true';
-
   const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/5kQbIT444bzybaQbTZ1Jm00";
   const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(email)}`;
 
-  const handleDemoPayment = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      onSuccess();
-    }, 1200);
-  };
-
   const handleRealPaymentClick = (e: React.MouseEvent) => {
-    e.preventDefault();
     setIsProcessing(true);
-    
-    // Persist pending state for return journey
     localStorage.setItem('gtv_pending_payment', 'true');
     localStorage.setItem('gtv_pending_email', email);
-    
-    // Direct redirection is more robust than <a> tags in some WebViews
-    window.location.href = checkoutUrl;
+    window.location.assign(checkoutUrl);
   };
 
   return (
@@ -42,11 +32,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
       aria-labelledby="payment-modal-title"
     >
       <div className="bg-[#1a1a1a] text-white p-8 md:p-12 text-center relative overflow-hidden sticky top-0 z-10">
-        {isDemo && (
-          <div className="absolute top-0 left-0 bg-green-600 text-white px-4 py-1 text-[8px] font-black uppercase tracking-widest z-10 animate-pulse">
-            Reviewer Access
-          </div>
-        )}
         <div className="w-14 h-14 md:w-16 md:h-16 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 md:mb-6 shadow-2xl ring-4 ring-white/10 relative" aria-hidden="true">
           <i className="fas fa-crown text-white"></i>
         </div>
@@ -69,6 +54,32 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
               </p>
               <p className="text-[9px] text-zinc-400 mb-2 uppercase font-bold">Secure Payment Gateway</p>
             </div>
+          </div>
+        ) : showIdentityPrompt ? (
+          <div className="text-center space-y-8 py-4 animate-fade-in">
+             <div className="space-y-3">
+               <h3 className="text-lg font-black uppercase italic tracking-tighter text-zinc-900">Step 1: Identity Connection</h3>
+               <p className="text-xs text-zinc-500 font-medium italic leading-relaxed">
+                 To ensure your premium roadmap is securely tied to your professional identity, please register or connect your account before completing the purchase.
+               </p>
+             </div>
+             
+             <div className="p-6 bg-zinc-50 rounded-3xl border border-zinc-100 flex flex-col items-center gap-4">
+                <i className="fas fa-user-shield text-zinc-300 text-3xl"></i>
+                <button 
+                  onClick={onRegister}
+                  className="w-full py-5 bg-zinc-900 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-[10px] transition-all active:scale-95"
+                >
+                  Register / Connect Account
+                </button>
+             </div>
+
+             <button 
+                onClick={() => setShowIdentityPrompt(false)}
+                className="text-[9px] font-black text-zinc-300 uppercase tracking-widest hover:text-zinc-500 transition-colors"
+             >
+               Skip to Payment (Guest Mode)
+             </button>
           </div>
         ) : (
           <>
@@ -99,21 +110,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ email, onSuccess, onCancel 
             </div>
 
             <div className="space-y-4">
-              {isDemo ? (
-                <button 
-                  onClick={handleDemoPayment}
-                  className="w-full py-5 md:py-6 bg-green-700 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-green-800 focus:ring-4 focus:ring-green-500"
-                >
-                  Verify Reviewer Access
-                </button>
-              ) : (
-                <button 
-                  onClick={handleRealPaymentClick}
-                  className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center focus:ring-4 focus:ring-amber-500"
-                >
-                  <i className="fas fa-lock mr-2" aria-hidden="true"></i> Purchase Full Audit
-                </button>
-              )}
+              <button 
+                onClick={handleRealPaymentClick}
+                className="w-full py-5 md:py-6 bg-zinc-900 text-white font-black rounded-2xl md:rounded-3xl shadow-xl uppercase tracking-widest text-[10px] transition-all active:scale-95 hover:bg-black flex items-center justify-center text-center focus:ring-4 focus:ring-amber-500"
+              >
+                <i className="fas fa-lock mr-2" aria-hidden="true"></i> Purchase Full Audit
+              </button>
               
               <button 
                 onClick={onCancel} 

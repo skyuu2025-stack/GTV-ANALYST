@@ -57,5 +57,6 @@ export enum AppStep {
   PROFILE = 'profile',
   PRIVACY = 'privacy',
   CRITERIA = 'criteria',
-  API_DOCS = 'api_docs'
+  API_DOCS = 'api_docs',
+  ABOUT_US = 'about_us'
 }
